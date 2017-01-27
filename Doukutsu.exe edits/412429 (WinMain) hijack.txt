@@ -1,0 +1,1 @@
+E8 B6 EE FF FF	; Call DLL loader

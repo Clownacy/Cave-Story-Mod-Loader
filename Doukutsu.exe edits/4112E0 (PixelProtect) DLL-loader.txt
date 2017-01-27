@@ -1,0 +1,30 @@
+; PixelProtect killer
+31 C0	; clear eax
+40	; inc eax (small way to set eax to 1)
+C3	; return
+
+55			; push ebp
+8B EC			; mov ebp, esp
+
+; Load and run DLL
+68 0F 13 41 00		; load dll name
+FF 15 AC C0 48 00	; load dll
+85 C0			; check if NULL was returned (dll not loaded)
+74 12			; if so, skip everything and run Cave Story as normal
+
+68 11 13 41 00		; load function name
+50			; push dll HMODULE
+FF 15 34 C1 48 00	; get function
+85 C0			; check if NULL was returned (function not loaded)
+74 02			; if so, skip everything and run Cave Story as normal
+FF D0			; run function
+
+; The instruction from WinMain that we overwrote
+A1 20 8B 49 00		; load something into eax
+
+5D			; pop ebp
+
+C3			; return
+
+2E 64 6C 6C 00		; "a.dll" - DLL name
+69 6E 69 74 00		; "init" - function name
