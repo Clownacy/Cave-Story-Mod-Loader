@@ -1,11 +1,14 @@
 // OGG mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include <stdbool.h>
 #include <windows.h>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 
+void __cdecl (*PlayMusic)(const int file_id) = (void __cdecl(*)(const int))0x420EE0;
+void __cdecl (*PlayPreviousMusic)(void) = (void __cdecl(*)(void))0x420F50;
 int* const pause_flag_ptr = (int* const)0x49E468;
 int* const current_music_ptr = (int* const)0x4A57F4;
 int* const previous_music_ptr = (int* const)0x4A57FC;
@@ -79,7 +82,7 @@ void WriteJump(const int instruction_address, const void* const new_destination)
 	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address+1, &relative_address, sizeof(void*), NULL);
 }
 
-void PlayOggMusic(const int song_id)
+bool PlayOggMusic(const int song_id)
 {
 	static Mix_Music *music;
 
@@ -93,7 +96,12 @@ void PlayOggMusic(const int song_id)
 		Mix_FreeMusic(music);
 
 	music = Mix_LoadMUS(song_file_path);
+
+	if (music == NULL)
+		return false;
+
 	Mix_PlayMusic(music, (MusicList[song_id].loop_flag == SONG_PLAY_ONCE ? 0 : -1));
+	return true;
 }
 
 void __cdecl PlayMusic_new(const int music_id)
@@ -101,14 +109,16 @@ void __cdecl PlayMusic_new(const int music_id)
 	if (!music_id || music_id != *current_music_ptr)
 	{
 		*previous_music_ptr = *current_music_ptr;
-		PlayOggMusic(music_id);
+		if (!PlayOggMusic(music_id))
+			PlayMusic(music_id);
 		*current_music_ptr = music_id;
 	}
 }
 
 void __cdecl PlayPreviousMusic_new(void)
 {
-	PlayOggMusic(*previous_music_ptr);
+	if (!PlayOggMusic(*previous_music_ptr))
+		PlayPreviousMusic();
 	*current_music_ptr = *previous_music_ptr;
 }
 
@@ -138,8 +148,17 @@ __declspec(dllexport) void init(void)
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 	Mix_Init(MIX_INIT_OGG);
 	// Replace PlayMusic and PlayPreviousMusic with our custom OGG ones
-	WriteJump(0x420EE0, &PlayMusic_new);
-	WriteJump(0x420F50, &PlayPreviousMusic_new);
+	PatchCall(0x40D833, &PlayMusic_new);
+	PatchCall(0x40F756, &PlayMusic_new);
+	PatchCall(0x40FE81, &PlayMusic_new);
+	PatchCall(0x40FE96, &PlayMusic_new);
+	PatchCall(0x40FEAB, &PlayMusic_new);
+	PatchCall(0x40FEC0, &PlayMusic_new);
+	PatchCall(0x40FECC, &PlayMusic_new);
+	PatchCall(0x41038C, &PlayMusic_new);
+	PatchCall(0x41D3FF, &PlayMusic_new);
+	PatchCall(0x424330, &PlayMusic_new);
+	PatchCall(0x4243DF, &PlayPreviousMusic_new);
 	// We also need to replace the music pausing/resuming when the window focus changes
 	PatchCall(0x41330F, &WindowFocusGained_new);
 	PatchCall(0x413316, &WindowFocusLost_new);
