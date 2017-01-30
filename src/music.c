@@ -70,10 +70,10 @@ bool intro_playing;
 int current_song_id;
 Mix_Music *music_intro, *music_loop;
 
-void UnloadMusic(Mix_Music *music)
+void UnloadMusic(Mix_Music **music)
 {
-	Mix_FreeMusic(music);
-	music = NULL;
+	Mix_FreeMusic(*music);
+	*music = NULL;
 }
 
 void OggMusicEnded(void)
@@ -81,20 +81,20 @@ void OggMusicEnded(void)
 	if (intro_playing == true)
 	{
 		intro_playing = false;
-		UnloadMusic(music_intro);
+		UnloadMusic(&music_intro);
 		Mix_PlayMusic(music_loop, MusicList[current_song_id].song_flags & SONG_LOOP ? -1: 0);
 	}
 	else
 	{
-		UnloadMusic(music_loop);
+		UnloadMusic(&music_loop);
 	}
 }
 
 bool PlayOggMusic(const int song_id)
 {
 	// Kill current music
-	UnloadMusic(music_intro);
-	UnloadMusic(music_loop);
+	UnloadMusic(&music_intro);
+	UnloadMusic(&music_loop);
 
 	if (song_id == 0)
 	{
@@ -129,7 +129,6 @@ bool PlayOggMusic(const int song_id)
 	else
 	{
 		// Play single Ogg music (Cave Story WiiWare)
-		// Get filename
 		const char* const song_name = MusicList[current_song_id].song_name;
 		char song_file_path[strlen(song_name)+9+4+1];
 		strcpy(song_file_path, "data/Ogg/");
