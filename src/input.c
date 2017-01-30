@@ -186,29 +186,23 @@ void __stdcall HandleKeyRelease(const uint32_t key_code)
 
 __asm(
 "_HandleKeyPress_caller:\n"
-"	jnz	HandleKeyPress_caller_fail\n"
 "	pushl	0x10(%ebp)\n"
 "	call	_HandleKeyPress@4\n"
-"HandleKeyPress_caller_fail:\n"
-"	ret\n"
+"	jmp	0x41300E\n"
 );
 extern void HandleKeyPress_caller(void);
 
 __asm(
 "_HandleKeyRelease_caller:\n"
-"	jnz	HandleKeyRelease_caller_fail\n"
 "	pushl	0x10(%ebp)\n"
 "	call	_HandleKeyRelease@4\n"
-"HandleKeyRelease_caller_fail:\n"
-"	ret\n"
+"	jmp	0x4131B6\n"
 );
 extern void HandleKeyRelease_caller(void);
 
 void InitInput(void)
 {
 	// WASD controls
-	WriteCall(0x412CEE, HandleKeyPress_caller);
-	WriteByte(0x412CEE + 5, 0x90);	// nop
-	WriteCall(0x412CBC, HandleKeyRelease_caller);
-	WriteByte(0x412CBC + 5, 0x90);	// nop
+	WriteRelativeAddress(0x412CEE + 2, HandleKeyPress_caller);
+	WriteRelativeAddress(0x412CBC + 2, HandleKeyRelease_caller);
 }
