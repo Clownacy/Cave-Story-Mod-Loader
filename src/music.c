@@ -14,7 +14,7 @@
 
 void __cdecl (*PlayMusic)(const int file_id) = (void __cdecl(*)(const int))0x420EE0;
 void __cdecl (*PlayPreviousMusic)(void) = (void __cdecl(*)(void))0x420F50;
-int* const pause_flag_ptr = (int* const)0x49E468;
+void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 int* const current_music_ptr = (int* const)0x4A57F4;
 int* const previous_music_ptr = (int* const)0x4A57FC;
 
@@ -119,11 +119,13 @@ bool PlayOggMusic(const int song_id)
 		strcat(song_intro_file_path, "_intro.ogg");
 		strcat(song_loop_file_path, "_loop.ogg");
 
+		// Load intro and loop
 		music_intro = Mix_LoadMUS(song_intro_file_path);
 		music_loop = Mix_LoadMUS(song_loop_file_path);
 
 		intro_playing = true;
 
+		// Play intro
 		Mix_PlayMusic(music_intro, 0);
 	}
 	else
@@ -164,20 +166,14 @@ void __cdecl PlayPreviousMusic_new(void)
 
 void __cdecl WindowFocusGained_new(void)
 {
-	if (!*pause_flag_ptr)
-	{
-		*pause_flag_ptr = 1;
-		Mix_ResumeMusic();
-	}
+	Mix_ResumeMusic();
+	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 void __cdecl WindowFocusLost_new(void)
 {
-	if (*pause_flag_ptr)
-	{
-		*pause_flag_ptr = 0;
-		Mix_PauseMusic();
-	}
+	Mix_PauseMusic();
+	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 void InitMusic(void)
@@ -200,6 +196,6 @@ void InitMusic(void)
 	WriteRelativeAddress(0x424330 + 1, PlayMusic_new);
 	WriteRelativeAddress(0x4243DF + 1, PlayPreviousMusic_new);
 	// We also need to replace the music pausing/resuming when the window focus changes
-	WriteRelativeAddress(0x41330F + 1, WindowFocusGained_new);
-	WriteRelativeAddress(0x413316 + 1, WindowFocusLost_new);
+	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
+	WriteRelativeAddress(0x412BD6 + 1, WindowFocusLost_new);
 }
