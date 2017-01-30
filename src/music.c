@@ -123,6 +123,9 @@ bool PlayOggMusic(const int song_id)
 		music_intro = Mix_LoadMUS(song_intro_file_path);
 		music_loop = Mix_LoadMUS(song_loop_file_path);
 
+		if (music_intro == NULL && music_loop == NULL)
+			return false;
+
 		intro_playing = true;
 
 		// Play intro
@@ -138,6 +141,9 @@ bool PlayOggMusic(const int song_id)
 		strcat(song_file_path, ".ogg");
 
 		music_loop = Mix_LoadMUS(song_file_path);
+
+		if (music_loop == NULL)
+			return false;
 
 		intro_playing = false;
 
