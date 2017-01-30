@@ -43,22 +43,22 @@ void __stdcall HandleKeyPress(const uint32_t key_code)
 		}
 		case 'A':
 		{
-			*InputBitfield |= INPUT_LEFT | INPUT_ALT_LEFT;
+			*InputBitfield |= INPUT_LEFT;
 			break;
 		}
 		case 'D':
 		{
-			*InputBitfield |= INPUT_RIGHT | INPUT_ALT_RIGHT;
+			*InputBitfield |= INPUT_RIGHT;
 			break;
 		}
 		case 'W':
 		{
-			*InputBitfield |= INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2;
+			*InputBitfield |= INPUT_UP;
 			break;
 		}
 		case 'S':
 		{
-			*InputBitfield |= INPUT_DOWN | INPUT_ALT_DOWN;
+			*InputBitfield |= INPUT_DOWN;
 			break;
 		}
 		case 'O':
@@ -124,22 +124,22 @@ void __stdcall HandleKeyRelease(const uint32_t key_code)
 		}
 		case 'A':
 		{
-			*InputBitfield &= ~(INPUT_LEFT | INPUT_ALT_LEFT);
+			*InputBitfield &= ~INPUT_LEFT;
 			break;
 		}
 		case 'D':
 		{
-			*InputBitfield &= ~(INPUT_RIGHT | INPUT_ALT_RIGHT);
+			*InputBitfield &= ~INPUT_RIGHT;
 			break;
 		}
 		case 'W':
 		{
-			*InputBitfield &= ~(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
+			*InputBitfield &= ~INPUT_UP;
 			break;
 		}
 		case 'S':
 		{
-			*InputBitfield &= ~(INPUT_DOWN | INPUT_ALT_DOWN);
+			*InputBitfield &= ~INPUT_DOWN;
 			break;
 		}
 		case 'O':
