@@ -7,86 +7,141 @@
 #include "main.h"
 #include "music.h"
 
+#define SONG_PLAY_ONCE 0
+#define SONG_LOOP 1
+#define SONG_NOT_SPLIT 0
+#define SONG_SPLIT 2
+
 void __cdecl (*PlayMusic)(const int file_id) = (void __cdecl(*)(const int))0x420EE0;
 void __cdecl (*PlayPreviousMusic)(void) = (void __cdecl(*)(void))0x420F50;
 int* const pause_flag_ptr = (int* const)0x49E468;
 int* const current_music_ptr = (int* const)0x4A57F4;
 int* const previous_music_ptr = (int* const)0x4A57FC;
 
-enum song_loop_flag
-{
-	SONG_PLAY_ONCE,
-	SONG_LOOP
-};
-
 const struct
 {
 	const char* const song_name;
-	const enum song_loop_flag loop_flag;
+	const char song_flags;
 } MusicList[] = {
-	{"XXXX", SONG_PLAY_ONCE},
-	{"WANPAKU", SONG_LOOP},
-	{"ANZEN", SONG_LOOP},
-	{"GAMEOVER", SONG_PLAY_ONCE},
-	{"GRAVITY", SONG_LOOP},
-	{"WEED", SONG_LOOP},
-	{"MDOWN2", SONG_LOOP},
-	{"FIREEYE", SONG_LOOP},
-	{"VIVI", SONG_LOOP},
-	{"MURA", SONG_LOOP},
-	{"FANFALE1", SONG_PLAY_ONCE},
-	{"GINSUKE", SONG_LOOP},
-	{"CEMETERY", SONG_LOOP},
-	{"PLANT", SONG_LOOP},
-	{"KODOU", SONG_LOOP},
-	{"FANFALE2", SONG_PLAY_ONCE},
-	{"FANFALE3", SONG_PLAY_ONCE},
-	{"DR", SONG_LOOP},
-	{"ESCAPE", SONG_LOOP},
-	{"JENKA", SONG_LOOP},
-	{"MAZE", SONG_LOOP},
-	{"ACCESS", SONG_LOOP},
-	{"IRONH", SONG_LOOP},
-	{"GRAND", SONG_LOOP},
-	{"Curly", SONG_LOOP},
-	{"OSIDE", SONG_LOOP},
-	{"REQUIEM", SONG_LOOP},
-	{"WANPAK2", SONG_LOOP},
-	{"QUIET", SONG_LOOP},
-	{"LASTCAVE", SONG_LOOP},
-	{"BALCONY", SONG_LOOP},
-	{"LASTBTL", SONG_LOOP},
-	{"LASTBT3", SONG_LOOP},
-	{"ENDING", SONG_LOOP},
-	{"ZONBIE", SONG_LOOP},
-	{"BDOWN", SONG_LOOP},
-	{"HELL", SONG_LOOP},
-	{"JENKA2", SONG_LOOP},
-	{"MARINE", SONG_LOOP},
-	{"BALLOS", SONG_LOOP},
-	{"TOROKO", SONG_PLAY_ONCE},
-	{"WHITE", SONG_LOOP}
+	{"WANPAKU", SONG_LOOP | SONG_SPLIT},
+	{"ANZEN", SONG_LOOP | SONG_SPLIT},
+	{"GAMEOVER", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"GRAVITY", SONG_LOOP | SONG_SPLIT},
+	{"WEED", SONG_LOOP | SONG_SPLIT},
+	{"MDOWN2", SONG_LOOP | SONG_SPLIT},
+	{"FIREEYE", SONG_LOOP | SONG_SPLIT},
+	{"VIVI", SONG_LOOP | SONG_SPLIT},
+	{"MURA", SONG_LOOP | SONG_SPLIT},
+	{"FANFALE1", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"GINSUKE", SONG_LOOP | SONG_SPLIT},
+	{"CEMETERY", SONG_LOOP | SONG_SPLIT},
+	{"PLANT", SONG_LOOP | SONG_SPLIT},
+	{"KODOU", SONG_LOOP | SONG_SPLIT},
+	{"FANFALE2", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"FANFALE3", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"DR", SONG_LOOP | SONG_SPLIT},
+	{"ESCAPE", SONG_LOOP | SONG_SPLIT},
+	{"JENKA", SONG_LOOP | SONG_SPLIT},
+	{"MAZE", SONG_LOOP | SONG_SPLIT},
+	{"ACCESS", SONG_LOOP | SONG_SPLIT},
+	{"IRONH", SONG_LOOP | SONG_SPLIT},
+	{"GRAND", SONG_LOOP | SONG_SPLIT},
+	{"Curly", SONG_LOOP | SONG_SPLIT},
+	{"OSIDE", SONG_LOOP | SONG_SPLIT},
+	{"REQUIEM", SONG_LOOP | SONG_SPLIT},
+	{"WANPAK2", SONG_LOOP | SONG_SPLIT},
+	{"QUIET", SONG_LOOP | SONG_SPLIT},
+	{"LASTCAVE", SONG_LOOP | SONG_SPLIT},
+	{"BALCONY", SONG_LOOP | SONG_SPLIT},
+	{"LASTBTL", SONG_LOOP | SONG_SPLIT},
+	{"LASTBT3", SONG_LOOP | SONG_SPLIT},
+	{"ENDING", SONG_LOOP | SONG_SPLIT},
+	{"ZONBIE", SONG_LOOP | SONG_SPLIT},
+	{"BDOWN", SONG_LOOP | SONG_SPLIT},
+	{"HELL", SONG_LOOP | SONG_SPLIT},
+	{"JENKA2", SONG_LOOP | SONG_SPLIT},
+	{"MARINE", SONG_LOOP | SONG_SPLIT},
+	{"BALLOS", SONG_LOOP | SONG_SPLIT},
+	{"TOROKO", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"WHITE", SONG_LOOP | SONG_SPLIT}
 };
+
+bool intro_playing;
+int current_song_id;
+Mix_Music *music_intro, *music_loop;
+
+void UnloadMusic(Mix_Music *music)
+{
+	Mix_FreeMusic(music);
+	music = NULL;
+}
+
+void OggMusicEnded(void)
+{
+	if (intro_playing == true)
+	{
+		intro_playing = false;
+		UnloadMusic(music_intro);
+		Mix_PlayMusic(music_loop, MusicList[current_song_id].song_flags & SONG_LOOP ? -1: 0);
+	}
+	else
+	{
+		UnloadMusic(music_loop);
+	}
+}
 
 bool PlayOggMusic(const int song_id)
 {
-	static Mix_Music *music;
+	// Kill current music
+	UnloadMusic(music_intro);
+	UnloadMusic(music_loop);
 
-	const char* const song_name = MusicList[song_id].song_name;
-	char song_file_path[strlen(song_name)+9+4+1];
-	strcpy(song_file_path, "data/Ogg/");
-	strcat(song_file_path, song_name);
-	strcat(song_file_path, ".ogg");
+	if (song_id == 0)
+	{
+		// Song is XXXX, which doesn't have a file in either Ogg soundtrack
+		return true;
+	}
 
-	if (music != NULL)
-		Mix_FreeMusic(music);
+	current_song_id = song_id - 1;
 
-	music = Mix_LoadMUS(song_file_path);
+	if (MusicList[current_song_id].song_flags & SONG_SPLIT)
+	{
+		// Play split Ogg music (Cave Story 3D)
+		// Get filenames
+		const char* const song_name = MusicList[current_song_id].song_name;
+		char song_base_file_path[strlen(song_name)+11+1];
+		strcpy(song_base_file_path, "data/Ogg11/");
+		strcat(song_base_file_path, song_name);
+		char song_intro_file_path[strlen(song_base_file_path)+6+4+1];
+		char song_loop_file_path[strlen(song_base_file_path)+5+4+1];
+		strcpy(song_intro_file_path, song_base_file_path);
+		strcpy(song_loop_file_path, song_base_file_path);
+		strcat(song_intro_file_path, "_intro.ogg");
+		strcat(song_loop_file_path, "_loop.ogg");
 
-	if (music == NULL)
-		return false;
+		music_intro = Mix_LoadMUS(song_intro_file_path);
+		music_loop = Mix_LoadMUS(song_loop_file_path);
 
-	Mix_PlayMusic(music, (MusicList[song_id].loop_flag == SONG_PLAY_ONCE ? 0 : -1));
+		intro_playing = true;
+
+		Mix_PlayMusic(music_intro, 0);
+	}
+	else
+	{
+		// Play single Ogg music (Cave Story WiiWare)
+		// Get filename
+		const char* const song_name = MusicList[current_song_id].song_name;
+		char song_file_path[strlen(song_name)+9+4+1];
+		strcpy(song_file_path, "data/Ogg/");
+		strcat(song_file_path, song_name);
+		strcat(song_file_path, ".ogg");
+
+		music_loop = Mix_LoadMUS(song_file_path);
+
+		intro_playing = false;
+
+		Mix_PlayMusic(music_loop, MusicList[current_song_id].song_flags & SONG_LOOP ? -1: 0);
+	}
 	return true;
 }
 
@@ -132,6 +187,7 @@ void InitMusic(void)
 	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 	Mix_Init(MIX_INIT_OGG);
+	Mix_HookMusicFinished(OggMusicEnded);
 	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
 	WriteRelativeAddress(0x40D833 + 1, PlayMusic_new);
 	WriteRelativeAddress(0x40F756 + 1, PlayMusic_new);
