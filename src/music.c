@@ -12,11 +12,15 @@
 #define SONG_NOT_SPLIT 0
 #define SONG_SPLIT 2
 
+void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 void __cdecl (*PlayMusic)(const int file_id) = (void __cdecl(*)(const int))0x420EE0;
 void __cdecl (*PlayPreviousMusic)(void) = (void __cdecl(*)(void))0x420F50;
-void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 int* const current_music_ptr = (int* const)0x4A57F4;
 int* const previous_music_ptr = (int* const)0x4A57FC;
+
+bool intro_playing;
+int current_loop_setting;
+Mix_Music *music_intro, *music_loop;
 
 const struct
 {
@@ -66,10 +70,6 @@ const struct
 	{"WHITE", SONG_LOOP | SONG_SPLIT}
 };
 
-bool intro_playing;
-int current_song_id;
-Mix_Music *music_intro, *music_loop;
-
 void UnloadMusic(Mix_Music **music)
 {
 	Mix_FreeMusic(*music);
@@ -82,7 +82,7 @@ void OggMusicEnded(void)
 	{
 		intro_playing = false;
 		UnloadMusic(&music_intro);
-		Mix_PlayMusic(music_loop, MusicList[current_song_id].song_flags & SONG_LOOP ? -1: 0);
+		Mix_PlayMusic(music_loop, current_loop_setting);
 	}
 	else
 	{
@@ -102,13 +102,11 @@ bool PlayOggMusic(const int song_id)
 		return true;
 	}
 
-	current_song_id = song_id - 1;
-
-	if (MusicList[current_song_id].song_flags & SONG_SPLIT)
+	if (MusicList[song_id - 1].song_flags & SONG_SPLIT)
 	{
 		// Play split Ogg music (Cave Story 3D)
 		// Get filenames
-		const char* const song_name = MusicList[current_song_id].song_name;
+		const char* const song_name = MusicList[song_id - 1].song_name;
 		char song_base_file_path[strlen(song_name)+11+1];
 		strcpy(song_base_file_path, "data/Ogg11/");
 		strcat(song_base_file_path, song_name);
@@ -127,6 +125,7 @@ bool PlayOggMusic(const int song_id)
 			return false;
 
 		intro_playing = true;
+		current_loop_setting = MusicList[song_id - 1].song_flags & SONG_LOOP ? -1 : 0;
 
 		// Play intro
 		Mix_PlayMusic(music_intro, 0);
@@ -134,7 +133,7 @@ bool PlayOggMusic(const int song_id)
 	else
 	{
 		// Play single Ogg music (Cave Story WiiWare)
-		const char* const song_name = MusicList[current_song_id].song_name;
+		const char* const song_name = MusicList[song_id - 1].song_name;
 		char song_file_path[strlen(song_name)+9+4+1];
 		strcpy(song_file_path, "data/Ogg/");
 		strcat(song_file_path, song_name);
@@ -147,7 +146,7 @@ bool PlayOggMusic(const int song_id)
 
 		intro_playing = false;
 
-		Mix_PlayMusic(music_loop, MusicList[current_song_id].song_flags & SONG_LOOP ? -1: 0);
+		Mix_PlayMusic(music_loop, MusicList[song_id - 1].song_flags & SONG_LOOP ? -1 : 0);
 	}
 	return true;
 }
