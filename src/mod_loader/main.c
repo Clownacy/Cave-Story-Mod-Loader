@@ -33,7 +33,7 @@ __declspec(dllexport) void WriteCall(const int instruction_address, const void* 
 void PrintError(FILE **error_log, char *string, char *printf_arg)
 {
 	if (*error_log == NULL)
-		*error_log = fopen("error.txt", "w");
+		*error_log = fopen("mods/error.txt", "w");
 
 	fprintf(*error_log, string, printf_arg);
 }
