@@ -199,8 +199,9 @@ __asm(
 );
 extern void HandleKeyRelease_caller(void);
 
-__declspec(dllexport) void InitMod(void)
+__declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
 {
+	GetModLoaderFunctions(mod_loader_hmodule);
 	// WASD controls
 	WriteRelativeAddress(0x412CEE + 2, HandleKeyPress_caller);
 	WriteRelativeAddress(0x412CBC + 2, HandleKeyRelease_caller);

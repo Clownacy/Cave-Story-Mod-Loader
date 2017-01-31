@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
+#include <windows.h>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -223,8 +224,9 @@ void __cdecl WindowFocusLost_new(void)
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
-__declspec(dllexport) void InitMod(void)
+__declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
 {
+	GetModLoaderFunctions(mod_loader_hmodule);
 	// Setup music system
 	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);

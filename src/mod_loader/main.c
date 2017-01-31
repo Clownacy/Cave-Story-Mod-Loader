@@ -5,7 +5,7 @@
 #include <string.h>
 #include <windows.h>
 
-#include "mod_loader.h"
+HMODULE this_hmodule;
 
 __declspec(dllexport) void WriteRelativeAddress(const int instruction_address, const void* const new_destination)
 {
@@ -69,7 +69,7 @@ __declspec(dllexport) void init(void)
 		}
 
 		// Get DLL entry point
-		void (*ModInit)(void) = (void (*)(void))GetProcAddress(hmodule, "InitMod");
+		void (*ModInit)(HMODULE) = (void (*)(HMODULE))GetProcAddress(hmodule, "InitMod");
 		if (ModInit == NULL)
 		{
 			PrintError(&error_log, "Mod '%s' did not contain a valid entry point (\"InitMod\")\n", filename);
@@ -77,7 +77,7 @@ __declspec(dllexport) void init(void)
 		}
 
 		// Run mod
-		ModInit();
+		ModInit(this_hmodule);
 	}
 
 	if (error_log != NULL)
@@ -85,4 +85,10 @@ __declspec(dllexport) void init(void)
 
 	fclose(mod_list);
 	SetDllDirectory(NULL);
+}
+
+BOOL APIENTRY DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
+{
+	this_hmodule = hinstDll;
+	return TRUE;
 }

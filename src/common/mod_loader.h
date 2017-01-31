@@ -1,6 +1,14 @@
 #pragma once
 
-__declspec(dllexport) extern void WriteRelativeAddress(const int instruction_address, const void* const new_destination);
-__declspec(dllexport) extern void WriteByte(const int instruction_address, const char value);
-__declspec(dllexport) extern void WriteJump(const int instruction_address, const void* const new_destination);
-__declspec(dllexport) extern void WriteCall(const int instruction_address, const void* const new_destination);
+void (*WriteRelativeAddress)(const int instruction_address, const void* const new_destination);
+void (*WriteByte)(const int instruction_address, const char value);
+void (*WriteJump)(const int instruction_address, const void* const new_destination);
+void (*WriteCall)(const int instruction_address, const void* const new_destination);
+
+void GetModLoaderFunctions(HMODULE mod_loader_hmodule)
+{
+	WriteRelativeAddress = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteRelativeAddress");
+	WriteByte = (void (*)(const int, const char))GetProcAddress(mod_loader_hmodule, "WriteByte");
+	WriteJump = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteJump");
+	WriteCall = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
+}
