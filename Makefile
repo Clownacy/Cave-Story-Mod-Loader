@@ -1,21 +1,20 @@
 CC = gcc
 CFLAGS = -O3 -s -shared
-LIBS = -lmingw32 -lSDL2_mixer -lSDL2main -lSDL2
-OBJECTS = obj/main.o obj/60fps.o obj/input.o obj/music.o
+LIBS = -Isrc/Common
 
-all: $(OBJECTS) bin/a.dll
+all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/wasd_input.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll
 
-obj/main.o: src/main.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-obj/60fps.o: src/60fps.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-obj/input.o: src/input.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-obj/music.o: src/music.c
-	$(CC) -c $(CFLAGS) -o $@ $^
-
-bin/a.dll: $(OBJECTS)
+bin/mod_loader.dll: src/mod_loader/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+bin/mods/60fps.dll: src/60fps/main.c bin/mod_loader.dll
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+bin/mods/wasd_input.dll: src/wasd_input/main.c bin/mod_loader.dll
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+bin/mods/ogg_music_wiiware.dll: src/ogg_music/main.c bin/mod_loader.dll
+	$(CC) $(CFLAGS) -DSOUNDTRACK_WIIWARE -o $@ $^ $(LIBS) -lSDL2_mixer -lSDL2
+
+bin/mods/ogg_music_3d.dll: src/ogg_music/main.c bin/mod_loader.dll
+	$(CC) $(CFLAGS) -DSOUNDTRACK_3D -o $@ $^ $(LIBS) -lSDL2_mixer -lSDL2

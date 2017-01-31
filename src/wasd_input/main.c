@@ -1,8 +1,7 @@
 #include <stdint.h>
 #include <windows.h>
 
-#include "input.h"
-#include "main.h"
+#include "mod_loader.h"
 
 #define INPUT_QUIT		0x00008000
 #define INPUT_MAP		0x00000010
@@ -200,7 +199,7 @@ __asm(
 );
 extern void HandleKeyRelease_caller(void);
 
-void InitInput(void)
+__declspec(dllexport) void InitMod(void)
 {
 	// WASD controls
 	WriteRelativeAddress(0x412CEE + 2, HandleKeyPress_caller);

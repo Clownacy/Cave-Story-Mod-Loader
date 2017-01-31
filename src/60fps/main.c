@@ -1,7 +1,6 @@
-#include "60fps.h"
-#include "main.h"
+#include "mod_loader.h"
 
-void Init60FPS(void)
+__declspec(dllexport) void InitMod(void)
 {
 	// 60 FPS
 	WriteByte(0x40B36F, 17);
