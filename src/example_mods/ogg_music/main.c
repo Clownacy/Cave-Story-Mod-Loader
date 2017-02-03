@@ -196,19 +196,39 @@ bool PlayOggMusic(const int song_id)
 
 void __cdecl PlayMusic_new(const int music_id)
 {
-	if (!music_id || music_id != *current_music_ptr)
+	if (music_id == 0 || music_id != *current_music_ptr)
 	{
 		*previous_music_ptr = *current_music_ptr;
-		if (!PlayOggMusic(music_id))
+		if (PlayOggMusic(music_id))
+		{
+			// Ogg music played successfully,
+			// silence any org music that might be playing
+			PlayMusic(0);
+		}
+		else
+		{
+			// Ogg music failed to play,
+			// play Org instead
 			PlayMusic(music_id);
+		}
 		*current_music_ptr = music_id;
 	}
 }
 
 void __cdecl PlayPreviousMusic_new(void)
 {
-	if (!PlayOggMusic(*previous_music_ptr))
+	if (PlayOggMusic(*previous_music_ptr))
+	{
+		// Ogg music played successfully,
+		// silence any org music that might be playing
+		PlayMusic(0);
+	}
+	else
+	{
+		// Ogg music failed to play,
+		// play Org instead
 		PlayPreviousMusic();
+	}
 	*current_music_ptr = *previous_music_ptr;
 }
 
