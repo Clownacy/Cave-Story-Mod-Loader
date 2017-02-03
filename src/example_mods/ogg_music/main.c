@@ -179,7 +179,7 @@ bool PlayOggMusic(const int song_id)
 			return false;
 
 		intro_playing = true;
-		current_loop_setting = MusicList[song_id - 1].song_flags & SONG_LOOP ? -1 : 0;
+		current_loop_setting = (MusicList[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0;
 
 		// Play intro
 		Mix_PlayMusic(music_intro, 0);
@@ -199,7 +199,7 @@ bool PlayOggMusic(const int song_id)
 
 		intro_playing = false;
 
-		Mix_PlayMusic(music_loop, MusicList[song_id - 1].song_flags & SONG_LOOP ? -1 : 0);
+		Mix_PlayMusic(music_loop, (MusicList[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0);
 	}
 	return true;
 }
