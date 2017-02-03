@@ -12,11 +12,21 @@
 #define SONG_NOT_SPLIT 0
 #define SONG_SPLIT 2
 
+// Variables
+int* const current_music = (int* const)0x4A57F4;
+int* const previous_music = (int* const)0x4A57FC;
+int* const previous_song_last_position = (int* const)0x4A57F8;
+
+// String array
+const char* const * const OrgMusicList = (const char* const * const)0x4981E8;
+
+// Functions
+int (*GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
 void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
-void __cdecl (*PlayMusic)(const int file_id) = (void __cdecl(*)(const int))0x420EE0;
-void __cdecl (*PlayPreviousMusic)(void) = (void __cdecl(*)(void))0x420F50;
-int* const current_music_ptr = (int* const)0x4A57F4;
-int* const previous_music_ptr = (int* const)0x4A57FC;
+void (*LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;
+void (*SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
+void (*SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
+void (*sub_41C790)(void) = (void(*)(void))0x41C790;
 
 bool intro_playing;
 int current_loop_setting;
@@ -194,42 +204,61 @@ bool PlayOggMusic(const int song_id)
 	return true;
 }
 
+void PlayOrgMusic(const int music_id)
+{
+	*previous_song_last_position = GetOrgMusicPosition();
+	sub_41C7F0();
+	LoadOrgMusic(OrgMusicList[music_id]);
+	SetOrgVolume(100);
+	SetOrgMusicPosition(0);
+	sub_41C790();
+}
+
+void PlayPreviousOrgMusic(void)
+{
+	sub_41C7F0();
+	LoadOrgMusic(OrgMusicList[*previous_song_last_position]);
+	SetOrgMusicPosition(*previous_song_last_position);
+	SetOrgVolume(100);
+	sub_41C790();
+}
+
 void __cdecl PlayMusic_new(const int music_id)
 {
-	if (music_id == 0 || music_id != *current_music_ptr)
+	if (music_id == 0 || music_id != *current_music)
 	{
-		*previous_music_ptr = *current_music_ptr;
+		*previous_music = *current_music;
 		if (PlayOggMusic(music_id))
 		{
 			// Ogg music played successfully,
 			// silence any org music that might be playing
-			PlayMusic(0);
+			PlayOrgMusic(0);
 		}
 		else
 		{
 			// Ogg music failed to play,
 			// play Org instead
-			PlayMusic(music_id);
+			PlayOrgMusic(music_id);
 		}
-		*current_music_ptr = music_id;
+		*current_music = music_id;
 	}
 }
 
 void __cdecl PlayPreviousMusic_new(void)
 {
-	if (PlayOggMusic(*previous_music_ptr))
+	if (PlayOggMusic(*previous_music))
 	{
 		// Ogg music played successfully,
 		// silence any org music that might be playing
-		PlayMusic(0);
+		PlayOrgMusic(0);
 	}
 	else
 	{
 		// Ogg music failed to play,
 		// play Org instead
-		PlayPreviousMusic();
+		PlayPreviousOrgMusic();
 	}
-	*current_music_ptr = *previous_music_ptr;
+	*current_music = *previous_music;
 }
 
 void __cdecl WindowFocusGained_new(void)
