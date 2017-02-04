@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -O3 -s -shared
 LIBS = -Isrc/common
 
-all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll
+all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll bin/mods/ikachan_cursor.dll
 
 bin/mod_loader.dll: src/mod_loader/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
@@ -20,4 +20,7 @@ bin/mods/sdl_controller_input.dll: src/example_mods/sdl_controller_input/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -lSDL2
 
 bin/mods/wasd_input.dll: src/example_mods/wasd_input/main.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+bin/mods/ikachan_cursor.dll: src/example_mods/ikachan_cursor/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
