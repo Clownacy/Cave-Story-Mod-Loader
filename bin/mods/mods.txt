@@ -1,3 +1,6 @@
-60fps.dll
-ogg_music_3d.dll
-wasd_input.dll
+60fps
+debug_save
+ikachan_cursor
+ogg_music_3d
+sdl_controller_input
+wasd_input
