@@ -7,29 +7,6 @@
 
 HMODULE this_hmodule;
 
-__declspec(dllexport) void WriteRelativeAddress(const int instruction_address, const void* const new_destination)
-{
-	const int relative_address = (int)new_destination - (instruction_address + 4);
-	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &relative_address, 4, NULL);
-}
-
-__declspec(dllexport) void WriteByte(const int instruction_address, const char value)
-{
-	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &value, 1, NULL);
-}
-
-__declspec(dllexport) void WriteJump(const int instruction_address, const void* const new_destination)
-{
-	WriteByte(instruction_address, 0xE9);
-	WriteRelativeAddress(instruction_address + 1, new_destination);
-}
-
-__declspec(dllexport) void WriteCall(const int instruction_address, const void* const new_destination)
-{
-	WriteByte(instruction_address, 0xE8);
-	WriteRelativeAddress(instruction_address + 1, new_destination);
-}
-
 void PrintError(FILE **error_log, char *string, char *printf_arg)
 {
 	if (*error_log == NULL)
@@ -89,6 +66,8 @@ __declspec(dllexport) void init(void)
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 {
-	this_hmodule = hinstDll;
+	if (fdwReason == DLL_PROCESS_ATTACH)
+		this_hmodule = hinstDll;
+
 	return TRUE;
 }

@@ -273,6 +273,11 @@ void __cdecl WindowFocusLost_new(void)
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
+/*void __cdecl FadeMusic(void)
+{
+	Mix_FadeOutMusic
+}*/
+
 __declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
 {
 	GetModLoaderFunctions(mod_loader_hmodule);
