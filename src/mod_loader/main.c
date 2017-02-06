@@ -46,15 +46,15 @@ __declspec(dllexport) void init(void)
 		}
 
 		// Get DLL entry point
-		void (*ModInit)(HMODULE) = (void (*)(HMODULE))GetProcAddress(hmodule, "InitMod");
-		if (ModInit == NULL)
+		void (*ModEntry)(HMODULE) = (void (*)(HMODULE))GetProcAddress(hmodule, "ModEntry");
+		if (ModEntry == NULL)
 		{
-			PrintError(&error_log, "Mod '%s' did not contain a valid entry point (\"InitMod\")\n", filename);
+			PrintError(&error_log, "Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
 			continue;
 		}
 
 		// Run mod
-		ModInit(this_hmodule);
+		ModEntry(this_hmodule);
 	}
 
 	if (error_log != NULL)

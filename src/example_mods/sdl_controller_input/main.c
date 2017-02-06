@@ -115,10 +115,8 @@ __cdecl void ProcessControllerEvents(void)
 	}
 }
 
-__declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
+void InitMod(void)
 {
-	GetModLoaderFunctions(mod_loader_hmodule);
-
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	// Grab all controllers that were plugged-in before the game was started

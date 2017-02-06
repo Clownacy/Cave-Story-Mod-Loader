@@ -278,9 +278,8 @@ void __cdecl WindowFocusLost_new(void)
 	Mix_FadeOutMusic
 }*/
 
-__declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
+void InitMod(void)
 {
-	GetModLoaderFunctions(mod_loader_hmodule);
 	// Setup music system
 	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);

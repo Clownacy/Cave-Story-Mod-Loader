@@ -180,9 +180,8 @@ __asm(
 );
 extern void HandleKeyRelease_caller(void);
 
-__declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
+void InitMod(void)
 {
-	GetModLoaderFunctions(mod_loader_hmodule);
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// WASD controls
