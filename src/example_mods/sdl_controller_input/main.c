@@ -90,22 +90,22 @@ __cdecl void ProcessControllerEvents(void)
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_UP:
 					{
-						DoButton(INPUT_UP);
+						DoButton(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
 					{
-						DoButton(INPUT_DOWN);
+						DoButton(INPUT_DOWN | INPUT_ALT_DOWN);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
 					{
-						DoButton(INPUT_LEFT);
+						DoButton(INPUT_LEFT | INPUT_ALT_LEFT);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
 					{
-						DoButton(INPUT_RIGHT);
+						DoButton(INPUT_RIGHT | INPUT_ALT_RIGHT);
 						break;
 					}
 				}
@@ -132,6 +132,8 @@ __declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
 		}
 	}
 
+	// Fix door-opening bug, so I can map both down keys at once
+	FixDoorEnterBug();
 	// NOP-out call to DirectInput init function
 	WriteByte(0x420EF6, 0x90);
 	WriteByte(0x420EF6 + 1, 0x90);

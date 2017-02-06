@@ -1,7 +1,7 @@
 #include "controls.h"
 #include "patch.h"
 
-__cdecl const int TestOnlyDownPressed(void)
+__stdcall const int TestOnlyDownPressed(void)
 {
 	// What this monster does is check for if only the down key is pressed.
 	// The difference this has from the regular code in Cave Story
@@ -24,7 +24,7 @@ __cdecl const int TestOnlyDownPressed(void)
 
 __asm(
 "_TestOnlyDownPressed_asm:\n"
-"call	_TestOnlyDownPressed\n"
+"call	_TestOnlyDownPressed@0\n"
 "or	%eax, %eax\n"
 "jz	0x415826\n"
 "jmp	0x4157F3\n"

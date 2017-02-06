@@ -23,22 +23,22 @@ void __stdcall HandleKeyPress(const uint32_t key_code)
 		}
 		case 'A':
 		{
-			*InputBitfield |= INPUT_LEFT;
+			*InputBitfield |= (INPUT_LEFT | INPUT_ALT_LEFT);
 			break;
 		}
 		case 'D':
 		{
-			*InputBitfield |= INPUT_RIGHT;
+			*InputBitfield |= (INPUT_RIGHT | INPUT_ALT_RIGHT);
 			break;
 		}
 		case 'W':
 		{
-			*InputBitfield |= INPUT_UP;
+			*InputBitfield |= (INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 			break;
 		}
 		case 'S':
 		{
-			*InputBitfield |= INPUT_DOWN;
+			*InputBitfield |= (INPUT_DOWN | INPUT_ALT_DOWN);
 			break;
 		}
 		case 'O':
@@ -104,22 +104,22 @@ void __stdcall HandleKeyRelease(const uint32_t key_code)
 		}
 		case 'A':
 		{
-			*InputBitfield &= ~INPUT_LEFT;
+			*InputBitfield &= ~(INPUT_LEFT | INPUT_ALT_LEFT);
 			break;
 		}
 		case 'D':
 		{
-			*InputBitfield &= ~INPUT_RIGHT;
+			*InputBitfield &= ~(INPUT_RIGHT | INPUT_ALT_RIGHT);
 			break;
 		}
 		case 'W':
 		{
-			*InputBitfield &= ~INPUT_UP;
+			*InputBitfield &= ~(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 			break;
 		}
 		case 'S':
 		{
-			*InputBitfield &= ~INPUT_DOWN;
+			*InputBitfield &= ~(INPUT_DOWN | INPUT_ALT_DOWN);
 			break;
 		}
 		case 'O':
@@ -183,6 +183,8 @@ extern void HandleKeyRelease_caller(void);
 __declspec(dllexport) void InitMod(HMODULE mod_loader_hmodule)
 {
 	GetModLoaderFunctions(mod_loader_hmodule);
+	// Fix door-opening bug, so I can map both down keys at once
+	FixDoorEnterBug();
 	// WASD controls
 	WriteRelativeAddress(0x412CEE + 2, HandleKeyPress_caller);
 	WriteRelativeAddress(0x412CBC + 2, HandleKeyRelease_caller);
