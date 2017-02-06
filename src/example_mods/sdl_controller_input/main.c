@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include "SDL2/SDL.h"
 
 #include "controls.h"

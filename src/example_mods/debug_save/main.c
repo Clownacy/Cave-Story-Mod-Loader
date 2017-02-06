@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include "mod_loader.h"
 
 void InitMod(void)

@@ -1,5 +1,3 @@
-#include <windows.h>
-
 #include "mod_loader.h"
 
 const char* const CURSOR_IKA = "CURSOR_IKA";

@@ -1,13 +1,10 @@
-#include <stdint.h>
-#include <windows.h>
-
 #include "controls.h"
 #include "mod_loader.h"
 
-uint32_t* const InputBitfield = (uint32_t* const)0x49E210;
-uint32_t* const GamePadEnabled = (uint32_t* const)0x49E45C;
+int* const InputBitfield = (int* const)0x49E210;
+int* const GamePadEnabled = (int* const)0x49E45C;
 
-void __stdcall HandleKeyPress(const uint32_t key_code)
+void __stdcall HandleKeyPress(const int key_code)
 {
 	switch(key_code)
 	{
@@ -88,7 +85,7 @@ void __stdcall HandleKeyPress(const uint32_t key_code)
 	}
 }
 
-void __stdcall HandleKeyRelease(const uint32_t key_code)
+void __stdcall HandleKeyRelease(const int key_code)
 {
 	switch(key_code)
 	{
