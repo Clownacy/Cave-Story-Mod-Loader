@@ -124,6 +124,7 @@ const struct
 
 void UnloadMusic(Mix_Music **music)
 {
+	Mix_HaltMusic();
 	Mix_FreeMusic(*music);
 	*music = NULL;
 }
@@ -275,6 +276,7 @@ void __cdecl FadeMusic_new(void)
 	int* const music_fade_flag = (void*)0x4A4E10;
 
 	*music_fade_flag = 1;
+	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
 	Mix_FadeOutMusic(1000 * 5);
 }
 
