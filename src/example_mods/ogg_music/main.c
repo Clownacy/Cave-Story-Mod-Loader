@@ -6,10 +6,8 @@
 
 #include "mod_loader.h"
 
-#define SONG_PLAY_ONCE 0
-#define SONG_LOOP 1
-#define SONG_NOT_SPLIT 0
-#define SONG_SPLIT 2
+#define SONG_LOOP (1<<0)
+#define SONG_SPLIT (1<<1)
 
 // Variables
 int* const current_music = (int* const)0x4A57F4;
@@ -39,20 +37,20 @@ const struct
 #ifdef SOUNDTRACK_3D
 	{"data/Ogg11/WANPAKU", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/ANZEN", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/GAMEOVER", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"data/Ogg11/GAMEOVER", SONG_SPLIT},
 	{"data/Ogg11/GRAVITY", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/WEED", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/MDOWN2", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/FIREEYE", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/VIVI", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/MURA", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/FANFALE1", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"data/Ogg11/FANFALE1", SONG_SPLIT},
 	{"data/Ogg11/GINSUKE", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/CEMETERY", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/PLANT", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/KODOU", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/FANFALE3", SONG_PLAY_ONCE | SONG_SPLIT},
-	{"data/Ogg11/FANFALE2", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"data/Ogg11/FANFALE3", SONG_SPLIT},
+	{"data/Ogg11/FANFALE2", SONG_SPLIT},
 	{"data/Ogg11/DR", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/ESCAPE", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/JENKA", SONG_LOOP | SONG_SPLIT},
@@ -67,7 +65,7 @@ const struct
 	{"data/Ogg11/QUIET", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/LASTCAVE", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/BALCONY", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/LASTBTL", SONG_LOOP | SONG_NOT_SPLIT},
+	{"data/Ogg11/LASTBTL", SONG_LOOP},
 	{"data/Ogg11/LASTBT3", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/ENDING", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/ZONBIE", SONG_LOOP | SONG_SPLIT},
@@ -76,51 +74,51 @@ const struct
 	{"data/Ogg11/JENKA2", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/MARINE", SONG_LOOP | SONG_SPLIT},
 	{"data/Ogg11/BALLOS", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/TOROKO", SONG_PLAY_ONCE | SONG_SPLIT},
+	{"data/Ogg11/TOROKO", SONG_SPLIT},
 	{"data/Ogg11/WHITE", SONG_LOOP | SONG_SPLIT}
 #endif
 #ifdef SOUNDTRACK_WIIWARE
-	{"data/Ogg/WANPAKU", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/ANZEN", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/GAMEOVER", SONG_PLAY_ONCE | SONG_NOT_SPLIT},
-	{"data/Ogg/GRAVITY", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/WEED", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/MDOWN2", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/FIREEYE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/VIVI", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/MURA", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/FANFALE1", SONG_PLAY_ONCE | SONG_NOT_SPLIT},
-	{"data/Ogg/GINSUKE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/CEMETERY", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/PLANT", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/KODOU", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/FANFALE3", SONG_PLAY_ONCE | SONG_NOT_SPLIT},
-	{"data/Ogg/FANFALE2", SONG_PLAY_ONCE | SONG_NOT_SPLIT},
-	{"data/Ogg/DR", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/ESCAPE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/JENKA", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/MAZE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/ACCESS", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/IRONH", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/GRAND", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/Curly", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/OSIDE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/REQUIEM", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/WANPAK2", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/QUIET", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/LASTCAVE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/BALCONY", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/LASTBTL", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/LASTBT3", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/ENDING", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/ZONBIE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/BDOWN", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/HELL", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/JENKA2", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/MARINE", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/BALLOS", SONG_LOOP | SONG_NOT_SPLIT},
-	{"data/Ogg/TOROKO", SONG_PLAY_ONCE | SONG_NOT_SPLIT},
-	{"data/Ogg/WHITE", SONG_LOOP | SONG_NOT_SPLIT}
+	{"data/Ogg/WANPAKU", SONG_LOOP},
+	{"data/Ogg/ANZEN", SONG_LOOP},
+	{"data/Ogg/GAMEOVER", 0},
+	{"data/Ogg/GRAVITY", SONG_LOOP},
+	{"data/Ogg/WEED", SONG_LOOP},
+	{"data/Ogg/MDOWN2", SONG_LOOP},
+	{"data/Ogg/FIREEYE", SONG_LOOP},
+	{"data/Ogg/VIVI", SONG_LOOP},
+	{"data/Ogg/MURA", SONG_LOOP},
+	{"data/Ogg/FANFALE1", 0},
+	{"data/Ogg/GINSUKE", SONG_LOOP},
+	{"data/Ogg/CEMETERY", SONG_LOOP},
+	{"data/Ogg/PLANT", SONG_LOOP},
+	{"data/Ogg/KODOU", SONG_LOOP},
+	{"data/Ogg/FANFALE3", 0},
+	{"data/Ogg/FANFALE2", 0},
+	{"data/Ogg/DR", SONG_LOOP},
+	{"data/Ogg/ESCAPE", SONG_LOOP},
+	{"data/Ogg/JENKA", SONG_LOOP},
+	{"data/Ogg/MAZE", SONG_LOOP},
+	{"data/Ogg/ACCESS", SONG_LOOP},
+	{"data/Ogg/IRONH", SONG_LOOP},
+	{"data/Ogg/GRAND", SONG_LOOP},
+	{"data/Ogg/Curly", SONG_LOOP},
+	{"data/Ogg/OSIDE", SONG_LOOP},
+	{"data/Ogg/REQUIEM", SONG_LOOP},
+	{"data/Ogg/WANPAK2", SONG_LOOP},
+	{"data/Ogg/QUIET", SONG_LOOP},
+	{"data/Ogg/LASTCAVE", SONG_LOOP},
+	{"data/Ogg/BALCONY", SONG_LOOP},
+	{"data/Ogg/LASTBTL", SONG_LOOP},
+	{"data/Ogg/LASTBT3", SONG_LOOP},
+	{"data/Ogg/ENDING", SONG_LOOP},
+	{"data/Ogg/ZONBIE", SONG_LOOP},
+	{"data/Ogg/BDOWN", SONG_LOOP},
+	{"data/Ogg/HELL", SONG_LOOP},
+	{"data/Ogg/JENKA2", SONG_LOOP},
+	{"data/Ogg/MARINE", SONG_LOOP},
+	{"data/Ogg/BALLOS", SONG_LOOP},
+	{"data/Ogg/TOROKO", 0},
+	{"data/Ogg/WHITE", SONG_LOOP}
 #endif
 };
 
@@ -274,9 +272,9 @@ void __cdecl WindowFocusLost_new(void)
 
 void __cdecl FadeMusic_new(void)
 {
-	int (*music_fade_flag) = (void*)0x4A4E10;
+	int* const music_fade_flag = (void*)0x4A4E10;
 
-	music_fade_flag = 1;
+	*music_fade_flag = 1;
 	Mix_FadeOutMusic(1000 * 5);
 }
 
@@ -300,8 +298,8 @@ void InitMod(void)
 	WriteRelativeAddress(0x424330 + 1, PlayMusic_new);
 	WriteRelativeAddress(0x4243DF + 1, PlayPreviousMusic_new);
 	// We also need to replace the music pausing/resuming when the window focus changes
-	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
 	WriteRelativeAddress(0x412BD6 + 1, WindowFocusLost_new);
+	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
 	// Patch fading
 	WriteRelativeAddress(0x40D84F + 1, FadeMusic_new);
 	WriteRelativeAddress(0x42438A + 1, FadeMusic_new);
