@@ -272,10 +272,13 @@ void __cdecl WindowFocusLost_new(void)
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
-/*void __cdecl FadeMusic(void)
+void __cdecl FadeMusic_new(void)
 {
-	Mix_FadeOutMusic
-}*/
+	int (*music_fade_flag) = (void*)0x4A4E10;
+
+	music_fade_flag = 1;
+	Mix_FadeOutMusic(1000 * 5);
+}
 
 void InitMod(void)
 {
@@ -299,4 +302,7 @@ void InitMod(void)
 	// We also need to replace the music pausing/resuming when the window focus changes
 	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
 	WriteRelativeAddress(0x412BD6 + 1, WindowFocusLost_new);
+	// Patch fading
+	WriteRelativeAddress(0x40D84F + 1, FadeMusic_new);
+	WriteRelativeAddress(0x42438A + 1, FadeMusic_new);
 }
