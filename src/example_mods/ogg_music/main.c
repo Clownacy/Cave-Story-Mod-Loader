@@ -11,19 +11,19 @@
 
 // Variables
 int* const current_music = (int* const)0x4A57F4;
-int* const previous_music = (int* const)0x4A57FC;
 int* const previous_song_last_position = (int* const)0x4A57F8;
+int* const previous_music = (int* const)0x4A57FC;
 
 // String array
 const char* const * const OrgMusicList = (const char* const * const)0x4981E8;
 
 // Functions
-int (*GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
-void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 void (*LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;
-void (*SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
 void (*SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
+int (*GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
 void (*sub_41C790)(void) = (void(*)(void))0x41C790;
+void (*SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
+void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 
 bool intro_playing;
 int current_loop_setting;
