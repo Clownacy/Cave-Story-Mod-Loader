@@ -53,7 +53,7 @@ __cdecl void ProcessControllerEvents(void)
 					}
 					case SDL_CONTROLLER_BUTTON_B:
 					{
-						DoButton(INPUT_NEXTWEAPON);
+						DoButton(INPUT_SHOOT);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_X:
@@ -63,7 +63,7 @@ __cdecl void ProcessControllerEvents(void)
 					}
 					case SDL_CONTROLLER_BUTTON_Y:
 					{
-						DoButton(INPUT_PREVIOUSWEAPON);
+						DoButton(INPUT_JUMP);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_BACK:
