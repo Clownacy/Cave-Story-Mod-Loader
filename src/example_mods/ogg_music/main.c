@@ -199,6 +199,7 @@ bool PlayOggMusic(const int song_id)
 
 		Mix_PlayMusic(music_loop, (MusicList[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0);
 	}
+
 	return true;
 }
 

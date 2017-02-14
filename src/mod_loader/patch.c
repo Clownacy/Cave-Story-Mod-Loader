@@ -13,6 +13,16 @@ __declspec(dllexport) void WriteByte(const int instruction_address, const char v
 	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &value, 1, NULL);
 }
 
+__declspec(dllexport) void WriteWord(const int instruction_address, const short value)
+{
+	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &value, 2, NULL);
+}
+
+__declspec(dllexport) void WriteLong(const int instruction_address, const int value)
+{
+	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &value, 4, NULL);
+}
+
 __declspec(dllexport) void WriteJump(const int instruction_address, const void* const new_destination)
 {
 	WriteByte(instruction_address, 0xE9);
