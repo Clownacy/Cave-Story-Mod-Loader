@@ -6,7 +6,7 @@ SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LDFLAGS := $(shell sdl2-config --libs)
 
 
-all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll bin/mods/ikachan_cursor.dll bin/mods/debug_save.dll
+all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll bin/mods/ikachan_cursor.dll bin/mods/debug_save.dll bin/mods/widescreen.dll
 
 bin/mod_loader.dll: src/mod_loader/main.c src/mod_loader/patch.c src/mod_loader/fix_door_bug.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
@@ -30,4 +30,7 @@ bin/mods/ikachan_cursor.dll: src/example_mods/ikachan_cursor/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 bin/mods/debug_save.dll: src/example_mods/debug_save/main.c
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+bin/mods/widescreen.dll: src/example_mods/widescreen/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
