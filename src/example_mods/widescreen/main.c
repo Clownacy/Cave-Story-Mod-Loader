@@ -1,6 +1,12 @@
+#include <stdbool.h>
+#include <stdio.h>
+
 #include "mod_loader.h"
 
-const int native_width = (240. / 9) * 21;
+#define ASPECT_RATIO_X 21
+#define ASPECT_RATIO_Y 9
+
+const int native_width = (240. / ASPECT_RATIO_Y) * ASPECT_RATIO_X;
 
 typedef struct DrawRectangle {
 	int left;
@@ -76,8 +82,108 @@ __asm(
 "	call	_ScrollClouds@4\n"
 "	jmp	0x402805\n"
 );
-
 void ScrollClouds_asm(void);
+
+bool __stdcall UpdateCamera_extra(const unsigned int level_width, const int level_height)
+{
+	int *camera_x_pos = (int*)0x49E1C8;
+	int *camera_y_pos = (int*)0x49E1CC;
+
+	if ((level_width * 16) > native_width)
+		return false;
+
+	*camera_x_pos = -(((native_width / 2) - ((level_width * 16) / 2)) * 0x200);
+
+	if ((*camera_y_pos / 0x200) < 0)
+		*camera_y_pos = 0;
+	else if (*camera_y_pos > ((((level_height - 1) * 16) - 240) * 0x200))
+		*camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
+
+	return true;
+}
+
+__asm(
+"_UpdateCamera_extra_asm:\n"
+"	push	%edx\n"
+"	push	-4(%ebp)\n"
+"	push	-8(%ebp)\n"
+"	call	_UpdateCamera_extra@8\n"
+"	pop	%edx\n"
+"	test	%eax, %eax\n"
+"	jnz	0x40EF76\n"
+"	movl	0x49E1C8, %eax\n"
+"	jmp	0x40EED6\n"
+);
+void UpdateCamera_extra_asm(void);
+
+__asm(
+"_DrawForegroundBG_patch:\n"
+"	cmp	$0, -0x28(%ebp)\n"
+"	jz	0x413B68\n"
+"	cmp	$0x20, -0x28(%ebp)\n"
+"	jl	0x413BAF\n"
+"	jmp	0x413B68\n"
+);
+void DrawForegroundBG_patch(void);
+
+int __stdcall DrawBackground_Type1(int camera_x_pos, int camera_y_pos, DrawRectangle *src_rect)
+{
+	void (*DrawSprite2)(DrawRectangle*, int, int, DrawRectangle*, int) = (void(*)(DrawRectangle*, int, int, DrawRectangle*, int))0x40C5B0;
+
+	int *background_tile_width = (int*)0x499C78;
+	int *background_tile_height = (int*)0x499C7C;
+
+	DrawRectangle clip_rect = {0, 0, native_width, 240};
+
+	for (int i = (((camera_y_pos / 2) / 0x200) % *background_tile_height); i < 240; i += *background_tile_height)
+	{
+		for (int j =  (((camera_x_pos / 2) / 0x200) % *background_tile_width); j < native_width; j += *background_tile_width)
+		{
+			DrawSprite2(&clip_rect, j, i, src_rect, 28);
+		}
+	}
+}
+
+__asm(
+"_DrawBackground_Type1_asm:\n"
+"	lea	-0x10(%ebp), %eax\n"
+"	push	%eax\n"
+"	push	-0xC(%ebp)\n"
+"	push	-0x8(%ebp)\n"
+"	call	_DrawBackground_Type1@12\n"
+"	jmp	0x402805\n"
+);
+void DrawBackground_Type1_asm(void);
+
+
+int __stdcall DrawBackground_Type2(int camera_x_pos, int camera_y_pos, DrawRectangle *src_rect)
+{
+	void (*DrawSprite2)(DrawRectangle*, int, int, DrawRectangle*, int) = (void(*)(DrawRectangle*, int, int, DrawRectangle*, int))0x40C5B0;
+
+	int *background_tile_width = (int*)0x499C78;
+	int *background_tile_height = (int*)0x499C7C;
+
+	DrawRectangle clip_rect = {0, 0, native_width, 240};
+
+	for (int i = ((camera_y_pos / 0x200) % *background_tile_height); i < 240; i += *background_tile_height)
+	{
+		for (int j =  ((camera_x_pos / 0x200) % *background_tile_width); j < native_width; j += *background_tile_width)
+		{
+			DrawSprite2(&clip_rect, j, i, src_rect, 28);
+		}
+	}
+}
+
+__asm(
+"_DrawBackground_Type2_asm:\n"
+"	lea	-0x10(%ebp), %eax\n"
+"	push	%eax\n"
+"	push	-0xC(%ebp)\n"
+"	push	-0x8(%ebp)\n"
+"	call	_DrawBackground_Type2@12\n"
+"	jmp	0x402805\n"
+);
+void DrawBackground_Type2_asm(void);
 
 void InitMod(void)
 {
@@ -117,6 +223,7 @@ void InitMod(void)
 	WriteLong(0x413E55 + 3, (native_width / 16) + 1);
 
 	// Patch memory rectangles
+	//WriteLong(0x48F91C + 0, -native_width);
 	WriteLong(0x48F91C + 8, native_width);
 	WriteLong(0x48F92C + 8, native_width);
 	WriteLong(0x493650 + 8, native_width / 2);
@@ -148,15 +255,16 @@ void InitMod(void)
 	WriteLong(0x40B62F + 2, native_width);
 
 	// Patch camera to centre properly
-	WriteLong(0x40EE90 + 1, native_width * 0x100);	// Patch camera so Quote is still centred
+	WriteLong(0x40EE90 + 1, (native_width / 2) * 0x200);	// Patch camera so Quote is still centred
 	WriteLong(0x40EF19 + 2, native_width);
 	WriteLong(0x40EF34 + 2, native_width);
-	// This function is what decides where the camera starts off when you enter a room
-	WriteLong(0x40F15B + 2, native_width * 0x100);
+	WriteJump(0x40EED1, UpdateCamera_extra_asm);
+	// SetCameraUponEnterRoom - This function is what decides where the camera starts off when you enter a room
+	WriteLong(0x40F15B + 2, (native_width / 2) * 0x200);
 	WriteLong(0x40F1BE + 1, native_width);
 	WriteLong(0x40F1D8 + 2, native_width);
 
-	// ??????? The function appears to be unused
+	// ??????? (sub_40F040) The function appears to be unused
 	//WriteLong(0x40F0C5 + 2, native_width);
 	//WriteLong(0x40F0E0 + 2, native_width);
 /*
@@ -196,4 +304,7 @@ void InitMod(void)
 	// Hijack scrolling cloud background code
 	WriteLong(0x402809 + (4 * 6), (int)ScrollClouds_asm);
 	WriteLong(0x402809 + (4 * 7), (int)ScrollClouds_asm);
+	WriteJump(0x413BA7, DrawForegroundBG_patch);
+	WriteLong(0x402809 + (4 * 1), (int)DrawBackground_Type1_asm);
+	WriteLong(0x402809 + (4 * 2), (int)DrawBackground_Type2_asm);
 }
