@@ -32,5 +32,5 @@ bin/mods/ikachan_cursor.dll: src/example_mods/ikachan_cursor/main.c
 bin/mods/debug_save.dll: src/example_mods/debug_save/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/widescreen.dll: src/example_mods/widescreen/main.c
+bin/mods/widescreen.dll: src/example_mods/widescreen/main.c src/example_mods/widescreen/scroll_clouds.c src/example_mods/widescreen/fix_subforeground_bug.c src/example_mods/widescreen/centre_camera.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)

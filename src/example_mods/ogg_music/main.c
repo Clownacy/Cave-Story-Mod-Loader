@@ -4,7 +4,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 
-#include "mod_loader.h"
+#include "mod_loader_wrapper.h"
 
 #define SONG_LOOP (1<<0)
 #define SONG_SPLIT (1<<1)

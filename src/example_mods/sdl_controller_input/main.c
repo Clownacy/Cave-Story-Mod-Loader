@@ -1,7 +1,7 @@
 #include "SDL2/SDL.h"
 
 #include "controls.h"
-#include "mod_loader.h"
+#include "mod_loader_wrapper.h"
 
 int* const InputBitfield = (int* const)0x49E210;
 
