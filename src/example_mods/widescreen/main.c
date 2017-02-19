@@ -6,13 +6,21 @@
 
 #include "aspect_ratio.h"
 #include "centre_camera.h"
+#include "centre_text_box.h"
 #include "fix_subforeground_bug.h"
 #include "scroll_clouds.h"
 
 void InitMod(void)
 {
 	// Widescreen
-	//WriteByte(0x4023D0, 0xC3);
+//	char text_box_x = native_width - (320 - 244) / 2);
+//	WriteByte(0x422013 + 1, 242);
+//	WriteByte(0x42220D + 0, 0x90);
+//	WriteByte(0x42220D + 1, 0x90);
+//	WriteByte(0x42220D + 2, 0x90);
+//	WriteByte(0x42220D + 3, 0x90);
+//	WriteByte(0x42220D + 4, 0x90);
+//	WriteByte(0x421F10, 0xC3);
 	const int native_width_unk = native_width * (216. / 320);
 	const int native_width_unk2 = native_width * (268. / 320);
 
@@ -119,4 +127,5 @@ void InitMod(void)
 	PatchScrollClouds();
 	FixSubForegroundBug();
 	PatchCamera();
+	CentreTextBox();
 }
