@@ -2,8 +2,8 @@
 
 #include "mod_loader.h"
 
-#include "aspect_ratio.h"
-#include "scroll_clouds.h"
+#include "common.h"
+#include "patch_scrolling_clouds.h"
 
 void __stdcall ScrollClouds(const int scroll_type)
 {
@@ -29,7 +29,7 @@ void __stdcall ScrollClouds(const int scroll_type)
 	}
 
 	sprite_width = (src_rect.right - src_rect.left);
-	for (int i=0; i <= ((native_width - 320) / sprite_width); ++i)
+	for (int i=0; i <= ((SCREEN_WIDTH - 320) / sprite_width); ++i)
 	{
 		DrawSprite2(clip_rect, 320 + (sprite_width * i), src_rect.top, &src_rect, 28);
 	}
@@ -39,28 +39,28 @@ void __stdcall ScrollClouds(const int scroll_type)
 	src_rect.top = 88;
 	src_rect.bottom = 123;
 	sprite_width = (src_rect.right - src_rect.left);
-	for (int i=0; i <= (native_width / sprite_width) + 1; ++i)
+	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
 		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C / 2) % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 123;
 	src_rect.bottom = 146;
-	for (int i=0; i <= (native_width / sprite_width) + 1; ++i)
+	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
 		DrawSprite2(clip_rect, (sprite_width * i) - (*dword_499C8C % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 146;
 	src_rect.bottom = 176;
-	for (int i=0; i <= (native_width / sprite_width) + 1; ++i)
+	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
 		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C * 2) % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 176;
 	src_rect.bottom = 240;
-	for (int i=0; i <= (native_width / sprite_width) + 1; ++i)
+	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
 		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C * 4) % sprite_width), src_rect.top, &src_rect, 28);
 	}

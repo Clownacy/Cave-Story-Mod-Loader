@@ -5,6 +5,27 @@ LIBS = -Isrc/common
 SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LDFLAGS := $(shell sdl2-config --libs)
 
+WIDESCREEN_FILES = \
+	src/example_mods/widescreen/common.c \
+	src/example_mods/widescreen/drawsprite1_centred.c \
+	src/example_mods/widescreen/fix_subforeground_bug.c \
+	src/example_mods/widescreen/main.c \
+	src/example_mods/widescreen/patch_boss_explosion.c \
+	src/example_mods/widescreen/patch_boss_health.c \
+	src/example_mods/widescreen/patch_camera.c \
+	src/example_mods/widescreen/patch_exit_screen.c \
+	src/example_mods/widescreen/patch_fade.c \
+	src/example_mods/widescreen/patch_inventory_screen.c \
+	src/example_mods/widescreen/patch_island_crash.c \
+	src/example_mods/widescreen/patch_loading_screen.c \
+	src/example_mods/widescreen/patch_map_screen.c \
+	src/example_mods/widescreen/patch_room_name_print.c \
+	src/example_mods/widescreen/patch_screen_flash.c \
+	src/example_mods/widescreen/patch_scrolling_clouds.c \
+	src/example_mods/widescreen/patch_teleport_screen.c \
+	src/example_mods/widescreen/patch_text_box.c \
+	src/example_mods/widescreen/patch_tile_drawers.c \
+	src/example_mods/widescreen/patch_title_screen.c
 
 all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll bin/mods/ikachan_cursor.dll bin/mods/debug_save.dll bin/mods/widescreen.dll
 
@@ -32,5 +53,5 @@ bin/mods/ikachan_cursor.dll: src/example_mods/ikachan_cursor/main.c
 bin/mods/debug_save.dll: src/example_mods/debug_save/main.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/widescreen.dll: src/example_mods/widescreen/main.c src/example_mods/widescreen/scroll_clouds.c src/example_mods/widescreen/fix_subforeground_bug.c src/example_mods/widescreen/centre_camera.c src/example_mods/widescreen/centre_text_box.c
+bin/mods/widescreen.dll: $(WIDESCREEN_FILES)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)

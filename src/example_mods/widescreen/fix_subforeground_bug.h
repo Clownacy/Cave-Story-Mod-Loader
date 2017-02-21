@@ -1,3 +1,3 @@
 #pragma once
 
-void FixSubForegroundBug(void);
+extern void FixSubForegroundBug(void);

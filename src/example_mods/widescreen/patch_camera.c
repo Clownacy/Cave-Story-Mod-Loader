@@ -12,30 +12,32 @@
 // leaving the background (and Core water) camera in the positive range.
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "mod_loader.h"
 
-#include "aspect_ratio.h"
+#include "common.h"
+#include "patch_camera.h"
 
 bool small_room;
 
 bool __stdcall UpdateCamera_extra(const unsigned int level_width, const unsigned int level_height)
 {
-	int *camera_x_pos = (int*)0x49E1C8;
-	int *camera_y_pos = (int*)0x49E1CC;
+	signed int *camera_x_pos = (signed int*)0x49E1C8;
+	signed int *camera_y_pos = (signed int*)0x49E1CC;
 
-	if ((level_width * 16) > native_width)
+	if (((level_width - 1) * 16) > SCREEN_WIDTH)
 	{
 		small_room = false;
 		return false;
 	}
 
-	*camera_x_pos = -(((native_width / 2) - ((level_width * 16) / 2)) * 0x200);
+	*camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
 	small_room = true;
 
 	if ((*camera_y_pos / 0x200) < 0)
 		*camera_y_pos = 0;
-	else if (*camera_y_pos > ((((level_height - 1) * 16) - 240) * 0x200))
+	else if ((*camera_y_pos / 0x200) > (((level_height - 1) * 16) - 240))
 		*camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
 
 	return true;
@@ -68,14 +70,14 @@ hijackCheckSmallRoom(DrawWater, 0x402830);
 void PatchCamera(void)
 {
 	// Patch camera to centre properly
-	WriteLong(0x40EE90 + 1, (native_width / 2) * 0x200);	// Patch camera so Quote is still centred
-	WriteLong(0x40EF19 + 2, native_width);
-	WriteLong(0x40EF34 + 2, native_width);
+	WriteLong(0x40EE90 + 1, (SCREEN_WIDTH / 2) * 0x200);	// Patch camera so Quote is still centred
+	WriteLong(0x40EF19 + 2, SCREEN_WIDTH);
+	WriteLong(0x40EF34 + 2, SCREEN_WIDTH);
 	WriteJump(0x40EED1, UpdateCamera_extra_asm);
 	// SetCameraUponEnterRoom - This function is what decides where the camera starts off when you enter a room
-	WriteLong(0x40F15B + 2, (native_width / 2) * 0x200);
-	WriteLong(0x40F1BE + 1, native_width);
-	WriteLong(0x40F1D8 + 2, native_width);
+	WriteLong(0x40F15B + 2, (SCREEN_WIDTH / 2) * 0x200);
+	WriteLong(0x40F1BE + 1, SCREEN_WIDTH);
+	WriteLong(0x40F1D8 + 2, SCREEN_WIDTH);
 
 	WriteRelativeAddress(0x410633+1, DrawBackground_hijack);
 	WriteRelativeAddress(0x4106C3+1, DrawWater_hijack);
