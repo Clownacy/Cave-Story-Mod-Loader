@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "fix_subforeground_bug.h"
+#include "patch_beetle_and_basu.h"
 #include "patch_boss_explosion.h"
 #include "patch_boss_health.h"
 #include "patch_camera.h"
@@ -76,6 +77,7 @@ void InitMod(void)
 	//WriteLong(0x402396 + 2, 0xC00 * 2);
 
 	FixSubForegroundBug();
+	PatchBeetleAndBasu();
 	PatchBossExplosion();
 	PatchBossHealth();
 	PatchCamera();

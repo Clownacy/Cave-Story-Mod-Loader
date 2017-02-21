@@ -10,6 +10,7 @@ WIDESCREEN_FILES = \
 	src/example_mods/widescreen/drawsprite1_centred.c \
 	src/example_mods/widescreen/fix_subforeground_bug.c \
 	src/example_mods/widescreen/main.c \
+	src/example_mods/widescreen/patch_beetle_and_basu.c \
 	src/example_mods/widescreen/patch_boss_explosion.c \
 	src/example_mods/widescreen/patch_boss_health.c \
 	src/example_mods/widescreen/patch_camera.c \
