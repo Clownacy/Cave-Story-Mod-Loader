@@ -1,3 +1,3 @@
 #pragma once
 
-extern void PatchScrollClouds(void);
+extern void PatchScrollingClouds(void);

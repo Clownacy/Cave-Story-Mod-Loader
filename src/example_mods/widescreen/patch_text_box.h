@@ -1,3 +1,3 @@
 #pragma once
 
-extern void CentreTextBox(void);
+extern void PatchTextBox(void);

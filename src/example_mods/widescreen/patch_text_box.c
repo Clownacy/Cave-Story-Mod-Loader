@@ -28,7 +28,7 @@ void ClearScreenHijack(RECT* rect, int flags)
 	ClearScreen(rect, flags);
 }
 
-void CentreTextBox(void)
+void PatchTextBox(void)
 {
 //	WriteByte(0x41A350, 0xC3);
 	WriteRelativeAddress(0x42201A + 1, TextBoxDrawSpriteHijack);

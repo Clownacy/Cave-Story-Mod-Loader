@@ -12,7 +12,6 @@
 // leaving the background (and Core water) camera in the positive range.
 
 #include <stdbool.h>
-#include <stdio.h>
 
 #include "mod_loader.h"
 

@@ -75,22 +75,21 @@ void InitMod(void)
 	//WriteLong(0x4023B9 + 1, SCREEN_WIDTH * 2);
 	//WriteLong(0x402396 + 2, 0xC00 * 2);
 
-	// Hijack scrolling cloud background code
-	PatchScrollClouds();
 	FixSubForegroundBug();
+	PatchBossExplosion();
+	PatchBossHealth();
 	PatchCamera();
-	CentreTextBox();
+	PatchExitScreen();
+	PatchFade();
+	PatchInventoryScreen();
+	PatchIslandCrash();
+	PatchLoadingScreen();
+	PatchMapMenu();
+	PatchRoomNamePrint();
+	PatchScreenFlash();
+	PatchScrollingClouds();
+	PatchTeleportScreen();
+	PatchTextBox();
 	PatchTileDrawers();
 	PatchTitleScreen();
-	PatchLoadingScreen();
-	PatchRoomNamePrint();
-	PatchFade();
-	PatchExitScreen();
-	PatchBossHealth();
-	PatchTeleportScreen();
-	PatchBossExplosion();
-	PatchInventoryScreen();
-	PatchMapMenu();
-	PatchScreenFlash();
-	PatchIslandCrash();
 }
