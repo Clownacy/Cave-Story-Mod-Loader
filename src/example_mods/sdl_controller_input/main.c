@@ -135,6 +135,8 @@ __cdecl void ProcessControllerEvents(void)
 
 void InitMod(void)
 {
+	// This also initialises the SDL Event system
+	// but it doesn't grab window events
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	// Grab all controllers that were plugged-in before the game was started
@@ -151,10 +153,7 @@ void InitMod(void)
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// NOP-out call to DirectInput init function
-	WriteByte(0x420EF6, 0x90);
-	WriteByte(0x420EF6 + 1, 0x90);
-	WriteByte(0x420EF6 + 2, 0x90);
-	WriteByte(0x420EF6 + 3, 0x90);
+	WriteLong(0x420EF6, 0x90909090);
 	WriteByte(0x420EF6 + 4, 0x90);
 	// Redirect controller update function call
 	WriteRelativeAddress(0x4135CC + 1, ProcessControllerEvents);
