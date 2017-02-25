@@ -9,12 +9,20 @@ SDL_Event event;
 SDL_GameController *controller = NULL;
 int controller_id;
 
-void DoButton(const int button_id)
+void DoButton(const int input_id)
 {
 	if (event.cbutton.type == SDL_CONTROLLERBUTTONDOWN)
-		*InputBitfield |= button_id;
+		*InputBitfield |= input_id;
 	else
-		*InputBitfield &= ~button_id;
+		*InputBitfield &= ~input_id;
+}
+
+void DoTrigger(const int input_id)
+{
+	if (event.caxis.value >= (0x7FFF / 8))
+		*InputBitfield |= input_id;
+	else
+		*InputBitfield &= ~input_id;
 }
 
 __cdecl void ProcessControllerEvents(void)
@@ -106,6 +114,18 @@ __cdecl void ProcessControllerEvents(void)
 						DoButton(INPUT_RIGHT | INPUT_ALT_RIGHT);
 						break;
 					}
+				}
+				break;
+			}
+			case SDL_CONTROLLERAXISMOTION:
+			{
+				if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+				{
+					DoTrigger(INPUT_PREVIOUSWEAPON);
+				}
+				else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+				{
+					DoTrigger(INPUT_NEXTWEAPON);
 				}
 				break;
 			}
