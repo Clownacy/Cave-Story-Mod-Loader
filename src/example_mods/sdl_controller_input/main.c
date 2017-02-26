@@ -25,6 +25,19 @@ void DoTrigger(const int input_id)
 		*InputBitfield &= ~input_id;
 }
 
+void DoStick(const int input_id1, const int input_id2)
+{
+	if (event.caxis.value <= -(0x7FFF / 4))
+		*InputBitfield |= input_id1;
+	else
+		*InputBitfield &= ~input_id1;
+
+	if (event.caxis.value >= (0x7FFF / 4))
+		*InputBitfield |= input_id2;
+	else
+		*InputBitfield &= ~input_id2;
+}
+
 __cdecl void ProcessControllerEvents(void)
 {
 	while (SDL_PollEvent(&event) != 0)
@@ -119,13 +132,28 @@ __cdecl void ProcessControllerEvents(void)
 			}
 			case SDL_CONTROLLERAXISMOTION:
 			{
-				if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+				switch (event.caxis.axis)
 				{
-					DoTrigger(INPUT_PREVIOUSWEAPON);
-				}
-				else if (event.caxis.axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
-				{
-					DoTrigger(INPUT_NEXTWEAPON);
+					case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+					{
+						DoTrigger(INPUT_PREVIOUSWEAPON);
+						break;
+					}
+					case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+					{
+						DoTrigger(INPUT_NEXTWEAPON);
+						break;
+					}
+					case SDL_CONTROLLER_AXIS_LEFTX:
+					{
+						DoStick(INPUT_LEFT, INPUT_RIGHT);
+						break;
+					}
+					case SDL_CONTROLLER_AXIS_LEFTY:
+					{
+						DoStick(INPUT_UP, INPUT_DOWN);
+						break;
+					}
 				}
 				break;
 			}
