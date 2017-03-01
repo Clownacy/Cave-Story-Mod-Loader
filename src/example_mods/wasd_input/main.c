@@ -1,5 +1,5 @@
 #include "controls.h"
-#include "mod_loader_wrapper.h"
+#include "mod_loader_main.h"
 
 int* const InputBitfield = (int* const)0x49E210;
 int* const GamePadEnabled = (int* const)0x49E45C;

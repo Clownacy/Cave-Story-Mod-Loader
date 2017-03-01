@@ -1,4 +1,4 @@
-#include "mod_loader_wrapper.h"
+#include "mod_loader_main.h"
 
 const char* const CURSOR_IKA = "CURSOR_IKA";
 

@@ -1,4 +1,4 @@
-#include "mod_loader_wrapper.h"
+#include "mod_loader_main.h"
 
 void InitMod(void)
 {

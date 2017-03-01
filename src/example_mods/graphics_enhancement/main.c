@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "mod_loader_wrapper.h"
+#include "mod_loader_main.h"
 
 #include "sprite_resolution/sprite_resolution.h"
 #include "upscale_window/upscale_window.h"
