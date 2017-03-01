@@ -12,8 +12,10 @@ HMODULE this_hmodule;
 
 void LoadMod(const char* const filename)
 {
-		char mod_path[strlen(filename) + 5 + 1];
+		char mod_path[strlen(filename) + 1 + strlen(filename) + 5 + 1];
 		strcpy(mod_path, "mods/");
+		strcat(mod_path, filename);
+		strcat(mod_path, "/");
 		strcat(mod_path, filename);
 
 		// Load mod DLL
