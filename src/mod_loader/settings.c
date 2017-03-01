@@ -32,12 +32,10 @@ void* ReadSettings(const char* const filename)
 	Setting **settings_list_head_ptr = malloc(sizeof(void*));
 	*settings_list_head_ptr = NULL;
 
-	char settings_path[strlen(filename) + 1 + strlen(filename) + 5 + 4 + 1];
+	char settings_path[5 + strlen(filename) + 13 + 1];
 	strcpy(settings_path, "mods/");
 	strcat(settings_path, filename);
-	strcat(settings_path, "/");
-	strcat(settings_path, filename);
-	strcat(settings_path, ".txt");
+	strcat(settings_path, "/settings.txt");
 
 	FILE *settings_file = fopen(settings_path, "r");
 
