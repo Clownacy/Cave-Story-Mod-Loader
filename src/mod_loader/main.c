@@ -42,7 +42,7 @@ __declspec(dllexport) void init(void)
 {
 	InitError();
 
-	SetDllDirectory("mods/deps");
+	SetDllDirectory("mods/_deps");
 
 	FILE *mod_list = fopen("mods/mods.txt", "r");
 
