@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O3 -s -shared
+CFLAGS = -O3 -s -shared -static-libgcc
 LIBS = -Isrc/common
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)
