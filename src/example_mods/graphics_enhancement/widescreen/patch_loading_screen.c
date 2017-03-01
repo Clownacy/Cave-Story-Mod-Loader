@@ -1,6 +1,6 @@
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_loading_screen.h"
 
 void PatchLoadingScreen(void)

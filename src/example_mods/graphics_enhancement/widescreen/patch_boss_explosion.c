@@ -1,6 +1,6 @@
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_boss_explosion.h"
 
 void PatchBossExplosion(void)

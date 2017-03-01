@@ -2,7 +2,7 @@
 
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_scrolling_clouds.h"
 
 void __stdcall ScrollClouds(const int scroll_type)

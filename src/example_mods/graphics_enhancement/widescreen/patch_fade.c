@@ -1,6 +1,6 @@
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_fade.h"
 
 char fade_buffer_bool[SCREEN_WIDTH * 240];

@@ -2,14 +2,14 @@
 
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_text_box.h"
 
 void DrawHUD_Air_hijack(int x, int y)
 {
 	void (*DrawHUD_Air)(int x, int y) = (void(*)(int x, int y))0x41A350;
 
-	DrawHUD_Air((x * SCREEN_WIDTH) / 320, y);
+	DrawHUD_Air(((SCREEN_WIDTH - 320) / 2) + x, y);
 }
 
 void TextBoxDrawSpriteHijack(RECT* clip, int x, int y, RECT* src, int slot)

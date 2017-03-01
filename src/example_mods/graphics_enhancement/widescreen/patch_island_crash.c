@@ -1,6 +1,6 @@
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "drawsprite1_centred.h"
 #include "patch_island_crash.h"
 

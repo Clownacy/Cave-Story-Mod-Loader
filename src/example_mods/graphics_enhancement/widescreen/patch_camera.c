@@ -15,7 +15,7 @@
 
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "patch_camera.h"
 
 bool small_room;

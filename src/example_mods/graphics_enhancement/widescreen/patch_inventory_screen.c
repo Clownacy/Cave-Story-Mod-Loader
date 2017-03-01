@@ -1,6 +1,6 @@
 #include "mod_loader.h"
 
-#include "common.h"
+#include "../common.h"
 #include "drawsprite1_centred.h"
 #include "patch_inventory_screen.h"
 
@@ -16,7 +16,7 @@ void PatchInventoryScreen(void)
 	WriteLong(0x401779 + 6, SCREEN_WIDTH);
 
 	WriteLong(0x401D2F + 3, SCREEN_WIDTH);
-	WriteLong(0x41152B + 1, SCREEN_WIDTH);
+	WriteLong(0x41152B + 1, SCREEN_WIDTH);	// TODO: this fixes more than just the inventory - it's the main screengrab surface
 
 	WriteRelativeAddress(0x4018BE + 1, DrawSprite1_hijack);
 	WriteRelativeAddress(0x4018F8 + 1, DrawSprite1_hijack);
