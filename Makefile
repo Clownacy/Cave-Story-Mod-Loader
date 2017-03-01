@@ -38,7 +38,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 
 all: bin/mod_loader.dll bin/mods/60fps.dll bin/mods/ogg_music_wiiware.dll bin/mods/ogg_music_3d.dll bin/mods/sdl_controller_input.dll bin/mods/wasd_input.dll bin/mods/ikachan_cursor.dll bin/mods/debug_save.dll bin/mods/graphics_enhancement.dll
 
-bin/mod_loader.dll: src/mod_loader/main.c src/mod_loader/patch.c src/mod_loader/fix_door_bug.c
+bin/mod_loader.dll: src/mod_loader/main.c src/mod_loader/patch.c src/mod_loader/fix_door_bug.c src/mod_loader/error.c src/mod_loader/settings.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 bin/mods/60fps.dll: src/example_mods/60fps/main.c

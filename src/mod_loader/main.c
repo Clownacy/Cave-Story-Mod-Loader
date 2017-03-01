@@ -5,25 +5,48 @@
 #include <string.h>
 #include <windows.h>
 
+#include "error.h"
+#include "settings.h"
+
 HMODULE this_hmodule;
 
-void PrintError(FILE **error_log, char *string, char *printf_arg)
+void LoadMod(const char* const filename)
 {
-	if (*error_log == NULL)
-		*error_log = fopen("mods/error.txt", "w");
+		char mod_path[strlen(filename) + 5 + 1];
+		strcpy(mod_path, "mods/");
+		strcat(mod_path, filename);
 
-	fprintf(*error_log, string, printf_arg);
+		// Load mod DLL
+		HMODULE hmodule = LoadLibrary(mod_path);
+		if (hmodule == NULL)
+		{
+			PrintError("Could not find mod '%s'\n", filename);
+			return;
+		}
+
+		// Get DLL entry point
+		void (*ModEntry)(HMODULE, void*) = (void (*)(HMODULE, void*))GetProcAddress(hmodule, "ModEntry");
+		if (ModEntry == NULL)
+		{
+			PrintError("Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
+			return;
+		}
+
+		// Run mod
+		ModEntry(this_hmodule, ReadSettings(filename));
 }
 
 __declspec(dllexport) void init(void)
 {
+	InitError();
+
 	SetDllDirectory("mods/deps");
+
 	FILE *mod_list = fopen("mods/mods.txt", "r");
 
-	FILE *error_log = NULL;
 	if (mod_list == NULL)
 	{
-		PrintError(&error_log, "Could not find mods.txt\n", NULL);
+		PrintError("Could not find mods.txt\n", NULL);
 		return;
 	}
 
@@ -33,32 +56,8 @@ __declspec(dllexport) void init(void)
 	{
 		// Get path of mod DLL
 		filename[strcspn(filename, "\r\n")] = '\0';	// Trim newline characters
-		char mod_path[strlen(filename) + 5 + 1];
-		strcpy(mod_path, "mods/");
-		strcat(mod_path, filename);
-
-		// Load mod DLL
-		HMODULE hmodule = LoadLibrary(mod_path);
-		if (hmodule == NULL)
-		{
-			PrintError(&error_log, "Could not find mod '%s'\n", filename);
-			continue;
-		}
-
-		// Get DLL entry point
-		void (*ModEntry)(HMODULE) = (void (*)(HMODULE))GetProcAddress(hmodule, "ModEntry");
-		if (ModEntry == NULL)
-		{
-			PrintError(&error_log, "Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
-			continue;
-		}
-
-		// Run mod
-		ModEntry(this_hmodule);
+		LoadMod(filename);
 	}
-
-	if (error_log != NULL)
-		fclose(error_log);
 
 	fclose(mod_list);
 	SetDllDirectory(NULL);

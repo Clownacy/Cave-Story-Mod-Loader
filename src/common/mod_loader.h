@@ -7,3 +7,5 @@ void (*WriteLong)(const int instruction_address, const int value);
 void (*WriteJump)(const int instruction_address, const void* const new_destination);
 void (*WriteCall)(const int instruction_address, const void* const new_destination);
 void (*FixDoorEnterBug)(void);
+
+extern const char* const GetSetting(const char* const setting_name);
