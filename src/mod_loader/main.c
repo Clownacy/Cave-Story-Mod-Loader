@@ -12,10 +12,13 @@ HMODULE this_hmodule;
 
 void LoadMod(const char* const filename)
 {
-		char mod_path[strlen(filename) + 1 + strlen(filename) + 5 + 1];
-		strcpy(mod_path, "mods/");
-		strcat(mod_path, filename);
-		strcat(mod_path, "/");
+		char *mod_folder = malloc(5 + strlen(filename) + 1 + 1);
+		strcpy(mod_folder, "mods/");
+		strcat(mod_folder, filename);
+		strcat(mod_folder, "/");
+
+		char mod_path[strlen(mod_folder) + strlen(filename) + 1];
+		strcpy(mod_path, mod_folder);
 		strcat(mod_path, filename);
 
 		// Load mod DLL
@@ -27,7 +30,7 @@ void LoadMod(const char* const filename)
 		}
 
 		// Get DLL entry point
-		void (*ModEntry)(HMODULE, void*) = (void (*)(HMODULE, void*))GetProcAddress(hmodule, "ModEntry");
+		void (*ModEntry)(HMODULE, void*, const char* const) = (void (*)(HMODULE, void*, const char* const))GetProcAddress(hmodule, "ModEntry");
 		if (ModEntry == NULL)
 		{
 			PrintError("Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
@@ -35,7 +38,7 @@ void LoadMod(const char* const filename)
 		}
 
 		// Run mod
-		ModEntry(this_hmodule, ReadSettings(filename));
+		ModEntry(this_hmodule, ReadSettings(filename), mod_folder);
 }
 
 __declspec(dllexport) void init(void)

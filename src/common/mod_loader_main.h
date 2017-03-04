@@ -6,8 +6,9 @@
 
 void InitMod(void);
 
-void *settings;
 HMODULE mod_loader_hmodule;
+void *settings;
+const char* location_path;
 
 const char* const GetSetting(const char* const setting_name)
 {
@@ -18,7 +19,7 @@ const char* const GetSetting(const char* const setting_name)
 	return GetSetting_inner(setting_name, settings);
 }
 
-__declspec(dllexport) void ModEntry(HMODULE mod_loader_hmodule_p, void *settings_p)
+__declspec(dllexport) void ModEntry(HMODULE mod_loader_hmodule_p, void *settings_p, const char* const location_path_p)
 {
 	WriteRelativeAddress = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule_p, "WriteRelativeAddress");
 	WriteByte = (void (*)(const int, const char))GetProcAddress(mod_loader_hmodule_p, "WriteByte");
@@ -28,8 +29,9 @@ __declspec(dllexport) void ModEntry(HMODULE mod_loader_hmodule_p, void *settings
 	WriteCall = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule_p, "WriteCall");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule_p, "FixDoorEnterBug");
 
-	settings = settings_p;
 	mod_loader_hmodule = mod_loader_hmodule_p;
+	settings = settings_p;
+	location_path = location_path_p;
 
 	InitMod();
 }

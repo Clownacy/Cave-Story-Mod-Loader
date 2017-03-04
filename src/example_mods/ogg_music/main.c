@@ -6,8 +6,7 @@
 
 #include "mod_loader_main.h"
 
-#define SONG_LOOP (1<<0)
-#define SONG_SPLIT (1<<1)
+#include "playlist.h"
 
 // Variables
 int* const current_music = (int* const)0x4A57F4;
@@ -15,7 +14,7 @@ int* const previous_song_last_position = (int* const)0x4A57F8;
 int* const previous_music = (int* const)0x4A57FC;
 
 // String array
-const char* const * const OrgMusicList = (const char* const * const)0x4981E8;
+const char* const * const org_playlist = (const char* const * const)0x4981E8;
 
 // Functions
 void (*LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;
@@ -28,99 +27,6 @@ void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 bool intro_playing;
 int current_loop_setting;
 Mix_Music *music_intro, *music_loop;
-
-const struct
-{
-	const char* const song_name;
-	const char song_flags;
-} MusicList[] = {
-#ifdef SOUNDTRACK_3D
-	{"data/Ogg11/WANPAKU", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/ANZEN", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/GAMEOVER", SONG_SPLIT},
-	{"data/Ogg11/GRAVITY", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/WEED", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/MDOWN2", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/FIREEYE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/VIVI", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/MURA", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/FANFALE1", SONG_SPLIT},
-	{"data/Ogg11/GINSUKE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/CEMETERY", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/PLANT", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/KODOU", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/FANFALE3", SONG_SPLIT},
-	{"data/Ogg11/FANFALE2", SONG_SPLIT},
-	{"data/Ogg11/DR", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/ESCAPE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/JENKA", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/MAZE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/ACCESS", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/IRONH", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/GRAND", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/Curly", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/OSIDE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/REQUIEM", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/WANPAK2", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/QUIET", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/LASTCAVE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/BALCONY", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/LASTBTL", SONG_LOOP},
-	{"data/Ogg11/LASTBT3", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/ENDING", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/ZONBIE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/BDOWN", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/HELL", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/JENKA2", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/MARINE", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/BALLOS", SONG_LOOP | SONG_SPLIT},
-	{"data/Ogg11/TOROKO", SONG_SPLIT},
-	{"data/Ogg11/WHITE", SONG_LOOP | SONG_SPLIT}
-#endif
-#ifdef SOUNDTRACK_WIIWARE
-	{"data/Ogg/WANPAKU", SONG_LOOP},
-	{"data/Ogg/ANZEN", SONG_LOOP},
-	{"data/Ogg/GAMEOVER", 0},
-	{"data/Ogg/GRAVITY", SONG_LOOP},
-	{"data/Ogg/WEED", SONG_LOOP},
-	{"data/Ogg/MDOWN2", SONG_LOOP},
-	{"data/Ogg/FIREEYE", SONG_LOOP},
-	{"data/Ogg/VIVI", SONG_LOOP},
-	{"data/Ogg/MURA", SONG_LOOP},
-	{"data/Ogg/FANFALE1", 0},
-	{"data/Ogg/GINSUKE", SONG_LOOP},
-	{"data/Ogg/CEMETERY", SONG_LOOP},
-	{"data/Ogg/PLANT", SONG_LOOP},
-	{"data/Ogg/KODOU", SONG_LOOP},
-	{"data/Ogg/FANFALE3", 0},
-	{"data/Ogg/FANFALE2", 0},
-	{"data/Ogg/DR", SONG_LOOP},
-	{"data/Ogg/ESCAPE", SONG_LOOP},
-	{"data/Ogg/JENKA", SONG_LOOP},
-	{"data/Ogg/MAZE", SONG_LOOP},
-	{"data/Ogg/ACCESS", SONG_LOOP},
-	{"data/Ogg/IRONH", SONG_LOOP},
-	{"data/Ogg/GRAND", SONG_LOOP},
-	{"data/Ogg/Curly", SONG_LOOP},
-	{"data/Ogg/OSIDE", SONG_LOOP},
-	{"data/Ogg/REQUIEM", SONG_LOOP},
-	{"data/Ogg/WANPAK2", SONG_LOOP},
-	{"data/Ogg/QUIET", SONG_LOOP},
-	{"data/Ogg/LASTCAVE", SONG_LOOP},
-	{"data/Ogg/BALCONY", SONG_LOOP},
-	{"data/Ogg/LASTBTL", SONG_LOOP},
-	{"data/Ogg/LASTBT3", SONG_LOOP},
-	{"data/Ogg/ENDING", SONG_LOOP},
-	{"data/Ogg/ZONBIE", SONG_LOOP},
-	{"data/Ogg/BDOWN", SONG_LOOP},
-	{"data/Ogg/HELL", SONG_LOOP},
-	{"data/Ogg/JENKA2", SONG_LOOP},
-	{"data/Ogg/MARINE", SONG_LOOP},
-	{"data/Ogg/BALLOS", SONG_LOOP},
-	{"data/Ogg/TOROKO", 0},
-	{"data/Ogg/WHITE", SONG_LOOP}
-#endif
-};
 
 void UnloadMusic(Mix_Music **music)
 {
@@ -155,11 +61,11 @@ bool PlayOggMusic(const int song_id)
 		return true;
 	}
 
-	if (MusicList[song_id - 1].song_flags & SONG_SPLIT)
+	if (playlist[song_id - 1].song_flags & SONG_SPLIT)
 	{
 		// Play split-Ogg music (Cave Story 3D)
 		// Get filenames
-		const char* const song_name = MusicList[song_id - 1].song_name;
+		const char* const song_name = playlist[song_id - 1].song_name;
 		char song_base_file_path[strlen(song_name)+1];
 		strcpy(song_base_file_path, song_name);
 		char song_intro_file_path[strlen(song_base_file_path)+6+4+1];
@@ -177,7 +83,7 @@ bool PlayOggMusic(const int song_id)
 			return false;
 
 		intro_playing = true;
-		current_loop_setting = (MusicList[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0;
+		current_loop_setting = (playlist[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0;
 
 		// Play intro
 		Mix_PlayMusic(music_intro, 0);
@@ -185,7 +91,7 @@ bool PlayOggMusic(const int song_id)
 	else
 	{
 		// Play single-Ogg music (Cave Story WiiWare)
-		const char* const song_name = MusicList[song_id - 1].song_name;
+		const char* const song_name = playlist[song_id - 1].song_name;
 		char song_file_path[strlen(song_name)+4+1];
 		strcpy(song_file_path, song_name);
 		strcat(song_file_path, ".ogg");
@@ -197,7 +103,7 @@ bool PlayOggMusic(const int song_id)
 
 		intro_playing = false;
 
-		Mix_PlayMusic(music_loop, (MusicList[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0);
+		Mix_PlayMusic(music_loop, (playlist[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0);
 	}
 
 	return true;
@@ -207,7 +113,7 @@ void PlayOrgMusic(const int music_id)
 {
 	*previous_song_last_position = GetOrgMusicPosition();
 	sub_41C7F0();
-	LoadOrgMusic(OrgMusicList[music_id]);
+	LoadOrgMusic(org_playlist[music_id]);
 	SetOrgVolume(100);
 	SetOrgMusicPosition(0);
 	sub_41C790();
@@ -216,7 +122,7 @@ void PlayOrgMusic(const int music_id)
 void PlayPreviousOrgMusic(void)
 {
 	sub_41C7F0();
-	LoadOrgMusic(OrgMusicList[*previous_song_last_position]);
+	LoadOrgMusic(org_playlist[*previous_song_last_position]);
 	SetOrgMusicPosition(*previous_song_last_position);
 	SetOrgVolume(100);
 	sub_41C790();
@@ -283,6 +189,15 @@ void __cdecl FadeMusic_new(void)
 
 void InitMod(void)
 {
+	const char* const playlist_filename = GetSetting("playlist");
+	if (playlist_filename != NULL)
+	{
+		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
+		strcpy(playlist_path, location_path);
+		strcat(playlist_path, playlist_filename);
+		LoadPlaylist(playlist_path);
+	}
+
 	// Setup music system
 	SDL_Init(SDL_INIT_AUDIO);
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);

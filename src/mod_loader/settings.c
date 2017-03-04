@@ -44,6 +44,7 @@ void* ReadSettings(const char* const filename)
 		char setting_string[MAX_PATH];
 		while (fgets(setting_string, MAX_PATH, settings_file) != NULL)
 		{
+			setting_string[strcspn(setting_string, "\r\n")] = '\0';	// Trim newline characters
 			// Get setting name
 			size_t setting_name_length = strcspn(setting_string, ":= \t");
 			char* setting_name = malloc(setting_name_length + 1);
