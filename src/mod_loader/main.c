@@ -25,6 +25,7 @@ void LoadMod(const char* const filename)
 		HMODULE hmodule = LoadLibrary(mod_path);
 		if (hmodule == NULL)
 		{
+			free(mod_folder);
 			PrintError("Could not find mod '%s'\n", filename);
 			return;
 		}
@@ -33,6 +34,7 @@ void LoadMod(const char* const filename)
 		void (*ModEntry)(HMODULE, void*, const char* const) = (void (*)(HMODULE, void*, const char* const))GetProcAddress(hmodule, "ModEntry");
 		if (ModEntry == NULL)
 		{
+			free(mod_folder);
 			PrintError("Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
 			return;
 		}
