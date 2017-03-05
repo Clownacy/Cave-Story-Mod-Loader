@@ -2,12 +2,25 @@
 
 #include "mod_loader_main.h"
 
+#include "common.h"
 #include "sprite_resolution/sprite_resolution.h"
 #include "upscale_window/upscale_window.h"
 #include "widescreen/widescreen.h"
 
 void InitMod(void)
 {
+	int _aspect_ratio_x = strtol(GetSetting("aspect_ratio_x"), NULL, 10);
+	if (_aspect_ratio_x == 0)
+		_aspect_ratio_x = 16;
+
+	aspect_ratio_x = _aspect_ratio_x;
+
+	int _aspect_ratio_y = strtol(GetSetting("aspect_ratio_y"), NULL, 10);
+	if (_aspect_ratio_y == 0)
+		_aspect_ratio_y = 9;
+
+	aspect_ratio_y = _aspect_ratio_y;
+
 	SetWidescreen();
 
 	int sprite_resolution_factor = strtol(GetSetting("sprite_resolution"), NULL, 10);

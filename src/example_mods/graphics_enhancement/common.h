@@ -1,8 +1,8 @@
 #pragma once
 
-#define ASPECT_RATIO_X 21
-#define ASPECT_RATIO_Y 9
+extern unsigned int aspect_ratio_x;
+extern unsigned int aspect_ratio_y;
 
-#define SCREEN_WIDTH (240 * ASPECT_RATIO_X) / ASPECT_RATIO_Y
+#define SCREEN_WIDTH (240 * aspect_ratio_x) / aspect_ratio_y
 
 extern unsigned int ScreenWidthToTiles(const unsigned int tile_size);
