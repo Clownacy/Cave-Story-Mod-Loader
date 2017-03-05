@@ -6,39 +6,137 @@
 #include "controls.h"
 #include "mod_loader.h"
 
+enum
+{
+	ID_MAP,
+	ID_LEFT,
+	ID_RIGHT,
+	ID_UP,
+	ID_DOWN,
+	ID_SHOOT,
+	ID_JUMP,
+	ID_NEXTWEAPON,
+	ID_PREVIOUSWEAPON,
+	ID_INVENTORY,
+	ID_MAX
+};
+
+const int input_masks[] = {
+	INPUT_MAP,
+	INPUT_LEFT | INPUT_ALT_LEFT,
+	INPUT_RIGHT | INPUT_ALT_RIGHT,
+	INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2,
+	INPUT_DOWN | INPUT_ALT_DOWN,
+	INPUT_SHOOT,
+	INPUT_JUMP,
+	INPUT_NEXTWEAPON,
+	INPUT_PREVIOUSWEAPON,
+	INPUT_INVENTORY
+};
+
 int* const input_bitfield = (int* const)0x49E210;
 
 SDL_Event event;
 SDL_GameController *controller;
 int controller_id;
 
+static int input_totals[ID_MAX];
+
+void SetInput(const int input_id)
+{
+	++input_totals[input_id];
+
+	*input_bitfield |= input_masks[input_id];
+}
+
+void ClearInput(const int input_id)
+{
+	if (--input_totals[input_id] == 0)
+		*input_bitfield &= ~input_masks[input_id];
+}
+
 void DoButton(const int input_id)
 {
 	if (event.cbutton.type == SDL_CONTROLLERBUTTONDOWN)
-		*input_bitfield |= input_id;
+		SetInput(input_id);
 	else
-		*input_bitfield &= ~input_id;
+		ClearInput(input_id);
 }
 
-void DoTrigger(const int input_id)
+void DoTrigger(const int input_id, const int trigger_id)
 {
+	static int trigger_input[2];
+
 	if (event.caxis.value >= (0x7FFF / 8))
-		*input_bitfield |= input_id;
+	{
+		if (!(trigger_input[trigger_id] & input_masks[input_id]))
+		{
+			trigger_input[trigger_id] |= input_masks[input_id];
+			SetInput(input_id);
+		}
+	}
 	else
-		*input_bitfield &= ~input_id;
+	{
+		if (trigger_input[trigger_id] & input_masks[input_id])
+		{
+			trigger_input[trigger_id] &= ~input_masks[input_id];
+			ClearInput(input_id);
+		}
+	}
 }
 
-void DoStick(const int input_id1, const int input_id2)
+inline void DoLeftTrigger(const int input_id)
 {
+	DoTrigger(input_id, 0);
+}
+
+inline void DoRightTrigger(const int input_id)
+{
+	DoTrigger(input_id, 1);
+}
+
+void DoStick(const int input_id1, const int input_id2, const int stick_id)
+{
+	static int stick_input[1];
+
 	if (event.caxis.value <= -(0x7FFF / 4))
-		*input_bitfield |= input_id1;
+	{
+		if (!(stick_input[stick_id] & input_masks[input_id1]))
+		{
+			stick_input[stick_id] |= input_masks[input_id1];
+			SetInput(input_id1);
+		}
+	}
 	else
-		*input_bitfield &= ~input_id1;
+	{
+		if (stick_input[stick_id] & input_masks[input_id1])
+		{
+			stick_input[stick_id] &= ~input_masks[input_id1];
+			ClearInput(input_id1);
+		}
+	}
 
 	if (event.caxis.value >= (0x7FFF / 4))
-		*input_bitfield |= input_id2;
+	{
+		if (!(stick_input[stick_id] & input_masks[input_id2]))
+		{
+			stick_input[stick_id] |= input_masks[input_id2];
+			SetInput(input_id2);
+		}
+	}
 	else
-		*input_bitfield &= ~input_id2;
+	{
+		if (stick_input[stick_id] & input_masks[input_id2])
+		{
+			stick_input[stick_id] &= ~input_masks[input_id2];
+			ClearInput(input_id2);
+		}
+	}
+}
+
+inline void DoLeftStick(const int input_id1, const int input_id2)
+{
+	DoStick(input_id1, input_id2, 0);
 }
 
 __cdecl void ProcessControllerEvents(void)
@@ -72,62 +170,62 @@ __cdecl void ProcessControllerEvents(void)
 				{
 					case SDL_CONTROLLER_BUTTON_A:
 					{
-						DoButton(INPUT_JUMP);
+						DoButton(ID_JUMP);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_B:
 					{
-						DoButton(INPUT_SHOOT);
+						DoButton(ID_SHOOT);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_X:
 					{
-						DoButton(INPUT_SHOOT);
+						DoButton(ID_SHOOT);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_Y:
 					{
-						DoButton(INPUT_JUMP);
+						DoButton(ID_JUMP);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_BACK:
 					{
-						DoButton(INPUT_MAP);
+						DoButton(ID_MAP);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_START:
 					{
-						DoButton(INPUT_INVENTORY);
+						DoButton(ID_INVENTORY);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
 					{
-						DoButton(INPUT_PREVIOUSWEAPON);
+						DoButton(ID_PREVIOUSWEAPON);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
 					{
-						DoButton(INPUT_NEXTWEAPON);
+						DoButton(ID_NEXTWEAPON);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_UP:
 					{
-						DoButton(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
+						DoButton(ID_UP);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
 					{
-						DoButton(INPUT_DOWN | INPUT_ALT_DOWN);
+						DoButton(ID_DOWN);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
 					{
-						DoButton(INPUT_LEFT | INPUT_ALT_LEFT);
+						DoButton(ID_LEFT);
 						break;
 					}
 					case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
 					{
-						DoButton(INPUT_RIGHT | INPUT_ALT_RIGHT);
+						DoButton(ID_RIGHT);
 						break;
 					}
 				}
@@ -139,22 +237,22 @@ __cdecl void ProcessControllerEvents(void)
 				{
 					case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
 					{
-						DoTrigger(INPUT_PREVIOUSWEAPON);
+						DoLeftTrigger(ID_PREVIOUSWEAPON);
 						break;
 					}
 					case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
 					{
-						DoTrigger(INPUT_NEXTWEAPON);
+						DoRightTrigger(ID_NEXTWEAPON);
 						break;
 					}
 					case SDL_CONTROLLER_AXIS_LEFTX:
 					{
-						DoStick(INPUT_LEFT, INPUT_RIGHT);
+						DoLeftStick(ID_LEFT, ID_RIGHT);
 						break;
 					}
 					case SDL_CONTROLLER_AXIS_LEFTY:
 					{
-						DoStick(INPUT_UP, INPUT_DOWN);
+						DoLeftStick(ID_UP, ID_DOWN);
 						break;
 					}
 				}
