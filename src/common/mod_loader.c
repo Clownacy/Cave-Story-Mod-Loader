@@ -19,7 +19,6 @@ static char* (*GetSetting_inner)(const char* const filename, const void* const s
 
 const char* location_path;
 
-static HMODULE mod_loader_hmodule;
 static const void* settings;
 
 const char* const GetSetting(const char* const setting_name)
@@ -27,20 +26,19 @@ const char* const GetSetting(const char* const setting_name)
 	return GetSetting_inner(setting_name, settings);
 }
 
-__declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule_p, const void* const settings_p, const char* const location_path_p)
+__declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const void* const settings_p, const char* const location_path_p)
 {
-	WriteRelativeAddress = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule_p, "WriteRelativeAddress");
-	WriteByte = (void (*)(const int, const char))GetProcAddress(mod_loader_hmodule_p, "WriteByte");
-	WriteWord = (void (*)(const int, const short))GetProcAddress(mod_loader_hmodule_p, "WriteWord");
-	WriteLong = (void (*)(const int, const int))GetProcAddress(mod_loader_hmodule_p, "WriteLong");
-	WriteJump = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule_p, "WriteJump");
-	WriteCall = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule_p, "WriteCall");
-	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule_p, "FixDoorEnterBug");
-	GetSetting_inner = (char* (*)(const char* const, const void* const))GetProcAddress(mod_loader_hmodule, "GetSetting");
-
-	mod_loader_hmodule = mod_loader_hmodule_p;
 	settings = settings_p;
 	location_path = location_path_p;
+
+	WriteRelativeAddress = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteRelativeAddress");
+	WriteByte = (void (*)(const int, const char))GetProcAddress(mod_loader_hmodule, "WriteByte");
+	WriteWord = (void (*)(const int, const short))GetProcAddress(mod_loader_hmodule, "WriteWord");
+	WriteLong = (void (*)(const int, const int))GetProcAddress(mod_loader_hmodule, "WriteLong");
+	WriteJump = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteJump");
+	WriteCall = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
+	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
+	GetSetting_inner = (char* (*)(const char* const, const void* const))GetProcAddress(mod_loader_hmodule, "GetSetting");
 
 	InitMod();
 }

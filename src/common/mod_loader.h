@@ -3,7 +3,7 @@
 
 #pragma once
 
-const char* location_path;
+extern const char* location_path;
 
 // Mod loader DLL functions
 extern void (*WriteRelativeAddress)(const int instruction_address, const void* const new_destination);
