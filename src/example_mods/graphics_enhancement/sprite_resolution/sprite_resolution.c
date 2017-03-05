@@ -11,11 +11,11 @@ int sprite_resolution_factor;
 
 // LoadBackgroundSprite actually figures out the size of the image
 // and tiles it accordingly. But since we're working with double-res,
-// we need it to tiles these at half-size.
+// we need it to tile these at half-size.
 void LoadBackgroundSprite_hijack(char* filename, int something)
 {
-	int *background_tile_width = (int*)0x499C78;
-	int *background_tile_height = (int*)0x499C7C;
+	int* const background_tile_width = (int*)0x499C78;
+	int* const background_tile_height = (int*)0x499C7C;
 	void (*LoadBackgroundSprite)(char*, int) = (void(*)(char*,int))0x402270;
 
 	LoadBackgroundSprite(filename, something);
@@ -27,14 +27,13 @@ void LoadBackgroundSprite_hijack(char* filename, int something)
 __asm (
 "_LoadBMP_FromFile_SurfaceCreationHijack:\n"
 "	pushl	%eax\n"
+"	movl	_sprite_resolution_factor, %ecx\n"
 "	movl	-0x8C(%ebp), %eax\n"	// Divide surface size by 2
 "	cdq\n"
-"	movl	_sprite_resolution_factor, %ecx\n"
 "	divl	%ecx\n"
 "	movl	%eax, -0x8C(%ebp)\n"
 "	movl	-0x90(%ebp), %eax\n"
 "	cdq\n"
-"	movl	_sprite_resolution_factor, %ecx\n"
 "	divl	%ecx\n"
 "	movl	%eax, -0x90(%ebp)\n"
 "	popl	%eax\n"
@@ -46,14 +45,13 @@ void LoadBMP_FromFile_SurfaceCreationHijack(void);
 
 __asm (
 "_LoadBMP_FromFile_StretchBlitHijack:\n"
+"	movl	_sprite_resolution_factor, %ecx\n"
 "	movl	0x10(%esp), %eax\n"
 "	cdq\n"
-"	movl	_sprite_resolution_factor, %ecx\n"
 "	divl	%ecx\n"
 "	movl	%eax, 0x10(%esp)\n"
 "	movl	0x14(%esp), %eax\n"
 "	cdq\n"
-"	movl	_sprite_resolution_factor, %ecx\n"
 "	divl	%ecx\n"
 "	movl	%eax, 0x14(%esp)\n"
 "	jmp	*0x48C018\n"
