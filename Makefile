@@ -42,30 +42,30 @@ bin/mods/mod_loader.dll: src/mod_loader/main.c src/mod_loader/patch.c src/mod_lo
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/60fps/60fps.dll: src/example_mods/60fps/main.c
+bin/mods/60fps/60fps.dll: src/common/mod_loader.c src/example_mods/60fps/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/ogg_music/ogg_music.dll: src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c
+bin/mods/ogg_music/ogg_music.dll: src/common/mod_loader.c src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(SDL_CFLAGS) $(SDL_LDFLAGS) -lSDL2_mixer
 
-bin/mods/sdl_controller_input/sdl_controller_input.dll: src/example_mods/sdl_controller_input/main.c
+bin/mods/sdl_controller_input/sdl_controller_input.dll: src/common/mod_loader.c src/example_mods/sdl_controller_input/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(SDL_CFLAGS) $(SDL_LDFLAGS)
 
-bin/mods/wasd_input/wasd_input.dll: src/example_mods/wasd_input/main.c
+bin/mods/wasd_input/wasd_input.dll: src/common/mod_loader.c src/example_mods/wasd_input/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/ikachan_cursor/ikachan_cursor.dll: src/example_mods/ikachan_cursor/main.c
+bin/mods/ikachan_cursor/ikachan_cursor.dll: src/common/mod_loader.c src/example_mods/ikachan_cursor/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/debug_save/debug_save.dll: src/example_mods/debug_save/main.c
+bin/mods/debug_save/debug_save.dll: src/common/mod_loader.c src/example_mods/debug_save/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/mods/graphics_enhancement/graphics_enhancement.dll: $(GRAPHICS_ENHANCEMENT_FILES)
+bin/mods/graphics_enhancement/graphics_enhancement.dll: src/common/mod_loader.c $(GRAPHICS_ENHANCEMENT_FILES)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)

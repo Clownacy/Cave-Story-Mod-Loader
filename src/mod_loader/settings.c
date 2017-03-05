@@ -70,9 +70,9 @@ void* ReadSettings(const char* const filename)
 	return settings_list_head_ptr;
 }
 
-__declspec(dllexport) const char* const GetSetting(const char* const setting_name, Setting **settings_list_head)
+__declspec(dllexport) const char* const GetSetting(const char* const setting_name, const Setting* const * const settings_list_head)
 {
-	for (Setting *setting = *settings_list_head; setting != NULL; setting = setting->next)
+	for (const Setting *setting = *settings_list_head; setting != NULL; setting = setting->next)
 	{
 		if (strcmp(setting->name, setting_name) == 0)
 		{

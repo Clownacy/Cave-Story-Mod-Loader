@@ -4,7 +4,7 @@
 #include "SDL2/SDL.h"
 
 #include "controls.h"
-#include "mod_loader_main.h"
+#include "mod_loader.h"
 
 int* const input_bitfield = (int* const)0x49E210;
 

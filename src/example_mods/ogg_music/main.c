@@ -7,7 +7,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 
-#include "mod_loader_main.h"
+#include "mod_loader.h"
 
 #include "playlist.h"
 

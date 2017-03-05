@@ -1,8 +1,10 @@
 // WASD keyboard input mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include <windows.h>
+
 #include "controls.h"
-#include "mod_loader_main.h"
+#include "mod_loader.h"
 
 int* const input_bitfield = (int* const)0x49E210;
 int* const gamepad_enabled = (int* const)0x49E45C;

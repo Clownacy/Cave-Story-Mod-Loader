@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#include "mod_loader_main.h"
+#include "mod_loader.h"
 
 #include "common.h"
 #include "sprite_resolution/sprite_resolution.h"
