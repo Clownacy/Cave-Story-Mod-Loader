@@ -52,7 +52,7 @@ bin/mods/ogg_music/ogg_music.dll: src/example_mods/ogg_music/main.c src/example_
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: src/example_mods/sdl_controller_input/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -lSDL2
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(SDL_CFLAGS) $(SDL_LDFLAGS)
 
 bin/mods/wasd_input/wasd_input.dll: src/example_mods/wasd_input/main.c
 	mkdir -p $(@D)
