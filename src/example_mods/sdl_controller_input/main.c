@@ -3,39 +3,39 @@
 #include "controls.h"
 #include "mod_loader_main.h"
 
-int* const InputBitfield = (int* const)0x49E210;
+int* const input_bitfield = (int* const)0x49E210;
 
 SDL_Event event;
-SDL_GameController *controller = NULL;
+SDL_GameController *controller;
 int controller_id;
 
 void DoButton(const int input_id)
 {
 	if (event.cbutton.type == SDL_CONTROLLERBUTTONDOWN)
-		*InputBitfield |= input_id;
+		*input_bitfield |= input_id;
 	else
-		*InputBitfield &= ~input_id;
+		*input_bitfield &= ~input_id;
 }
 
 void DoTrigger(const int input_id)
 {
 	if (event.caxis.value >= (0x7FFF / 8))
-		*InputBitfield |= input_id;
+		*input_bitfield |= input_id;
 	else
-		*InputBitfield &= ~input_id;
+		*input_bitfield &= ~input_id;
 }
 
 void DoStick(const int input_id1, const int input_id2)
 {
 	if (event.caxis.value <= -(0x7FFF / 4))
-		*InputBitfield |= input_id1;
+		*input_bitfield |= input_id1;
 	else
-		*InputBitfield &= ~input_id1;
+		*input_bitfield &= ~input_id1;
 
 	if (event.caxis.value >= (0x7FFF / 4))
-		*InputBitfield |= input_id2;
+		*input_bitfield |= input_id2;
 	else
-		*InputBitfield &= ~input_id2;
+		*input_bitfield &= ~input_id2;
 }
 
 __cdecl void ProcessControllerEvents(void)
@@ -181,8 +181,7 @@ void InitMod(void)
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// NOP-out call to DirectInput init function
-	WriteLong(0x420EF6, 0x90909090);
-	WriteByte(0x420EF6 + 4, 0x90);
+	WriteWord(0x420EF6, 0xEB03);
 	// Redirect controller update function call
 	WriteRelativeAddress(0x4135CC + 1, ProcessControllerEvents);
 }
