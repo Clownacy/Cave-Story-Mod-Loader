@@ -1,3 +1,6 @@
+// Graphics enhancement mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #include "../common.h"
 #include "drawsprite1_centred.h"
 

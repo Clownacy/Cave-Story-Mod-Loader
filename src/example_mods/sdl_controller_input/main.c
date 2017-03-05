@@ -1,3 +1,6 @@
+// SDL2 controller input mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #include "SDL2/SDL.h"
 
 #include "controls.h"

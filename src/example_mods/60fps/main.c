@@ -1,3 +1,6 @@
+// 60FPS mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #include "mod_loader_main.h"
 
 #define FPS 60

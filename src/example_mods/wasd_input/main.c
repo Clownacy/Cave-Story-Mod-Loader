@@ -1,3 +1,6 @@
+// WASD keyboard input mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #include "controls.h"
 #include "mod_loader_main.h"
 

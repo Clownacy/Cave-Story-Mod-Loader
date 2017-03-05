@@ -1,4 +1,4 @@
-// OGG mod for Freeware Cave Story
+// Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
 #include <stdio.h>

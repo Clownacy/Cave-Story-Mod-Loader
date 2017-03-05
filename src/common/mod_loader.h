@@ -1,3 +1,6 @@
+// Mod loader for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #pragma once
 
 void (*WriteRelativeAddress)(const int instruction_address, const void* const new_destination);

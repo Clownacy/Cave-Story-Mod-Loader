@@ -1,3 +1,6 @@
+// Ogg music mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #pragma once
 
 #define SONG_LOOP (1<<0)

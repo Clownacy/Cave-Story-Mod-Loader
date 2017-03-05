@@ -1,3 +1,6 @@
+// Graphics enhancement mod for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 // This here centres the camera properly on Quote, but also makes rooms that are
 // smaller than the screen centred.
 

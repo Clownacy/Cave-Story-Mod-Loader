@@ -1,3 +1,6 @@
+// Mod loader for Freeware Cave Story
+// Copyright © 2017 Clownacy
+
 #pragma once
 
 #define INPUT_QUIT		0x00008000
