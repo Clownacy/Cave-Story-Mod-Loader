@@ -1,8 +1,10 @@
 #include "mod_loader_main.h"
 
+#define FPS 60
+#define FPS_TICKS (1000 + (FPS / 2)) / FPS	// Round to nearest whole number, instead of just flooring
+
 void InitMod(void)
 {
-	// 60 FPS
-	WriteByte(0x40B36F, 17);
-	WriteByte(0x40B3A9, 17);
+	WriteByte(0x40B36F, FPS_TICKS);
+	WriteByte(0x40B3A9, FPS_TICKS);
 }
