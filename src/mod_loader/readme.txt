@@ -1,0 +1,1 @@
+This is the mod loader itself. It's responsible for patching the Cave Story EXE in memory, logging errors, and parsing settings.
