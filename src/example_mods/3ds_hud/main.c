@@ -18,6 +18,7 @@ void InitMod(void)
 	WriteLong(0x401003 + 6, 8 + 16);
 	WriteLong(0x401F04 + 6, 8 + 16);
 	WriteLong(0x402166 + 6, 8 + 16);
+	WriteLong(0x40220E + 6, 8 - 16);
 	WriteLong(0x40224D + 6, 8 + 16);
 	WriteByte(0x419D95 + 6, 8);
 	WriteByte(0x419DAB + 6, 8);
