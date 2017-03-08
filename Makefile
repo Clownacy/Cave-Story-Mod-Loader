@@ -21,6 +21,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/main.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/upscale_window/upscale_window.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/black_bars.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/drawsprite1_centred.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/fix_subforeground_bug.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_beetle_and_basu.c \

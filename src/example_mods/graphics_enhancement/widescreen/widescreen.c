@@ -4,6 +4,7 @@
 #include "mod_loader.h"
 
 #include "../common.h"
+#include "black_bars.h"
 #include "fix_subforeground_bug.h"
 #include "patch_beetle_and_basu.h"
 #include "patch_boss_explosion.h"
@@ -62,6 +63,7 @@ void SetWidescreen(void)
 
 	FixSubForegroundBug();
 	PatchBeetleAndBasu();
+	PatchBlackBars();
 	PatchBossExplosion();
 	PatchBossHealth();
 	PatchBute();

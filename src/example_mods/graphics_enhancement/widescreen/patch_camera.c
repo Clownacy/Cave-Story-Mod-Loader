@@ -19,6 +19,7 @@
 #include "mod_loader.h"
 
 #include "../common.h"
+#include "black_bars.h"
 #include "patch_camera.h"
 
 bool small_room;
@@ -27,6 +28,8 @@ bool __stdcall UpdateCamera_extra(const unsigned int level_width, const unsigned
 {
 	signed int *camera_x_pos = (signed int*)0x49E1C8;
 	signed int *camera_y_pos = (signed int*)0x49E1CC;
+
+	current_level_width = level_width;
 
 	if (((level_width - 1) * 16) > SCREEN_WIDTH)
 	{
