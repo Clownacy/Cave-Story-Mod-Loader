@@ -8,40 +8,56 @@
 #include "../common.h"
 #include "patch_scrolling_clouds.h"
 
-void __stdcall ScrollClouds(const int scroll_type)
+void (*DrawSprite2)(RECT*, int, int, RECT*, int) = (void(*)(RECT*, int, int, RECT*, int))0x40C5B0;
+int *dword_499C8C = (int*)0x499C8C;
+RECT *clip_rect = (RECT*)0x48F91C;
+
+void DrawSkyRow(const int scroll_type)
 {
-	void (*DrawSprite2)(RECT*, int, int, RECT*, int) = (void(*)(RECT*, int, int, RECT*, int))0x40C5B0;
-	int *dword_499C8C = (int*)0x499C8C;
+	RECT src_rect_sky = {0, 0, 320, 88};
+	const int sky_width = src_rect_sky.right - src_rect_sky.left;
+	RECT src_rect_no_moon = {0, 0, 240, 88};
+	const int moon_width = src_rect_no_moon.right - src_rect_no_moon.left;
+	RECT src_rect_no_sun = {108, 0, 320, 88};
+	const int sun_width = src_rect_no_sun.right - src_rect_no_sun.left;
 
-	RECT *clip_rect = (RECT*)0x48F91C;
-	RECT src_rect = {0, 0, 320, 88};
-	int sprite_width = (src_rect.right - src_rect.left);
-	DrawSprite2(clip_rect, 0, src_rect.top, &src_rect, 28);
+	DrawSprite2(clip_rect, (SCREEN_WIDTH - sky_width) / 2, 0, &src_rect_sky, 28);
 
+	RECT src_rect_current;
+	int width_current;
 	if (scroll_type == 6)
 	{
 		// bkMoon
-		src_rect.left = 0;
-		src_rect.right = 240;
+		src_rect_current = src_rect_no_moon;
+		width_current = moon_width;
 	}
-	else// if (scroll_type == 6)
+	else// if (scroll_type == 7)
 	{
 		// bkFog
-		src_rect.left = 108;
-		src_rect.right = 320;
+		src_rect_current = src_rect_no_sun;
+		width_current = sun_width;
 	}
 
-	sprite_width = (src_rect.right - src_rect.left);
-	for (int i=0; i <= ((SCREEN_WIDTH - 320) / sprite_width); ++i)
+	for (int i = (((SCREEN_WIDTH - sky_width) / 2) - width_current); (i + width_current) > 0; i -= width_current)
 	{
-		DrawSprite2(clip_rect, 320 + (sprite_width * i), src_rect.top, &src_rect, 28);
+		DrawSprite2(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
 	}
 
-	src_rect.left = 0;
-	src_rect.right = 320;
-	src_rect.top = 88;
-	src_rect.bottom = 123;
-	sprite_width = (src_rect.right - src_rect.left);
+	for (int i = (((SCREEN_WIDTH - sky_width) / 2) + sky_width); i < SCREEN_WIDTH; i += width_current)
+	{
+		DrawSprite2(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
+	}
+}
+
+void __stdcall ScrollClouds(const int scroll_type)
+{
+	DrawSkyRow(scroll_type);
+
+	// Cloud layers
+
+	RECT src_rect = {0, 88, 320, 123};
+	const int sprite_width = (src_rect.right - src_rect.left);
+
 	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
 		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C / 2) % sprite_width), src_rect.top, &src_rect, 28);
