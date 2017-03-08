@@ -63,10 +63,10 @@ void InitMod(void)
 	WriteByte(0x41A336 + 1, HUD_X - 8);	// X
 
 	// WeaponIcons
-	WriteByte(0x41A1B0 + 1, HUD_Y);	// Y
+	WriteByte(0x41A1B0 + 1, HUD_Y);		// Y
 	WriteRelativeAddress(0x41A1BB + 1, DrawHUD_WeaponIcons_hijack);	// X
 
 	// DrawHUD_HellTimer
-	WriteByte(0x41081F + 1, HUD_Y + 20);
-	WriteByte(0x410821 + 1, HUD_X);
+	WriteByte(0x41081F + 1, HUD_Y + 20);	// Y
+	WriteByte(0x410821 + 1, HUD_X);		// X
 }
