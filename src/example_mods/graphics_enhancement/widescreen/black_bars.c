@@ -10,6 +10,9 @@ int current_level_width;
 void DrawBlackBars(int x_pos, int y_pos)
 {
 	void (*DrawColourFillOntoScreen)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;
+	void (*DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
+
+	DrawWater(x_pos, y_pos);
 
 	const int bar_width = (SCREEN_WIDTH - (current_level_width * 16)) / 2;
 
@@ -39,5 +42,5 @@ void PatchBlackBars(void)
 	const char* const black_bars_setting = GetSetting("black_bars");
 
 	if (black_bars_setting != NULL && strcmp(black_bars_setting, "true") == 0)
-		WriteRelativeAddress(0x4106E8 + 1, DrawBlackBars);
+		WriteRelativeAddress(0x4106C3 + 1, DrawBlackBars);
 }

@@ -70,7 +70,20 @@ void UpdateCamera_extra_asm(void);
 } \
 
 hijackCheckSmallRoom(DrawBackground, 0x4023D0);
-hijackCheckSmallRoom(DrawWater, 0x402830);
+
+__asm(
+"_DrawWater_new:\n"
+"	movl	_small_room, %eax\n"
+"	test	%eax, %eax\n"
+"	jz	notSmallRoom\n"
+"	movl	$0, 4(%esp)\n"
+"notSmallRoom:\n"
+"	pushl	%ebp\n"
+"	movl	%esp, %ebp\n"
+"	subl	$0x44, %esp\n"
+"	jmp	0x402836\n"
+);
+void DrawWater_new(void);
 
 void PatchCamera(void)
 {
@@ -84,6 +97,6 @@ void PatchCamera(void)
 	WriteLong(0x40F1BE + 1, SCREEN_WIDTH);
 	WriteLong(0x40F1D8 + 2, SCREEN_WIDTH);
 
-	WriteRelativeAddress(0x410633+1, DrawBackground_hijack);
-	WriteRelativeAddress(0x4106C3+1, DrawWater_hijack);
+	WriteRelativeAddress(0x410633 + 1, DrawBackground_hijack);
+	WriteJump(0x402830, DrawWater_new);
 }
