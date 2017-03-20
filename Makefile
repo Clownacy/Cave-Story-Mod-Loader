@@ -31,6 +31,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_boss_health.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_bute.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_camera.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_credits.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_exit_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fade.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_gaudi.c \

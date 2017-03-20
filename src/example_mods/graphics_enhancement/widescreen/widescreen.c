@@ -11,6 +11,7 @@
 #include "patch_boss_health.h"
 #include "patch_bute.h"
 #include "patch_camera.h"
+#include "patch_credits.h"
 #include "patch_exit_screen.h"
 #include "patch_fade.h"
 #include "patch_gaudi.h"
@@ -68,6 +69,7 @@ void SetWidescreen(void)
 	PatchBossHealth();
 	PatchBute();
 	PatchCamera();
+	PatchCredits();
 	PatchExitScreen();
 	PatchFade();
 	PatchGaudi();
