@@ -6,6 +6,8 @@
 #include <windows.h>
 
 #include "error.h"
+#include "mod_list.h"
+#include "redirect_org_files.h"
 #include "settings.h"
 
 HMODULE this_hmodule;
@@ -16,6 +18,8 @@ void LoadMod(const char* const filename)
 		strcpy(mod_folder, "mods/");
 		strcat(mod_folder, filename);
 		strcat(mod_folder, "/");
+
+		AddToModList(mod_folder);
 
 		char mod_path[strlen(mod_folder) + strlen(filename) + 1];
 		strcpy(mod_path, mod_folder);
@@ -46,6 +50,7 @@ void LoadMod(const char* const filename)
 __declspec(dllexport) void init(void)
 {
 	InitError();
+	RedirectOrgFiles();
 
 	SetDllDirectory("mods/_deps");
 

@@ -12,7 +12,9 @@ MOD_LOADER_SOURCES = \
 	$(MOD_LOADER_PATH)/error.c \
 	$(MOD_LOADER_PATH)/fix_door_bug.c \
 	$(MOD_LOADER_PATH)/main.c \
+	$(MOD_LOADER_PATH)/mod_list.c \
 	$(MOD_LOADER_PATH)/patch.c \
+	$(MOD_LOADER_PATH)/redirect_org_files.c \
 	$(MOD_LOADER_PATH)/settings.c
 
 GRAPHICS_ENHANCEMENT_PATH = src/example_mods/graphics_enhancement
