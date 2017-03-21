@@ -8,5 +8,5 @@
 
 void DrawSprite1_hijack(void* clip_rect, int x, int y, void* src_rect, int surface_ID)
 {
-	DrawSprite1(clip_rect, ((SCREEN_WIDTH - 320) / 2) + x, y, src_rect, surface_ID);
+	DrawSprite_WithTransparency(clip_rect, ((SCREEN_WIDTH - 320) / 2) + x, y, src_rect, surface_ID);
 }

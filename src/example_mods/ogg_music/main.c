@@ -104,7 +104,7 @@ void PlayOrgMusic(const int music_id)
 	LoadOrgMusic(org_playlist[music_id]);
 	SetOrgVolume(100);
 	SetOrgMusicPosition(0);
-	sub_41C790();
+	StartOrgPlayback();
 }
 
 void PlayPreviousOrgMusic(void)
@@ -113,7 +113,7 @@ void PlayPreviousOrgMusic(void)
 	LoadOrgMusic(org_playlist[*previous_song_last_position]);
 	SetOrgMusicPosition(*previous_song_last_position);
 	SetOrgVolume(100);
-	sub_41C790();
+	StartOrgPlayback();
 }
 
 void __cdecl PlayMusic_new(const int music_id)

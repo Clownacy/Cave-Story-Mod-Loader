@@ -30,13 +30,13 @@ void DrawBlackBars(int x_pos, int y_pos)
 			bar_rect.right = bar_width + rumble_delta;
 			bar_rect.bottom = 240;
 
-			DrawColourFillOntoScreen(&bar_rect, 0x00000000);
+			DrawColourFill(&bar_rect, 0x00000000);
 
 			// Draw right black bar
 			bar_rect.left = SCREEN_WIDTH - (bar_width - rumble_delta);
 			bar_rect.right = SCREEN_WIDTH;
 
-			DrawColourFillOntoScreen(&bar_rect, 0x00000000);
+			DrawColourFill(&bar_rect, 0x00000000);
 		}
 	}
 }

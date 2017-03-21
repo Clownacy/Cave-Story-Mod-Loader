@@ -16,7 +16,7 @@ void DrawHUD_Air_hijack(int x, int y)
 
 void TextBoxDrawSpriteHijack(RECT* clip, int x, int y, RECT* src, int slot)
 {
-	DrawSprite(clip, ((SCREEN_WIDTH - 244) / 2) + (x - 38), y, src, slot);
+	DrawSprite_WithTransparency(clip, ((SCREEN_WIDTH - 244) / 2) + (x - 38), y, src, slot);
 }
 
 void ClearScreenHijack(RECT* rect, int flags)
@@ -24,7 +24,7 @@ void ClearScreenHijack(RECT* rect, int flags)
 	rect->left += (SCREEN_WIDTH - 320) / 2;
 	rect->right += (SCREEN_WIDTH - 320) / 2;
 
-	ClearScreen(rect, flags);
+	DrawColourFill(rect, flags);
 }
 
 void PatchTextBox(void)

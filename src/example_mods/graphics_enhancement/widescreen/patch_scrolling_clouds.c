@@ -18,7 +18,7 @@ void DrawSkyRow(const int scroll_type)
 	RECT src_rect_no_sun = {108, 0, 320, 88};
 	const int sun_width = src_rect_no_sun.right - src_rect_no_sun.left;
 
-	DrawSprite2(clip_rect, (SCREEN_WIDTH - sky_width) / 2, 0, &src_rect_sky, 28);
+	DrawSprite_NoTransparency(clip_rect, (SCREEN_WIDTH - sky_width) / 2, 0, &src_rect_sky, 28);
 
 	RECT src_rect_current;
 	int width_current;
@@ -37,12 +37,12 @@ void DrawSkyRow(const int scroll_type)
 
 	for (int i = (((SCREEN_WIDTH - sky_width) / 2) - width_current); (i + width_current) > 0; i -= width_current)
 	{
-		DrawSprite2(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
+		DrawSprite_NoTransparency(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
 	}
 
 	for (int i = (((SCREEN_WIDTH - sky_width) / 2) + sky_width); i < SCREEN_WIDTH; i += width_current)
 	{
-		DrawSprite2(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
+		DrawSprite_NoTransparency(clip_rect, i, src_rect_current.top, &src_rect_current, 28);
 	}
 }
 
@@ -57,28 +57,28 @@ void __stdcall ScrollClouds(const int scroll_type)
 
 	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
-		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C / 2) % sprite_width), src_rect.top, &src_rect, 28);
+		DrawSprite_NoTransparency(clip_rect, (sprite_width * i) - ((*dword_499C8C / 2) % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 123;
 	src_rect.bottom = 146;
 	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
-		DrawSprite2(clip_rect, (sprite_width * i) - (*dword_499C8C % sprite_width), src_rect.top, &src_rect, 28);
+		DrawSprite_NoTransparency(clip_rect, (sprite_width * i) - (*dword_499C8C % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 146;
 	src_rect.bottom = 176;
 	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
-		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C * 2) % sprite_width), src_rect.top, &src_rect, 28);
+		DrawSprite_NoTransparency(clip_rect, (sprite_width * i) - ((*dword_499C8C * 2) % sprite_width), src_rect.top, &src_rect, 28);
 	}
 
 	src_rect.top = 176;
 	src_rect.bottom = 240;
 	for (int i=0; i <= (SCREEN_WIDTH / sprite_width) + 1; ++i)
 	{
-		DrawSprite2(clip_rect, (sprite_width * i) - ((*dword_499C8C * 4) % sprite_width), src_rect.top, &src_rect, 28);
+		DrawSprite_NoTransparency(clip_rect, (sprite_width * i) - ((*dword_499C8C * 4) % sprite_width), src_rect.top, &src_rect, 28);
 	}
 }
 
