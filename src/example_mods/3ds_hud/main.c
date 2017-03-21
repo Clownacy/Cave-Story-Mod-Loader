@@ -1,6 +1,7 @@
 // 3DS HUD mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #define HUD_X 8
@@ -8,8 +9,6 @@
 
 void DrawHUD_WeaponIcons_hijack(void *clip_rect, int x_pos, int y_pos, void *src_rect, int surface_id)
 {
-	void (*DrawSprite_WithTransparency)(void*,int,int,void*,int) = (void(*)(void*,int,int,void*,int))0x40C3C0;
-
 	DrawSprite_WithTransparency(clip_rect, x_pos + HUD_X + 56, y_pos, src_rect, surface_id);
 }
 

@@ -1,6 +1,7 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -9,8 +10,6 @@
 
 void SomethingHUDNumbers_hijack(int x, int y, int a3, int a4)
 {
-	void (*SomethingHUDNumbers)(int x, int y, int, int) = (void(*)(int x, int y, int, int))0x40F380;
-
 	SomethingHUDNumbers(((SCREEN_WIDTH - 320) / 2) + x, y, a3, a4);
 }
 

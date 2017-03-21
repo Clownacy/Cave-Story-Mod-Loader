@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -10,15 +11,11 @@
 
 void DrawHUD_Air_hijack(int x, int y)
 {
-	void (*DrawHUD_Air)(int x, int y) = (void(*)(int x, int y))0x41A350;
-
 	DrawHUD_Air(((SCREEN_WIDTH - 320) / 2) + x, y);
 }
 
 void TextBoxDrawSpriteHijack(RECT* clip, int x, int y, RECT* src, int slot)
 {
-	void (*DrawSprite)(RECT* clip, int x, int y, RECT* src, int slot) = (void(*)(RECT* clip, int x, int y, RECT* src, int slot))0x40C3C0;
-
 	DrawSprite(clip, ((SCREEN_WIDTH - 244) / 2) + (x - 38), y, src, slot);
 }
 
@@ -26,7 +23,6 @@ void ClearScreenHijack(RECT* rect, int flags)
 {
 	rect->left += (SCREEN_WIDTH - 320) / 2;
 	rect->right += (SCREEN_WIDTH - 320) / 2;
-	void (*ClearScreen)(RECT* rect, int flags) = (void(*)(RECT* rect, int flags))0x40C9E0;
 
 	ClearScreen(rect, flags);
 }

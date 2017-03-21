@@ -16,6 +16,7 @@
 
 #include <stdbool.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -26,9 +27,6 @@ bool small_room;
 
 bool __stdcall UpdateCamera_extra(const unsigned int level_width, const unsigned int level_height)
 {
-	signed int *camera_x_pos = (signed int*)0x49E1C8;
-	signed int *camera_y_pos = (signed int*)0x49E1CC;
-
 	current_level_width = level_width;
 
 	if (((level_width - 1) * 16) > SCREEN_WIDTH)

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <windows.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -17,10 +18,6 @@ int sprite_resolution_factor;
 // we need it to tile these at half-size.
 void LoadBackgroundSprite_hijack(char* filename, int something)
 {
-	int* const background_tile_width = (int*)0x499C78;
-	int* const background_tile_height = (int*)0x499C7C;
-	void (*LoadBackgroundSprite)(char*, int) = (void(*)(char*,int))0x402270;
-
 	LoadBackgroundSprite(filename, something);
 
 	*background_tile_width /= sprite_resolution_factor;

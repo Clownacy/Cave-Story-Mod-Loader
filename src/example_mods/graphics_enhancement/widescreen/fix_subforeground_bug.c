@@ -1,6 +1,7 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "fix_subforeground_bug.h"
@@ -13,12 +14,6 @@ char bad_tile_flag;
 
 char GetTileID_new(const int tile_x, const int tile_y)
 {
-	unsigned short *level_width = (unsigned short*)0x49E586;
-	unsigned short *level_height = (unsigned short*)0x49E588;
-
-	char *byte_49E484 = (char*)0x49E484;
-	int *dword_49E480 = (int*)0x49E480;
-
 	if (tile_x >= 0 && tile_y >= 0 && tile_x < (*level_width) && tile_y < (*level_height))
 	{
 		bad_tile_flag = 0;

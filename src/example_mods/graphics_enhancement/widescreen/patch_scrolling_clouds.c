@@ -3,14 +3,11 @@
 
 #include <windows.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
 #include "patch_scrolling_clouds.h"
-
-void (*DrawSprite2)(RECT*, int, int, RECT*, int) = (void(*)(RECT*, int, int, RECT*, int))0x40C5B0;
-int *dword_499C8C = (int*)0x499C8C;
-RECT *clip_rect = (RECT*)0x48F91C;
 
 void DrawSkyRow(const int scroll_type)
 {

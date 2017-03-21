@@ -3,6 +3,7 @@
 
 #include "SDL2/SDL.h"
 
+#include "cave_story.h"
 #include "controls.h"
 #include "mod_loader.h"
 
@@ -33,8 +34,6 @@ const int input_masks[] = {
 	INPUT_PREVIOUSWEAPON,
 	INPUT_INVENTORY
 };
-
-int* const input_bitfield = (int* const)0x49E210;
 
 SDL_Event event;
 SDL_GameController *controller;

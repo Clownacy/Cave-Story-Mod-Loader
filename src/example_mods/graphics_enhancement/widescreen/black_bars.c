@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -14,9 +15,6 @@ void DrawBlackBars(int x_pos, int y_pos)
 {
 	if (!(*(int*)0x49E1E8 & 8))	// Detect if credits are running
 	{
-		void (*DrawColourFillOntoScreen)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;
-		void (*DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
-
 		DrawWater(x_pos, y_pos);
 
 		const int bar_width = (SCREEN_WIDTH - (current_level_width * 16)) / 2;

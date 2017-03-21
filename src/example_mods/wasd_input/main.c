@@ -3,11 +3,9 @@
 
 #include <windows.h>
 
+#include "cave_story.h"
 #include "controls.h"
 #include "mod_loader.h"
-
-int* const input_bitfield = (int* const)0x49E210;
-int* const gamepad_enabled = (int* const)0x49E45C;
 
 void __stdcall HandleKeyPress(const int key_code)
 {

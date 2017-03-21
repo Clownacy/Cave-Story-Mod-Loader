@@ -7,25 +7,10 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "playlist.h"
-
-// Variables
-int* const current_music = (int* const)0x4A57F4;
-int* const previous_song_last_position = (int* const)0x4A57F8;
-int* const previous_music = (int* const)0x4A57FC;
-
-// String array
-const char* const * const org_playlist = (const char* const * const)0x4981E8;
-
-// Functions
-void (*LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;
-void (*SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
-int (*GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
-void (*sub_41C790)(void) = (void(*)(void))0x41C790;
-void (*SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
-void (*sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 
 bool intro_playing;
 int current_loop_setting;
@@ -183,8 +168,6 @@ void __cdecl WindowFocusLost_new(void)
 
 void __cdecl FadeMusic_new(void)
 {
-	int* const music_fade_flag = (void*)0x4A4E10;
-
 	*music_fade_flag = 1;
 	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
 	Mix_FadeOutMusic(1000 * 5);
