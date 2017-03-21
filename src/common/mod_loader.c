@@ -11,6 +11,8 @@ void (*WriteRelativeAddress)(const int instruction_address, const void* const ne
 void (*WriteByte)(const int instruction_address, const char value);
 void (*WriteWord)(const int instruction_address, const short value);
 void (*WriteLong)(const int instruction_address, const int value);
+void (*WriteWordBE)(const int instruction_address, const short value);
+void (*WriteLongBE)(const int instruction_address, const int value);
 void (*WriteJump)(const int instruction_address, const void* const new_destination);
 void (*WriteCall)(const int instruction_address, const void* const new_destination);
 void (*FixDoorEnterBug)(void);
@@ -35,6 +37,8 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const void
 	WriteByte = (void (*)(const int, const char))GetProcAddress(mod_loader_hmodule, "WriteByte");
 	WriteWord = (void (*)(const int, const short))GetProcAddress(mod_loader_hmodule, "WriteWord");
 	WriteLong = (void (*)(const int, const int))GetProcAddress(mod_loader_hmodule, "WriteLong");
+	WriteWordBE = (void (*)(const int, const short))GetProcAddress(mod_loader_hmodule, "WriteWordBE");
+	WriteLongBE = (void (*)(const int, const int))GetProcAddress(mod_loader_hmodule, "WriteLongBE");
 	WriteJump = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteJump");
 	WriteCall = (void (*)(const int, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");

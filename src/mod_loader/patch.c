@@ -26,6 +26,18 @@ __declspec(dllexport) void WriteLong(const int instruction_address, const int va
 	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &value, 4, NULL);
 }
 
+__declspec(dllexport) void WriteWordBE(const int instruction_address, const short value)
+{
+	short big_endian_value = ((value & 0xFF) << 8) | ((value & 0xFF00) >> 8);
+	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &big_endian_value, 2, NULL);
+}
+
+__declspec(dllexport) void WriteLongBE(const int instruction_address, const int value)
+{
+	int big_endian_value = ((value & 0xFF) << 24) | ((value & 0xFF00) << 8) | ((value & 0xFF0000) >> 8) | ((value & 0xFF000000) >> 24);
+	WriteProcessMemory(GetCurrentProcess(), (void*)instruction_address, &big_endian_value, 4, NULL);
+}
+
 __declspec(dllexport) void WriteJump(const int instruction_address, const void* const new_destination)
 {
 	WriteByte(instruction_address, 0xE9);

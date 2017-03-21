@@ -6,5 +6,5 @@
 void InitMod(void)
 {
 	// Stop Debug Save menu from being deleted
-	WriteWord(0x412D4D, 0x0FEB);
+	WriteWordBE(0x412D4D, 0xEB0F);
 }
