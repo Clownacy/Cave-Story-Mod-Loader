@@ -1,10 +1,11 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_map_screen.h"
+
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_map_screen.h"
 
 void PatchMapMenu(void)
 {

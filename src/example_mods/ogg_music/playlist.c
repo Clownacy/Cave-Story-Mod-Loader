@@ -1,12 +1,12 @@
 // Ogg music mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "playlist.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-
-#include "playlist.h"
 
 SongEntry playlist[] = {
 	{"data/Ogg/WANPAKU", SONG_LOOP},

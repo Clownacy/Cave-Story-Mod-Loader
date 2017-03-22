@@ -14,6 +14,8 @@
 // To work around this, we only move the foreground's camera to the left,
 // leaving the background (and Core water) camera in the positive range.
 
+#include "patch_camera.h"
+
 #include <stdbool.h>
 
 #include "cave_story.h"
@@ -21,7 +23,6 @@
 
 #include "../common.h"
 #include "black_bars.h"
-#include "patch_camera.h"
 
 bool small_room;
 

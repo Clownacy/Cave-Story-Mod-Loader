@@ -1,13 +1,14 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_scrolling_clouds.h"
+
 #include <windows.h>
 
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_scrolling_clouds.h"
 
 void DrawSkyRow(const int scroll_type)
 {

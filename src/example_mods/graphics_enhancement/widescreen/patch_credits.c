@@ -1,12 +1,13 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_credits.h"
+
 #include <windows.h>
 
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_credits.h"
 
 int screen_nudge;
 

@@ -1,11 +1,12 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_exit_screen.h"
+
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_exit_screen.h"
 
 void DrawSprite1_hijack2(void* clip_rect, int x, int y, void* src_rect, int surface_ID)
 {

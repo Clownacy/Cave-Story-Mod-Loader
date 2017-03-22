@@ -1,9 +1,9 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
-#include <windows.h>
-
 #include "mod_loader.h"
+
+#include <windows.h>
 
 extern void InitMod(void);
 

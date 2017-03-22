@@ -1,9 +1,9 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
-#include <windows.h>
-
 #include "patch.h"
+
+#include <windows.h>
 
 __declspec(dllexport) void WriteRelativeAddress(const int instruction_address, const void* const new_destination)
 {

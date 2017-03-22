@@ -1,6 +1,8 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "widescreen.h"
+
 #include "mod_loader.h"
 
 #include "../common.h"
@@ -27,7 +29,6 @@
 #include "patch_text_box.h"
 #include "patch_tile_drawers.h"
 #include "patch_title_screen.h"
-#include "widescreen.h"
 
 void SetWidescreen(void)
 {

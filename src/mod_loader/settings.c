@@ -1,11 +1,11 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "settings.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-
-#include "settings.h"
 
 typedef struct Setting
 {

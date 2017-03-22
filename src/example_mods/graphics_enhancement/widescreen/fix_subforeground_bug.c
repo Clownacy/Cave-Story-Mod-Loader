@@ -1,10 +1,10 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "fix_subforeground_bug.h"
+
 #include "cave_story.h"
 #include "mod_loader.h"
-
-#include "fix_subforeground_bug.h"
 
 // This here fixes a bug in the game's sub-FG renderer, where out-of-bound tiles
 // are draw. The function returns 0 in the event of an error, but 0 is a valid

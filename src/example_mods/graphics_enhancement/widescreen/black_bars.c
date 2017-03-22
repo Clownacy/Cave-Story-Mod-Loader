@@ -1,13 +1,14 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "black_bars.h"
+
 #include <windows.h>
 
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "black_bars.h"
 
 int current_level_width;
 

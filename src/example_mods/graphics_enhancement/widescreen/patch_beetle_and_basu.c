@@ -1,10 +1,11 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_beetle_and_basu.h"
+
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_beetle_and_basu.h"
 
 void PatchBeetleAndBasu(void)
 {

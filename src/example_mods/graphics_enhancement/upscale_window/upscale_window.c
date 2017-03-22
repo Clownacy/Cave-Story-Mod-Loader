@@ -1,10 +1,11 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "upscale_window.h"
+
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "upscale_window.h"
 
 void UpscaleWindow(const int upscale_factor)
 {

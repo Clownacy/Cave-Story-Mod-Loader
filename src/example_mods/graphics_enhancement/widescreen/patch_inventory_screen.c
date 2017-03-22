@@ -1,12 +1,13 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_inventory_screen.h"
+
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
 #include "drawsprite1_centred.h"
-#include "patch_inventory_screen.h"
 
 void SomethingHUDNumbers_hijack(int x, int y, int a3, int a4)
 {

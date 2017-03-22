@@ -1,6 +1,8 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "sprite_resolution.h"
+
 #include <ddraw.h>
 #include <stdbool.h>
 #include <windows.h>
@@ -9,7 +11,6 @@
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "sprite_resolution.h"
 
 int sprite_resolution_factor;
 

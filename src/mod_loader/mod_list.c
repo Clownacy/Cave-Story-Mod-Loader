@@ -1,10 +1,10 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "mod_list.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "mod_list.h"
 
 typedef struct ModListEntry
 {

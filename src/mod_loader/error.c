@@ -1,9 +1,9 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
-#include <stdio.h>
-
 #include "error.h"
+
+#include <stdio.h>
 
 #define ERROR_PATH "mods/error.txt"
 

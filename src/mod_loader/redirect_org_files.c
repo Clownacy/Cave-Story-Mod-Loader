@@ -1,6 +1,8 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "redirect_org_files.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +10,6 @@
 
 #include "mod_list.h"
 #include "patch.h"
-#include "redirect_org_files.h"
 
 __stdcall char* LoadOrg(char *filename)
 {

@@ -1,11 +1,12 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_teleport_screen.h"
+
 #include "mod_loader.h"
 
 #include "../common.h"
 #include "drawsprite1_centred.h"
-#include "patch_teleport_screen.h"
 
 void PatchTeleportScreen(void)
 {

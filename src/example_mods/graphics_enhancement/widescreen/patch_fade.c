@@ -1,12 +1,13 @@
 // Graphics enhancement mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include "patch_fade.h"
+
 #include <stdlib.h>
 
 #include "mod_loader.h"
 
 #include "../common.h"
-#include "patch_fade.h"
 
 char *fade_buffer_bool;
 char *fade_buffer_int;
