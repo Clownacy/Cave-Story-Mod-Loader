@@ -44,9 +44,6 @@ void SetWidescreen(void)
 	// This one I think has to do with text box drawing, but I'm not sure yet
 //	WriteLong(0x498290 + 8, (0xD8 * SCREEN_WIDTH) / 320);
 
-	// Related to credits. May be the characters ("casts")
-//	WriteLong(0x40D575, SCREEN_WIDTH / 2);
-
 	// Patch WinMain (window creation and other stuff)
 	WriteLong(0x4126E5 + 3, SCREEN_WIDTH);
 	WriteLong(0x4127BC + 6, SCREEN_WIDTH);
