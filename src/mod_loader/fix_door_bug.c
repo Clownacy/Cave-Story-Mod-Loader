@@ -41,7 +41,7 @@ __asm(
 "	jz	0x415826\n"
 "	jmp	0x4157F3\n"
 );
-extern void TestOnlyDownPressedAndHeld_asm(void);
+extern char TestOnlyDownPressedAndHeld_asm;
 
 __asm(
 "_TestOnlyDownHeld_asm:\n"
@@ -50,14 +50,14 @@ __asm(
 "	jz	0x415835\n"
 "	jmp	0x4158B3\n"
 );
-extern void TestOnlyDownHeld_asm(void);
+extern char TestOnlyDownHeld_asm;
 
 __declspec(dllexport) void FixDoorEnterBug(void)
 {
 	if (!done)
 	{
-		WriteJump(0x4157D7, (void*)TestOnlyDownPressedAndHeld_asm);
-		WriteJump(0x415826, (void*)TestOnlyDownHeld_asm);
+		WriteJump(0x4157D7, &TestOnlyDownPressedAndHeld_asm);
+		WriteJump(0x415826, &TestOnlyDownHeld_asm);
 		done = true;
 	}
 }

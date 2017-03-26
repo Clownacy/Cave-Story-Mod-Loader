@@ -42,7 +42,7 @@ __asm (
 "	movl	$0, -0x10(%ebp)\n"
 "	jmp	0x40BC35\n"
 );
-void LoadBMP_FromFile_SurfaceCreationHijack(void);
+extern char LoadBMP_FromFile_SurfaceCreationHijack;
 
 __asm (
 "_LoadBMP_FromFile_StretchBlitHijack:\n"
@@ -57,7 +57,7 @@ __asm (
 "	movl	%eax, 0x14(%esp)\n"
 "	jmp	*0x48C018\n"
 );
-void LoadBMP_FromFile_StretchBlitHijack(void);
+extern char LoadBMP_FromFile_StretchBlitHijack;
 
 void SetSpriteResolution(const int factor)
 {
@@ -66,9 +66,9 @@ void SetSpriteResolution(const int factor)
 	// Fix background tile sizes
 	WriteRelativeAddress(0x420DAA + 1, LoadBackgroundSprite_hijack);
 
-	WriteJump(0x40BC2B, LoadBMP_FromFile_SurfaceCreationHijack);
-	WriteCall(0x40BD04, LoadBMP_FromFile_StretchBlitHijack);
+	WriteJump(0x40BC2B, &LoadBMP_FromFile_SurfaceCreationHijack);
+	WriteCall(0x40BD04, &LoadBMP_FromFile_StretchBlitHijack);
 	WriteByte(0x40BD04 + 5, 0x90);
-	WriteCall(0x40C142, LoadBMP_FromFile_StretchBlitHijack);
+	WriteCall(0x40C142, &LoadBMP_FromFile_StretchBlitHijack);
 	WriteByte(0x40C142 + 5, 0x90);
 }

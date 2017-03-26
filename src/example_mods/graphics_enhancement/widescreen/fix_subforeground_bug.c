@@ -35,10 +35,10 @@ __asm(
 "	jl	0x413BAF\n"
 "	jmp	0x413B68\n"
 );
-void DrawForegroundBG_patch(void);
+extern char DrawForegroundBG_patch;
 
 void FixSubForegroundBug(void)
 {
 	WriteJump(0x4139A0, GetTileID_new);
-	WriteJump(0x413BA7, DrawForegroundBG_patch);
+	WriteJump(0x413BA7, &DrawForegroundBG_patch);
 }

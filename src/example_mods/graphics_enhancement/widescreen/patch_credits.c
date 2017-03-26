@@ -17,7 +17,7 @@ __asm(
 "	addl	%eax, 8(%esp)\n"
 "	jmp	0x40C3C0\n"
 );
-void DrawSprite_WithTransparency_nudged(void);
+extern char DrawSprite_WithTransparency_nudged;
 
 void DrawCreditsImage_new(void)
 {
@@ -34,6 +34,6 @@ void PatchCredits(void)
 	screen_nudge = (SCREEN_WIDTH - 320) / 2;
 	WriteRelativeAddress(0x410865 + 1, DrawCreditsImage_new);
 	WriteLong(0x40D56F + 6, SCREEN_WIDTH / 2);
-	WriteRelativeAddress(0x40D0A7 + 1, DrawSprite_WithTransparency_nudged);
-	WriteRelativeAddress(0x40D138 + 1, DrawSprite_WithTransparency_nudged);
+	WriteRelativeAddress(0x40D0A7 + 1, &DrawSprite_WithTransparency_nudged);
+	WriteRelativeAddress(0x40D138 + 1, &DrawSprite_WithTransparency_nudged);
 }

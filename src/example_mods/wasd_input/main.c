@@ -170,7 +170,7 @@ __asm(
 "	call	_HandleKeyPress@4\n"
 "	jmp	0x41300E\n"
 );
-extern void HandleKeyPress_caller(void);
+extern char HandleKeyPress_caller;
 
 __asm(
 "_HandleKeyRelease_caller:\n"
@@ -178,13 +178,13 @@ __asm(
 "	call	_HandleKeyRelease@4\n"
 "	jmp	0x4131B6\n"
 );
-extern void HandleKeyRelease_caller(void);
+extern char HandleKeyRelease_caller;
 
 void InitMod(void)
 {
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// WASD controls
-	WriteRelativeAddress(0x412CEE + 2, HandleKeyPress_caller);
-	WriteRelativeAddress(0x412CBC + 2, HandleKeyRelease_caller);
+	WriteRelativeAddress(0x412CEE + 2, &HandleKeyPress_caller);
+	WriteRelativeAddress(0x412CBC + 2, &HandleKeyRelease_caller);
 }

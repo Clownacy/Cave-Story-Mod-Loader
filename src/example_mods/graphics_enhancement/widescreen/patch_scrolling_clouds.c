@@ -89,10 +89,10 @@ __asm(
 "	call	_ScrollClouds@4\n"
 "	jmp	0x402805\n"
 );
-void ScrollClouds_asm(void);
+extern char ScrollClouds_asm;
 
 void PatchScrollingClouds(void)
 {
-	WriteLong(0x402809 + (4 * 6), (int)ScrollClouds_asm);
-	WriteLong(0x402809 + (4 * 7), (int)ScrollClouds_asm);
+	WriteLong(0x402809 + (4 * 6), (int)&ScrollClouds_asm);
+	WriteLong(0x402809 + (4 * 7), (int)&ScrollClouds_asm);
 }

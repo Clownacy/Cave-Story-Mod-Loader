@@ -59,7 +59,7 @@ __asm(
 "	movl	0x49E1C8, %eax\n"
 "	jmp	0x40EED6\n"
 );
-void UpdateCamera_extra_asm(void);
+extern char UpdateCamera_extra_asm;
 
 #define hijackCheckSmallRoom(name, address) void name##_hijack(int x, int y) \
 { \
@@ -90,7 +90,7 @@ void PatchCamera(void)
 	WriteLong(0x40EE90 + 1, (SCREEN_WIDTH / 2) * 0x200);	// Patch camera so Quote is still centred
 	WriteLong(0x40EF19 + 2, SCREEN_WIDTH);
 	WriteLong(0x40EF34 + 2, SCREEN_WIDTH);
-	WriteJump(0x40EED1, UpdateCamera_extra_asm);
+	WriteJump(0x40EED1, &UpdateCamera_extra_asm);
 	// SetCameraUponEnterRoom - This function is what decides where the camera starts off when you enter a room
 	WriteLong(0x40F15B + 2, (SCREEN_WIDTH / 2) * 0x200);
 	WriteLong(0x40F1BE + 1, SCREEN_WIDTH);

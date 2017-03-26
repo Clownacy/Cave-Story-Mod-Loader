@@ -68,12 +68,12 @@ __asm(
 "	jnz	0x41BB20\n"
 "	jmp	0x41C094\n"
 );
-void sub_41BAD0_new_segment(void);
+extern char sub_41BAD0_new_segment;
 
 void RedirectOrgFiles(void)
 {
 //	WriteRelativeAddress(0x41C709 + 1, LoadOrg);
-	WriteJump(0x41BAEC, sub_41BAD0_new_segment);	// Skip all the resource stuff
+	WriteJump(0x41BAEC, &sub_41BAD0_new_segment);	// Skip all the resource stuff
 //	WriteCall(0x41BB1A, GetOrgFileBuffer);
 //	WriteByte(0x41BB1A + 5, 0x90);
 //	WriteByte(0x41BB19 + 0, 0xB8);
