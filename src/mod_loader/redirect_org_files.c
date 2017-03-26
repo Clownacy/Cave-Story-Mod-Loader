@@ -50,11 +50,15 @@ __stdcall char* LoadOrg(char *filename)
 		// No Org file found in mods, fallback on built-in files
 		HRSRC resource_block = FindResourceA(NULL, filename, (char*)0x48C6D4);
 
-		if (resource_block == NULL)
-			return NULL;
-
-		HGLOBAL resource_handle = LoadResource(NULL, resource_block);
-		org_memory = LockResource(resource_handle);
+		if (resource_block != NULL)
+		{
+			HGLOBAL resource_handle = LoadResource(NULL, resource_block);
+			org_memory = LockResource(resource_handle);
+		}
+		else
+		{
+			org_memory = NULL;
+		}
 	}
 
 	return org_memory;
