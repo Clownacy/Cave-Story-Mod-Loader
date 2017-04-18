@@ -5,7 +5,7 @@
 #include <string.h>
 #include <windows.h>
 
-#include "error.h"
+#include "log.h"
 #include "mod_list.h"
 #include "redirect_org_files.h"
 #include "settings.h"
@@ -14,10 +14,14 @@ HMODULE this_hmodule;
 
 void LoadMod(const char* const filename)
 {
+		PrintDebug("Loading mod '%s'...\n", filename);
+
 		char *mod_folder = malloc(5 + strlen(filename) + 1 + 1);
-		strcpy(mod_folder, "mods/");
+		strcpy(mod_folder, "mods\\");
 		strcat(mod_folder, filename);
-		strcat(mod_folder, "/");
+		strcat(mod_folder, "\\");
+
+		PrintDebug("  mod_folder: '%s'\n", mod_folder);
 
 		AddToModList(mod_folder);
 
@@ -25,12 +29,17 @@ void LoadMod(const char* const filename)
 		strcpy(mod_path, mod_folder);
 		strcat(mod_path, filename);
 
+		PrintDebug("  mod_path: '%s'\n", mod_path);
+
 		// Load mod DLL
 		HMODULE hmodule = LoadLibrary(mod_path);
 		if (hmodule == NULL)
 		{
 			free(mod_folder);
-			PrintError("Could not load mod '%s'\n", filename);
+			LPVOID error_message;
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&error_message, 0, NULL);
+			PrintError("Could not load mod '%s'\n  Windows reports: %s\n", filename, error_message);
+			LocalFree(error_message);
 			return;
 		}
 
@@ -49,7 +58,7 @@ void LoadMod(const char* const filename)
 
 __declspec(dllexport) void init(void)
 {
-	InitError();
+	InitLogging();
 	RedirectOrgFiles();
 
 	SetDllDirectory("mods/_deps");

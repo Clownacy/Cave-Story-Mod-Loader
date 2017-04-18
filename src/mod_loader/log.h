@@ -3,5 +3,6 @@
 
 #pragma once
 
-extern void InitError(void);
+extern void InitLogging(void);
 extern void PrintError(const char* const format, ...);
+extern void PrintDebug(const char* const format, ...);

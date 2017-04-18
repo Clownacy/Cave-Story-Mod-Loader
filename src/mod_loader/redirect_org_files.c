@@ -8,6 +8,7 @@
 #include <string.h>
 #include <windows.h>
 
+#include "log.h"
 #include "mod_list.h"
 #include "patch.h"
 
@@ -76,6 +77,8 @@ extern char sub_41BAD0_new_segment;
 
 void RedirectOrgFiles(void)
 {
+	PrintDebug("Applying Org file redirection patches\n");
+
 //	WriteRelativeAddress(0x41C709 + 1, LoadOrg);
 	WriteJump(0x41BAEC, &sub_41BAD0_new_segment);	// Skip all the resource stuff
 //	WriteCall(0x41BB1A, GetOrgFileBuffer);

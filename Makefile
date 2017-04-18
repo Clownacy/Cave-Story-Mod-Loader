@@ -9,8 +9,8 @@ MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
 MOD_LOADER_PATH = src/mod_loader
 MOD_LOADER_SOURCES = \
-	$(MOD_LOADER_PATH)/error.c \
 	$(MOD_LOADER_PATH)/fix_door_bug.c \
+	$(MOD_LOADER_PATH)/log.c \
 	$(MOD_LOADER_PATH)/main.c \
 	$(MOD_LOADER_PATH)/mod_list.c \
 	$(MOD_LOADER_PATH)/patch.c \
