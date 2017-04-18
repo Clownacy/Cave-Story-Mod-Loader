@@ -30,7 +30,7 @@ void LoadMod(const char* const filename)
 		if (hmodule == NULL)
 		{
 			free(mod_folder);
-			PrintError("Could not find mod '%s'\n", filename);
+			PrintError("Could not load mod '%s'\n", filename);
 			return;
 		}
 
