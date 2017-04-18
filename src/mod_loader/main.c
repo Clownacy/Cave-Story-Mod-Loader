@@ -16,18 +16,19 @@ void LoadMod(const char* const filename)
 {
 		PrintDebug("Loading mod '%s'...\n", filename);
 
-		char *mod_folder = malloc(5 + strlen(filename) + 1 + 1);
-		strcpy(mod_folder, "mods\\");
-		strcat(mod_folder, filename);
-		strcat(mod_folder, "\\");
+		char mod_folder_relative[5 + strlen(filename) + 1 + 1];
+		sprintf(mod_folder_relative, "mods\\%s\\", filename);
+
+		size_t mod_folder_length = GetFullPathName(mod_folder_relative, 0, NULL, NULL);
+		char *mod_folder = malloc(mod_folder_length);
+		GetFullPathName(mod_folder_relative, mod_folder_length, mod_folder, NULL);
 
 		PrintDebug("  mod_folder: '%s'\n", mod_folder);
 
 		AddToModList(mod_folder);
 
 		char mod_path[strlen(mod_folder) + strlen(filename) + 1];
-		strcpy(mod_path, mod_folder);
-		strcat(mod_path, filename);
+		sprintf(mod_path, "%s%s", mod_folder, filename);
 
 		PrintDebug("  mod_path: '%s'\n", mod_path);
 
