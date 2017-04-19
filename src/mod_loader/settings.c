@@ -7,6 +7,8 @@
 #include <string.h>
 #include <windows.h>
 
+#include "log.h"
+
 typedef struct Setting
 {
 	char *name;
@@ -44,6 +46,7 @@ void* ReadSettings(const char* const filename)
 
 	if (settings_file != NULL)
 	{
+		PrintDebug("  Mod has settings file!\n");
 		char setting_string[MAX_PATH];
 		while (fgets(setting_string, MAX_PATH, settings_file) != NULL)
 		{
@@ -61,6 +64,7 @@ void* ReadSettings(const char* const filename)
 			strncpy(setting_value, setting_value_string, setting_value_length);
 			setting_value[setting_value_length] = '\0';
 
+			PrintDebug("    Setting name: '%s'\n    Setting value: '%s'\n", setting_name, setting_value);
 			AddSetting(setting_name, setting_value, settings_list_head_ptr);
 		}
 
