@@ -38,9 +38,7 @@ void* ReadSettings(const char* const filename)
 	*settings_list_head_ptr = NULL;
 
 	char settings_path[5 + strlen(filename) + 13 + 1];
-	strcpy(settings_path, "mods/");
-	strcat(settings_path, filename);
-	strcat(settings_path, "/settings.txt");
+	sprintf(settings_path, "mods/%s/settings.txt", filename);
 
 	FILE *settings_file = fopen(settings_path, "r");
 
