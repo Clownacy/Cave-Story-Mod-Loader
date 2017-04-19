@@ -4,4 +4,5 @@ This mod's settings.txt file supports the following options:
 'aspect_ratio_x' - The X value of the game's aspect ratio.
 'aspect_ratio_y' - The Y value of the game's aspect ratio.
 'window_upscale' - What factor to increase the size of the game's window by. 1 is 240p, 2 is 480p, etc.
-'sprite_resolution' - What factor to increate the game's sprite resolution by.
+'sprite_resolution' - What factor to increase the game's sprite resolution by.
+'black_bars' - Enables/disables drawing black bars to cover out-of-bound parts of the screen.
