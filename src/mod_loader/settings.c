@@ -21,6 +21,7 @@ void AddSetting(char *setting_name, char *setting_value, Setting **settings_list
 	Setting *setting = malloc(sizeof(Setting));
 	setting->name = setting_name;
 	setting->value = setting_value;
+	setting->next = NULL;
 
 	Setting **settings_next_pointer = settings_list_head;
 
