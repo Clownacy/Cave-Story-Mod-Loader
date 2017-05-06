@@ -21,13 +21,9 @@ void AddToModList(char *mod_path)
 	char *malloc_path = malloc(strlen(mod_path) + 1);
 	strcpy(malloc_path, mod_path);
 	new_mod_list_entry->path = malloc_path;
-	new_mod_list_entry->next = NULL;
 
-	ModListEntry **current_mod_ptr = &mod_list_head;
-	while (*current_mod_ptr != NULL)
-		 current_mod_ptr = &(*current_mod_ptr)->next;
-
-	*current_mod_ptr = new_mod_list_entry;
+	new_mod_list_entry->next = mod_list_head;
+	mod_list_head = new_mod_list_entry;
 
 	++mod_count;
 }

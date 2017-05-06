@@ -18,9 +18,9 @@ __stdcall char* LoadOrg(char *filename)
 	FILE *file = NULL;
 
 	// Find highest-priority mod with matching Org file
-	for (unsigned int current_mod = GetModCount(); current_mod > 0; --current_mod)
+	for (unsigned int current_mod = 0; current_mod < GetModCount(); ++current_mod)
 	{
-		const char* const mod_path = GetModPath(current_mod - 1);
+		const char* const mod_path = GetModPath(current_mod);
 		if (mod_path != NULL)
 		{
 			char file_path[strlen(mod_path) + 9 + strlen(filename) + 4 + 1];
