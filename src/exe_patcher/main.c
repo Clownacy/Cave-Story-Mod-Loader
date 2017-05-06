@@ -77,6 +77,8 @@ void main(int argc, char *argv[])
 
 			printf("Patched EXE created as 'Doukutsu_mod_loader.exe'\n\n");
 		}
+
+		free(file_memory);
 	}
 	printf("Press enter to close this window...\n");
 	getchar();
