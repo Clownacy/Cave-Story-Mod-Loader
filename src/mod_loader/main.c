@@ -60,7 +60,7 @@ void LoadMod(const char* const filename)
 __declspec(dllexport) void init(void)
 {
 	InitLogging();
-	RedirectOrgFiles();
+	//RedirectOrgFiles();
 
 	SetDllDirectory("mods/_deps");
 
