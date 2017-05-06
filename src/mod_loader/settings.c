@@ -21,16 +21,9 @@ void AddSetting(char *setting_name, char *setting_value, Setting **settings_list
 	Setting *setting = malloc(sizeof(Setting));
 	setting->name = setting_name;
 	setting->value = setting_value;
-	setting->next = NULL;
 
-	Setting **settings_next_pointer = settings_list_head;
-
-	while (*settings_next_pointer != NULL)
-	{
-		settings_next_pointer = &(*settings_next_pointer)->next;
-	}
-
-	*settings_next_pointer = setting;
+	setting->next = *settings_list_head;
+	*settings_list_head = setting;
 }
 
 void* ReadSettings(const char* const filename)
