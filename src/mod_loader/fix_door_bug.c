@@ -3,30 +3,27 @@
 
 #include <stdbool.h>
 
+#include "cave_story.h"
 #include "controls.h"
 #include "patch.h"
 
 bool done = false;
-
-const int* const input_down = (void*)0x49363C;
-const int* const input_bitfield_held = (void*)0x49E210;
-const int* const input_bitfield_newly_pressed = (void*)0x49E214;
 
 const int NORM_MASK = ~(INPUT_LEFT | INPUT_RIGHT | INPUT_DOWN | INPUT_UP);
 const int ALT_MASK = ~(INPUT_ALT_LEFT | INPUT_ALT_RIGHT | INPUT_ALT_DOWN | INPUT_ALT_UP | INPUT_ALT_UP2);
 
 const int TestOnlyDownPressed(void)
 {
-	const int current_mask = (*input_down == 8) ? ALT_MASK : NORM_MASK;
-	const int current_down_input = (*input_down == 8) ? INPUT_DOWN : INPUT_ALT_DOWN;
+	const int current_mask = (*down_key_input_mask == 8) ? ALT_MASK : NORM_MASK;
+	const int current_down_input = (*down_key_input_mask == 8) ? INPUT_DOWN : INPUT_ALT_DOWN;
 
 	return ((*input_bitfield_newly_pressed & current_mask) == current_down_input);
 }
 
 const int TestOnlyDownHeld(void)
 {
-	const int current_mask = (*input_down == 8) ? ALT_MASK : NORM_MASK;
-	const int current_down_input = (*input_down == 8) ? INPUT_DOWN : INPUT_ALT_DOWN;
+	const int current_mask = (*down_key_input_mask == 8) ? ALT_MASK : NORM_MASK;
+	const int current_down_input = (*down_key_input_mask == 8) ? INPUT_DOWN : INPUT_ALT_DOWN;
 
 	return ((*input_bitfield_held & current_mask) == current_down_input);
 }

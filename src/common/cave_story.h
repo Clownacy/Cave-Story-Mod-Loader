@@ -7,12 +7,14 @@
 
 // Variables
 static RECT* const clip_rect = (RECT*)0x48F91C;
+static int* const down_key_input_mask = (void*)0x49363C;
 static int* const background_tile_width = (int*)0x499C78;
 static int* const background_tile_height = (int*)0x499C7C;
 static int* const dword_499C8C = (int*)0x499C8C;
 static signed int* const camera_x_pos = (signed int*)0x49E1C8;
 static signed int* const camera_y_pos = (signed int*)0x49E1CC;
-static int* const input_bitfield = (int* const)0x49E210;
+static int* const input_bitfield_held = (void*)0x49E210;
+static int* const input_bitfield_newly_pressed = (void*)0x49E214;
 static int* const level_layout_buffer = (int*)0x49E480;
 static char* const byte_49E484 = (char*)0x49E484;
 static int* const gamepad_enabled = (int* const)0x49E45C;

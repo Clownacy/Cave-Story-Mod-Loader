@@ -13,67 +13,67 @@ void __stdcall HandleKeyPress(const int key_code)
 	{
 		case VK_ESCAPE:
 		{
-			*input_bitfield |= INPUT_QUIT;
+			*input_bitfield_held |= INPUT_QUIT;
 			break;
 		}
 		case VK_OEM_6:
 		{
-			*input_bitfield |= INPUT_MAP;
+			*input_bitfield_held |= INPUT_MAP;
 			break;
 		}
 		case 'A':
 		{
-			*input_bitfield |= (INPUT_LEFT | INPUT_ALT_LEFT);
+			*input_bitfield_held |= (INPUT_LEFT | INPUT_ALT_LEFT);
 			break;
 		}
 		case 'D':
 		{
-			*input_bitfield |= (INPUT_RIGHT | INPUT_ALT_RIGHT);
+			*input_bitfield_held |= (INPUT_RIGHT | INPUT_ALT_RIGHT);
 			break;
 		}
 		case 'W':
 		{
-			*input_bitfield |= (INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
+			*input_bitfield_held |= (INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 			break;
 		}
 		case 'S':
 		{
-			*input_bitfield |= (INPUT_DOWN | INPUT_ALT_DOWN);
+			*input_bitfield_held |= (INPUT_DOWN | INPUT_ALT_DOWN);
 			break;
 		}
 		case 'O':
 		{
-			*input_bitfield |= INPUT_SHOOT;
+			*input_bitfield_held |= INPUT_SHOOT;
 			break;
 		}
 		case 'P':
 		{
-			*input_bitfield |= INPUT_JUMP;
+			*input_bitfield_held |= INPUT_JUMP;
 			break;
 		}
 		case '0':
 		{
-			*input_bitfield |= INPUT_NEXTWEAPON;
+			*input_bitfield_held |= INPUT_NEXTWEAPON;
 			break;
 		}
 		case '9':
 		{
-			*input_bitfield |= INPUT_PREVIOUSWEAPON;
+			*input_bitfield_held |= INPUT_PREVIOUSWEAPON;
 			break;
 		}
 		case VK_F1:
 		{
-			*input_bitfield |= INPUT_F1;
+			*input_bitfield_held |= INPUT_F1;
 			break;
 		}
 		case VK_F2:
 		{
-			*input_bitfield |= INPUT_F2;
+			*input_bitfield_held |= INPUT_F2;
 			break;
 		}
 		case VK_OEM_4:
 		{
-			*input_bitfield |= INPUT_INVENTORY;
+			*input_bitfield_held |= INPUT_INVENTORY;
 			break;
 		}
 		case VK_F5:
@@ -94,67 +94,67 @@ void __stdcall HandleKeyRelease(const int key_code)
 	{
 		case VK_ESCAPE:
 		{
-			*input_bitfield &= ~INPUT_QUIT;
+			*input_bitfield_held &= ~INPUT_QUIT;
 			break;
 		}
 		case VK_OEM_6:
 		{
-			*input_bitfield &= ~INPUT_MAP;
+			*input_bitfield_held &= ~INPUT_MAP;
 			break;
 		}
 		case 'A':
 		{
-			*input_bitfield &= ~(INPUT_LEFT | INPUT_ALT_LEFT);
+			*input_bitfield_held &= ~(INPUT_LEFT | INPUT_ALT_LEFT);
 			break;
 		}
 		case 'D':
 		{
-			*input_bitfield &= ~(INPUT_RIGHT | INPUT_ALT_RIGHT);
+			*input_bitfield_held &= ~(INPUT_RIGHT | INPUT_ALT_RIGHT);
 			break;
 		}
 		case 'W':
 		{
-			*input_bitfield &= ~(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
+			*input_bitfield_held &= ~(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 			break;
 		}
 		case 'S':
 		{
-			*input_bitfield &= ~(INPUT_DOWN | INPUT_ALT_DOWN);
+			*input_bitfield_held &= ~(INPUT_DOWN | INPUT_ALT_DOWN);
 			break;
 		}
 		case 'O':
 		{
-			*input_bitfield &= ~INPUT_SHOOT;
+			*input_bitfield_held &= ~INPUT_SHOOT;
 			break;
 		}
 		case 'P':
 		{
-			*input_bitfield &= ~INPUT_JUMP;
+			*input_bitfield_held &= ~INPUT_JUMP;
 			break;
 		}
 		case '0':
 		{
-			*input_bitfield &= ~INPUT_NEXTWEAPON;
+			*input_bitfield_held &= ~INPUT_NEXTWEAPON;
 			break;
 		}
 		case '9':
 		{
-			*input_bitfield &= ~INPUT_PREVIOUSWEAPON;
+			*input_bitfield_held &= ~INPUT_PREVIOUSWEAPON;
 			break;
 		}
 		case VK_F1:
 		{
-			*input_bitfield &= ~INPUT_F1;
+			*input_bitfield_held &= ~INPUT_F1;
 			break;
 		}
 		case VK_F2:
 		{
-			*input_bitfield &= ~INPUT_F2;
+			*input_bitfield_held &= ~INPUT_F2;
 			break;
 		}
 		case VK_OEM_4:
 		{
-			*input_bitfield &= ~INPUT_INVENTORY;
+			*input_bitfield_held &= ~INPUT_INVENTORY;
 			break;
 		}
 		default:
