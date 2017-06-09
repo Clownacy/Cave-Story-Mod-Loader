@@ -14,7 +14,7 @@ HMODULE this_hmodule;
 
 void LoadMod(const char* const filename)
 {
-		PrintDebug("Loading mod '%s'...\n", filename);
+		PrintDebug("  Loading mod '%s'...\n", filename);
 
 		char mod_folder_relative[5 + strlen(filename) + 1 + 1];
 		sprintf(mod_folder_relative, "mods\\%s\\", filename);
@@ -23,14 +23,10 @@ void LoadMod(const char* const filename)
 		char *mod_folder = malloc(mod_folder_length);
 		GetFullPathName(mod_folder_relative, mod_folder_length, mod_folder, NULL);
 
-		PrintDebug("  mod_folder: '%s'\n", mod_folder);
-
 		AddToModList(mod_folder);
 
 		char mod_path[strlen(mod_folder) + strlen(filename) + 1];
 		sprintf(mod_path, "%s%s", mod_folder, filename);
-
-		PrintDebug("  mod_path: '%s'\n", mod_path);
 
 		// Load mod DLL
 		HMODULE hmodule = LoadLibrary(mod_path);
@@ -39,7 +35,7 @@ void LoadMod(const char* const filename)
 			free(mod_folder);
 			LPVOID error_message;
 			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&error_message, 0, NULL);
-			PrintError("Could not load mod '%s'\n  Windows reports: %s\n", filename, error_message);
+			PrintError("  Could not load mod '%s'\n  Windows reports: %s\n", filename, error_message);
 			LocalFree(error_message);
 			return;
 		}
@@ -49,7 +45,7 @@ void LoadMod(const char* const filename)
 		if (ModEntry == NULL)
 		{
 			free(mod_folder);
-			PrintError("Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
+			PrintError("  Mod '%s' did not contain a valid entry point (\"ModEntry\")\n", filename);
 			return;
 		}
 
@@ -72,6 +68,8 @@ __declspec(dllexport) void init(void)
 		return;
 	}
 
+	PrintDebug("Started loading mods\n");
+
 	// Scan through mods.txt, loading each DLL listed
 	char filename[MAX_PATH];
 	while (fgets(filename, MAX_PATH, mod_list) != NULL)
@@ -81,8 +79,12 @@ __declspec(dllexport) void init(void)
 		LoadMod(filename);
 	}
 
+	PrintDebug("Done loading mods\n");
+
 	fclose(mod_list);
 	SetDllDirectory(NULL);
+
+	PrintDebug("Mod Loader initialised\n");
 }
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
