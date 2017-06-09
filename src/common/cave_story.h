@@ -42,3 +42,6 @@ static int (* const GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
 static void (* const StartOrgPlayback)(void) = (void(*)(void))0x41C790;
 static void (* const SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
 static void (* const sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
+static void (* const FadeMusic)(void) = (void(*)(void))0x41C880;
+static void (* const PlayMusic)(int music_id) = (void(*)(int))0x420EE0;
+static void (* const PlayPreviousMusic)(void) = (void(*)(void))0x420F50;

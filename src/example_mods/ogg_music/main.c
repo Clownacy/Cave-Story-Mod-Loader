@@ -190,21 +190,11 @@ void InitMod(void)
 	Mix_Init(MIX_INIT_OGG);
 	Mix_HookMusicFinished(OggMusicEnded);
 	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-	WriteRelativeAddress(0x40D833 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40F756 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40FE81 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40FE96 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40FEAB + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40FEC0 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x40FECC + 1, PlayMusic_new);
-	WriteRelativeAddress(0x41038C + 1, PlayMusic_new);
-	WriteRelativeAddress(0x41D3FF + 1, PlayMusic_new);
-	WriteRelativeAddress(0x424330 + 1, PlayMusic_new);
-	WriteRelativeAddress(0x4243DF + 1, PlayPreviousMusic_new);
+	WriteJump((int)PlayMusic, PlayMusic_new);
+	WriteJump((int)PlayPreviousMusic, PlayPreviousMusic_new);
 	// We also need to replace the music pausing/resuming when the window focus changes
 	WriteRelativeAddress(0x412BD6 + 1, WindowFocusLost_new);
 	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
 	// Patch fading
-	WriteRelativeAddress(0x40D84F + 1, FadeMusic_new);
-	WriteRelativeAddress(0x42438A + 1, FadeMusic_new);
+	WriteJump((int)FadeMusic, FadeMusic_new);
 }
