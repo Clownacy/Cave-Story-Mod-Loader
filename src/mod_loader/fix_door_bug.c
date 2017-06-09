@@ -9,8 +9,8 @@
 
 static bool patch_already_applied = false;
 
-static const int NORMAL_DIRECTION_KEY_MASK = ~(INPUT_LEFT | INPUT_RIGHT | INPUT_DOWN | INPUT_UP);
-static const int ALTERNATE_DIRECTION_KEY_MASK = ~(INPUT_ALT_LEFT | INPUT_ALT_RIGHT | INPUT_ALT_DOWN | INPUT_ALT_UP | INPUT_ALT_UP2);
+static const int NORMAL_DIRECTION_KEY_MASK = ~(INPUT_ALT_LEFT | INPUT_ALT_RIGHT | INPUT_ALT_DOWN | INPUT_ALT_UP | INPUT_ALT_UP2);
+static const int ALTERNATE_DIRECTION_KEY_MASK = ~(INPUT_LEFT | INPUT_RIGHT | INPUT_DOWN | INPUT_UP);
 
 static bool TestDownKey(const int input_bitfield)
 {
@@ -19,10 +19,10 @@ static bool TestDownKey(const int input_bitfield)
 	const int current_direction_keys_mask = using_normal_controls ? NORMAL_DIRECTION_KEY_MASK : ALTERNATE_DIRECTION_KEY_MASK;
 	const int current_down_key_mask = using_normal_controls ? INPUT_DOWN : INPUT_ALT_DOWN;
 
-	return ((input_bitfield & current_direction_keys_mask) == current_down_key_mask);
+	return (input_bitfield & current_direction_keys_mask) == current_down_key_mask;
 }
 
-bool TestOnlyDownKeyIsPressedAndHeld(const int input_bitfield)
+bool TestOnlyDownKeyIsPressedAndHeld(void)
 {
 	return TestDownKey(*input_bitfield_held) && TestDownKey(*input_bitfield_newly_pressed);
 }
