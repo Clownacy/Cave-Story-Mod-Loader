@@ -28,6 +28,8 @@ void LoadMod(const char* const filename)
 	char mod_path[strlen(mod_folder) + strlen(filename) + 1];
 	sprintf(mod_path, "%s%s", mod_folder, filename);
 
+	SetDllDirectory(mod_folder_relative);
+
 	// Load mod DLL
 	HMODULE hmodule = LoadLibrary(mod_path);
 	if (hmodule == NULL)
@@ -51,14 +53,14 @@ void LoadMod(const char* const filename)
 
 	// Run mod
 	ModEntry(this_hmodule, ReadSettings(filename), mod_folder);
+
+	SetDllDirectory(NULL);
 }
 
 __declspec(dllexport) void init(void)
 {
 	InitLogging();
 	//RedirectOrgFiles();
-
-	SetDllDirectory("mods/_deps");
 
 	FILE *mod_list = fopen("mods/mods.txt", "r");
 
@@ -82,7 +84,6 @@ __declspec(dllexport) void init(void)
 	PrintDebug("Done loading mods\n");
 
 	fclose(mod_list);
-	SetDllDirectory(NULL);
 
 	PrintDebug("Mod Loader initialised\n");
 }
