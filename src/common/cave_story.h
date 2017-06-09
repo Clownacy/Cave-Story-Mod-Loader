@@ -7,7 +7,7 @@
 
 // Variables
 static RECT* const clip_rect = (RECT*)0x48F91C;
-static int* const down_key_input_mask = (void*)0x49363C;
+static int* const down_key_mapping = (void*)0x49363C;
 static int* const background_tile_width = (int*)0x499C78;
 static int* const background_tile_height = (int*)0x499C7C;
 static int* const dword_499C8C = (int*)0x499C8C;
