@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#define VERSION "v1.2.1.1"
+
 #define ERROR_PATH "mods/error.txt"
 #define DEBUG_PATH "mods/debug.txt"
 
@@ -14,7 +16,7 @@ void InitLogging(void)
 	remove(ERROR_PATH);
 	remove(DEBUG_PATH);
 
-	PrintDebug("Logging initialised\n");
+	PrintDebug("Logging initialised - Mod Loader version %s\n", VERSION);
 }
 
 void PrintToFile(const char* const format, va_list args, const char* const file_path)
