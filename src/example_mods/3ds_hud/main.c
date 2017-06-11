@@ -66,6 +66,11 @@ void InitMod(void)
 	WriteRelativeAddress(0x41A1BB + 1, DrawHUD_WeaponIcons_hijack);	// X
 
 	// DrawHUD_HellTimer
+	// Patch the call in the main gameplay loop
 	WriteByte(0x41081F + 1, HUD_Y + 20);	// Y
 	WriteByte(0x410821 + 1, HUD_X);		// X
+	// Patch the call in the 'island falling' loop
+	WriteByte(0x40DD35 + 1, HUD_Y + 20);	// Y
+	WriteByte(0x40DD37 + 1, HUD_X);		// X
+	// I would patch the call in the title screen loop, but there's really no point
 }
