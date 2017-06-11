@@ -1,6 +1,27 @@
 // Mod loader for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+/*
+This here fixes a minor bug in the game's input handling:
+
+When you open a door, the game expects the down key to be the only
+mappable direction key pressed. Keyword: mappable. This means, if you
+were to press the down arrow key while holding, say, the '0' key, you'd
+still go through the door.
+
+The bug here is that the alternate directional keys are still considered
+mapped, even though they're never used, so if you hold '>' (the alternate
+down key) while pressing the actual down key, you won't go through the
+door.
+
+This is an issue because my WASD and SDL2 controller mods set both the
+normal and alternate keys at the same time (that is to say, pressing
+down on the controller will set the normal down key and the alternate
+down key, so the controller works no matter what setting you've set in
+DoConfig). The result is the player being completely unable to go through
+doors, when using said mods.
+*/
+
 #include <stdbool.h>
 
 #include "cave_story.h"
@@ -33,7 +54,7 @@ bool TestOnlyDownKeyIsHeld(void)
 }
 
 __asm(
-"	_TestOnlyDownKeyIsPressedAndHeld_asm:\n"
+"_TestOnlyDownKeyIsPressedAndHeld_asm:\n"
 "	call	_TestOnlyDownKeyIsPressedAndHeld\n"
 "	or	%eax, %eax\n"
 "	jz	0x415826\n"
