@@ -16,6 +16,7 @@
 #include "patch_credits.h"
 #include "patch_exit_screen.h"
 #include "patch_fade.h"
+#include "patch_fps_counter.h"
 #include "patch_gaudi.h"
 #include "patch_inventory_screen.h"
 #include "patch_ironhead.h"
@@ -70,6 +71,7 @@ void SetWidescreen(void)
 	PatchCredits();
 	PatchExitScreen();
 	PatchFade();
+	PatchFPSCounter();
 	PatchGaudi();
 	PatchInventoryScreen();
 	PatchIronhead();

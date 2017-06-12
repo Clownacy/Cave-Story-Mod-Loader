@@ -34,6 +34,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_credits.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_exit_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fade.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fps_counter.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_gaudi.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_inventory_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_ironhead.c \
