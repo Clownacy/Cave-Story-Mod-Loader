@@ -9,47 +9,47 @@
 #include <windows.h>
 
 SongEntry playlist[] = {
-	{"data/Ogg/WANPAKU", SONG_LOOP},
-	{"data/Ogg/ANZEN", SONG_LOOP},
-	{"data/Ogg/GAMEOVER", 0},
-	{"data/Ogg/GRAVITY", SONG_LOOP},
-	{"data/Ogg/WEED", SONG_LOOP},
-	{"data/Ogg/MDOWN2", SONG_LOOP},
-	{"data/Ogg/FIREEYE", SONG_LOOP},
-	{"data/Ogg/VIVI", SONG_LOOP},
-	{"data/Ogg/MURA", SONG_LOOP},
-	{"data/Ogg/FANFALE1", 0},
-	{"data/Ogg/GINSUKE", SONG_LOOP},
-	{"data/Ogg/CEMETERY", SONG_LOOP},
-	{"data/Ogg/PLANT", SONG_LOOP},
-	{"data/Ogg/KODOU", SONG_LOOP},
-	{"data/Ogg/FANFALE3", 0},
-	{"data/Ogg/FANFALE2", 0},
-	{"data/Ogg/DR", SONG_LOOP},
-	{"data/Ogg/ESCAPE", SONG_LOOP},
-	{"data/Ogg/JENKA", SONG_LOOP},
-	{"data/Ogg/MAZE", SONG_LOOP},
-	{"data/Ogg/ACCESS", SONG_LOOP},
-	{"data/Ogg/IRONH", SONG_LOOP},
-	{"data/Ogg/GRAND", SONG_LOOP},
-	{"data/Ogg/Curly", SONG_LOOP},
-	{"data/Ogg/OSIDE", SONG_LOOP},
-	{"data/Ogg/REQUIEM", SONG_LOOP},
-	{"data/Ogg/WANPAK2", SONG_LOOP},
-	{"data/Ogg/QUIET", SONG_LOOP},
-	{"data/Ogg/LASTCAVE", SONG_LOOP},
-	{"data/Ogg/BALCONY", SONG_LOOP},
-	{"data/Ogg/LASTBTL", SONG_LOOP},
-	{"data/Ogg/LASTBT3", SONG_LOOP},
-	{"data/Ogg/ENDING", SONG_LOOP},
-	{"data/Ogg/ZONBIE", SONG_LOOP},
-	{"data/Ogg/BDOWN", SONG_LOOP},
-	{"data/Ogg/HELL", SONG_LOOP},
-	{"data/Ogg/JENKA2", SONG_LOOP},
-	{"data/Ogg/MARINE", SONG_LOOP},
-	{"data/Ogg/BALLOS", SONG_LOOP},
-	{"data/Ogg/TOROKO", 0},
-	{"data/Ogg/WHITE", SONG_LOOP}
+	{"data/Ogg/WANPAKU", true, false, true},
+	{"data/Ogg/ANZEN", true, false, true},
+	{"data/Ogg/GAMEOVER", false, false, true},
+	{"data/Ogg/GRAVITY", true, false, true},
+	{"data/Ogg/WEED", true, false, true},
+	{"data/Ogg/MDOWN2", true, false, true},
+	{"data/Ogg/FIREEYE", true, false, true},
+	{"data/Ogg/VIVI", true, false, true},
+	{"data/Ogg/MURA", true, false, true},
+	{"data/Ogg/FANFALE1", false, false, true},
+	{"data/Ogg/GINSUKE", true, false, true},
+	{"data/Ogg/CEMETERY", true, false, true},
+	{"data/Ogg/PLANT", true, false, true},
+	{"data/Ogg/KODOU", true, false, true},
+	{"data/Ogg/FANFALE3", false, false, true},
+	{"data/Ogg/FANFALE2", false, false, true},
+	{"data/Ogg/DR", true, false, true},
+	{"data/Ogg/ESCAPE", true, false, true},
+	{"data/Ogg/JENKA", true, false, true},
+	{"data/Ogg/MAZE", true, false, true},
+	{"data/Ogg/ACCESS", true, false, true},
+	{"data/Ogg/IRONH", true, false, true},
+	{"data/Ogg/GRAND", true, false, true},
+	{"data/Ogg/Curly", true, false, true},
+	{"data/Ogg/OSIDE", true, false, true},
+	{"data/Ogg/REQUIEM", true, false, true},
+	{"data/Ogg/WANPAK2", true, false, true},
+	{"data/Ogg/QUIET", true, false, true},
+	{"data/Ogg/LASTCAVE", true, false, true},
+	{"data/Ogg/BALCONY", true, false, true},
+	{"data/Ogg/LASTBTL", true, false, true},
+	{"data/Ogg/LASTBT3", true, false, true},
+	{"data/Ogg/ENDING", true, false, true},
+	{"data/Ogg/ZONBIE", true, false, true},
+	{"data/Ogg/BDOWN", true, false, true},
+	{"data/Ogg/HELL", true, false, true},
+	{"data/Ogg/JENKA2", true, false, true},
+	{"data/Ogg/MARINE", true, false, true},
+	{"data/Ogg/BALLOS", true, false, true},
+	{"data/Ogg/TOROKO", false, false, true},
+	{"data/Ogg/WHITE", true, false, true}
 };
 
 void LoadPlaylist(const char* const playlist_path)
@@ -75,11 +75,13 @@ void LoadPlaylist(const char* const playlist_path)
 			char *song_path = malloc(path_length + 1);
 			strncpy(song_path, line_current_position, path_length);
 			song_path[path_length] = '\0';
+			playlist[current_song].name = song_path;
+			playlist[current_song].loops = false;
+			playlist[current_song].split = false;
+			playlist[current_song].is_org = false;
 
 			line_current_position += path_length;
 			line_current_position += strspn(line_current_position, ", ");
-
-			char flags = 0;
 
 			while (line_current_position[0] != '\0')
 			{
@@ -89,18 +91,17 @@ void LoadPlaylist(const char* const playlist_path)
 				if (property_length != 0)
 				{
 					if (strncmp(line_current_position, "loop", 4) == 0)
-						flags |= SONG_LOOP;
+						playlist[current_song].loops = true;
 					else if (strncmp(line_current_position, "split", 5) == 0)
-						flags |= SONG_SPLIT;
+						playlist[current_song].split = true;
+					else if (strncmp(line_current_position, "org", 3) == 0)
+						playlist[current_song].is_org = true;
 
 					line_current_position += property_length;
 				}
 
 				line_current_position += strspn(line_current_position, ", ");
 			}
-
-			playlist[current_song].song_name = song_path;
-			playlist[current_song].song_flags = flags;
 		}
 
 		fclose(playlist_file);

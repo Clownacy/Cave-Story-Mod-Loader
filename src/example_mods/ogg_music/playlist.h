@@ -3,13 +3,17 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 #define SONG_LOOP (1<<0)
 #define SONG_SPLIT (1<<1)
 
 typedef struct SongEntry
 {
-	const char *song_name;
-	char song_flags;
+	const char *name;
+	bool loops;
+	bool split;
+	bool is_org;
 } SongEntry;
 
 SongEntry playlist[41];

@@ -2,97 +2,280 @@
 // Copyright © 2017 Clownacy
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_mixer.h"
+#include <cubeb/cubeb.h>
+#include <vorbis/vorbisfile.h>
 
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "playlist.h"
 
-bool intro_playing;
-int current_loop_setting;
-Mix_Music *music_intro, *music_loop;
+typedef struct Song {
+	FILE *file[2];
+	OggVorbis_File vorbis_file[2];
 
-void UnloadMusic(Mix_Music **music)
+	unsigned int current_file;
+
+	int current_section[2];
+	unsigned int channels;
+	bool has_next_part;
+	bool loops;
+	bool is_org;
+
+	cubeb_stream *stream;
+} Song;
+
+const Song song_blank;
+
+Song song;
+Song song_backup;
+
+cubeb *cubeb_context;
+
+int current_loop_setting;
+
+long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
-	Mix_HaltMusic();
-	Mix_FreeMusic(*music);
-	*music = NULL;
+	const unsigned int BYTES_PER_SAMPLE = song.channels * 2;	// 2 channels, 16-bit
+	const unsigned long bytes_to_do = samples_to_do * BYTES_PER_SAMPLE;
+
+	unsigned long bytes_done_total = 0;
+
+	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
+	{
+		bytes_done = ov_read(&song.vorbis_file[song.current_file], output_buffer + bytes_done_total, bytes_to_do - bytes_done_total, 0, 2, 1, &song.current_section[song.current_file]);
+
+		if (bytes_done == 0)	// EOF
+		{
+			if (song.has_next_part)
+			{
+				song.has_next_part = false;
+				++song.current_file;
+			}
+			else
+			{
+				if (song.loops)
+					ov_time_seek(&song.vorbis_file[song.current_file], 0);
+				else
+					break;
+			}
+		}
+	}
+
+	return bytes_done_total / BYTES_PER_SAMPLE;
 }
 
-void OggMusicEnded(void)
+void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
 {
-	if (intro_playing == true)
+	if (state == CUBEB_STATE_STARTED)
+		printf("state = CUBEB_STATE_STARTED\n");
+	else if (state == CUBEB_STATE_STOPPED)
+		printf("state = CUBEB_STATE_STOPPED\n");
+	else if (state == CUBEB_STATE_DRAINED)
 	{
-		intro_playing = false;
-		UnloadMusic(&music_intro);
-		Mix_PlayMusic(music_loop, current_loop_setting);
+		printf("state = CUBEB_STATE_DRAINED\n");
+	}
+	else if (state == CUBEB_STATE_ERROR)
+		printf("state = CUBEB_STATE_ERROR\n");
+}
+
+void UnloadSong(Song *song)
+{
+	if (song->stream)
+	{
+		if (cubeb_stream_stop(song->stream) != CUBEB_OK)
+		{
+			printf("Could not stop the stream");
+			return;
+		}
+		cubeb_stream_destroy(song->stream);
+
+		ov_clear(&song->vorbis_file[0]);
+		fclose(song->file[0]);
+		ov_clear(&song->vorbis_file[1]);
+		fclose(song->file[1]);
+	}
+}
+
+void StopSong(void)
+{
+	if (song.stream)
+	{
+		if (cubeb_stream_stop(song.stream) != CUBEB_OK)
+		{
+			printf("Could not stop the stream");
+		}
+	}
+}
+
+void StartSong(void)
+{
+	if (song.stream)
+	{
+		if (cubeb_stream_start(song.stream) != CUBEB_OK)
+		{
+			printf("Could not start the stream");
+		}
+	}
+}
+
+bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
+{
+	if (intro_file_path == NULL && loop_file_path == NULL)
+	{
+		// WTF, why did you call this in the first place?
+		return false;
+	}
+
+	song.file[0] = intro_file_path ? fopen(intro_file_path, "rb") : NULL;
+	song.file[1] = loop_file_path ? fopen(loop_file_path, "rb") : NULL;
+
+	if (song.file[0] == NULL && song.file[1] == NULL)
+	{
+		// Neither file could be opened
+		return false;
+	}
+	else if ((song.file[0] == NULL) != (song.file[1] == NULL))
+	{
+		// Only one file could be opened
+		song.has_next_part = false;
+		song.current_file = song.file[0] == NULL ? 1 : 0;
 	}
 	else
 	{
-		UnloadMusic(&music_loop);
+		// Both files opened successfully
+		song.has_next_part = true;
+		song.current_file = 0;
 	}
+
+	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
+	{
+		printf("Input does not appear to be an Ogg bitstream.\n");
+
+		if (song.file[0] != NULL)
+			fclose(song.file[0]);
+		if (song.file[1] != NULL)
+			fclose(song.file[1]);
+
+		return false;
+	}
+
+	if (song.has_next_part)
+	{
+		if (ov_open_callbacks(song.file[1], &song.vorbis_file[1], NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
+		{
+			printf("Input does not appear to be an Ogg bitstream.\n");
+
+			if (song.file[0] != NULL)
+				fclose(song.file[0]);
+			if (song.file[1] != NULL)
+				fclose(song.file[1]);
+
+			return false;
+		}
+	}
+
+	song.channels = ov_info(&song.vorbis_file[song.current_file], -1)->channels;
+
+	cubeb_stream_params output_params;
+	output_params.format = CUBEB_SAMPLE_S16LE;
+	output_params.rate = ov_info(&song.vorbis_file[song.current_file], -1)->rate;
+	if (song.channels == 1)
+	{
+		output_params.channels = 1;
+		output_params.layout = CUBEB_LAYOUT_MONO;
+	}
+	else if (song.channels == 2)
+	{
+		output_params.channels = 2;
+		output_params.layout = CUBEB_LAYOUT_STEREO;
+	}
+	else
+	{
+		// Unsupported channel count
+		printf("Unsupported channel count\n");
+
+		if (song.file[0] != NULL)
+			fclose(song.file[0]);
+		if (song.file[1] != NULL)
+			fclose(song.file[1]);
+
+		return false;
+	}
+
+	uint32_t latency_frames;
+
+	if (cubeb_get_min_latency(cubeb_context, output_params, &latency_frames) != CUBEB_OK)
+	{
+		printf("Could not get minimum latency");
+
+		if (song.file[0] != NULL)
+			fclose(song.file[0]);
+		if (song.file[1] != NULL)
+			fclose(song.file[1]);
+
+		return false;
+	}
+
+	if (cubeb_stream_init(cubeb_context, &song.stream, "Example Stream 1", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
+	{
+		printf("Could not open the stream");
+
+		if (song.file[0] != NULL)
+			fclose(song.file[0]);
+		if (song.file[1] != NULL)
+			fclose(song.file[1]);
+
+		return false;
+	}
+
+	song.loops = loops;
+
+	return true;
 }
 
 bool PlayOggMusic(const int song_id)
 {
-	// Kill current music
-	UnloadMusic(&music_intro);
-	UnloadMusic(&music_loop);
-
 	if (song_id == 0)
 	{
-		// Song is XXXX, which doesn't have a file in either Ogg soundtrack
+		// This is basically a 'stop music' command.
+		// In the Org soundtrack, this is implemented with a dummy 'XXXX' file.
+		// We don't need to cheat, so we just kill the current music and be
+		// done with it.
 		return true;
 	}
 
-	if (playlist[song_id - 1].song_flags & SONG_SPLIT)
+	const char* const song_name = playlist[song_id - 1].name;
+	char *song_intro_file_path, *song_loop_file_path;
+
+	if (playlist[song_id - 1].split)
 	{
 		// Play split-Ogg music (Cave Story 3D)
-		// Get filenames
-		const char* const song_name = playlist[song_id - 1].song_name;
-		char song_base_file_path[strlen(song_name)+1];
-		strcpy(song_base_file_path, song_name);
-		char song_intro_file_path[strlen(song_base_file_path)+6+4+1];
-		char song_loop_file_path[strlen(song_base_file_path)+5+4+1];
-		strcpy(song_intro_file_path, song_base_file_path);
-		strcpy(song_loop_file_path, song_base_file_path);
-		strcat(song_intro_file_path, "_intro.ogg");
-		strcat(song_loop_file_path, "_loop.ogg");
+		const int song_intro_file_path_length = snprintf(NULL, 0, "%s_intro.ogg", song_name) + 1;
+		song_intro_file_path = malloc(song_intro_file_path_length);
+		snprintf(song_intro_file_path, song_intro_file_path_length, "%s_intro.ogg", song_name);
 
-		// Load intro and loop
-		music_intro = Mix_LoadMUS(song_intro_file_path);
-		music_loop = Mix_LoadMUS(song_loop_file_path);
-
-		if (music_intro == NULL && music_loop == NULL)
-			return false;
-
-		intro_playing = true;
-		current_loop_setting = (playlist[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0;
-
-		// Play intro
-		Mix_PlayMusic(music_intro, 0);
+		const int song_loop_file_path_length = snprintf(NULL, 0, "%s_loop.ogg", song_name) + 1;
+		song_loop_file_path = malloc(song_loop_file_path_length);
+		snprintf(song_loop_file_path, song_loop_file_path_length, "%s_loop.ogg", song_name);
 	}
 	else
 	{
 		// Play single-Ogg music (Cave Story WiiWare)
-		const char* const song_name = playlist[song_id - 1].song_name;
-		char song_file_path[strlen(song_name)+4+1];
-		strcpy(song_file_path, song_name);
-		strcat(song_file_path, ".ogg");
-
-		music_loop = Mix_LoadMUS(song_file_path);
-
-		if (music_loop == NULL)
-			return false;
-
-		intro_playing = false;
-
-		Mix_PlayMusic(music_loop, (playlist[song_id - 1].song_flags & SONG_LOOP) ? -1 : 0);
+		const int song_file_path_length = snprintf(NULL, 0, "%s.ogg", song_name) + 1;
+		song_intro_file_path = malloc(song_file_path_length);
+		snprintf(song_intro_file_path, song_file_path_length, "%s.ogg", song_name);
+	
+		song_loop_file_path = NULL;
 	}
+
+	if (!LoadSong(song_intro_file_path, song_loop_file_path, playlist[song_id - 1].loops))
+		return false;
+
+	StartSong();
 
 	return true;
 }
@@ -121,7 +304,14 @@ void __cdecl PlayMusic_new(const int music_id)
 	if (music_id == 0 || music_id != *current_music)
 	{
 		*previous_music = *current_music;
-		if (PlayOggMusic(music_id))
+
+		StopSong();
+
+		UnloadSong(&song_backup);
+		song_backup = song;
+		song = song_blank;
+
+		if (!playlist[music_id - 1].is_org && PlayOggMusic(music_id))
 		{
 			// Ogg music played successfully,
 			// silence any org music that might be playing
@@ -131,6 +321,7 @@ void __cdecl PlayMusic_new(const int music_id)
 		{
 			// Ogg music failed to play,
 			// play Org instead
+			song.is_org = true;
 			PlayOrgMusic(music_id);
 		}
 		*current_music = music_id;
@@ -139,11 +330,17 @@ void __cdecl PlayMusic_new(const int music_id)
 
 void __cdecl PlayPreviousMusic_new(void)
 {
-	if (PlayOggMusic(*previous_music))
+	if (!song_backup.is_org)
 	{
 		// Ogg music played successfully,
 		// silence any org music that might be playing
 		PlayOrgMusic(0);
+
+		UnloadSong(&song);
+		song = song_backup;
+		song_backup = song_blank;
+		
+		StartSong();
 	}
 	else
 	{
@@ -156,39 +353,39 @@ void __cdecl PlayPreviousMusic_new(void)
 
 void __cdecl WindowFocusGained_new(void)
 {
-	Mix_ResumeMusic();
+	StartSong();
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 void __cdecl WindowFocusLost_new(void)
 {
-	Mix_PauseMusic();
+	StopSong();
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 void __cdecl FadeMusic_new(void)
 {
 	*music_fade_flag = 1;
-	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
-	Mix_FadeOutMusic(1000 * 5);
+//	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
+//	Mix_FadeOutMusic(1000 * 5);
 }
 
 void InitMod(void)
 {
 	const char* const playlist_filename = GetSetting("playlist");
-	if (playlist_filename != NULL)
+	if (playlist_filename == NULL)
 	{
-		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
-		strcpy(playlist_path, location_path);
-		strcat(playlist_path, playlist_filename);
-		LoadPlaylist(playlist_path);
+		return;
 	}
 
+	char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
+	strcpy(playlist_path, location_path);
+	strcat(playlist_path, playlist_filename);
+	LoadPlaylist(playlist_path);
+
 	// Setup music system
-	SDL_Init(SDL_INIT_AUDIO);
-	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-	Mix_Init(MIX_INIT_OGG);
-	Mix_HookMusicFinished(OggMusicEnded);
+	cubeb_context;
+	cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
 	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
 	WriteJump((int)PlayMusic, PlayMusic_new);
 	WriteJump((int)PlayPreviousMusic, PlayPreviousMusic_new);

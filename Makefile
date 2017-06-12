@@ -69,7 +69,7 @@ bin/mods/60fps/60fps.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/60fps/mai
 
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS) -lSDL2_mixer
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -static -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c
 	mkdir -p $(@D)
