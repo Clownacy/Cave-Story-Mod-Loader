@@ -21,6 +21,7 @@ GRAPHICS_ENHANCEMENT_PATH = src/example_mods/graphics_enhancement
 GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/common.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/main.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/borderless_fullscreen/borderless_fullscreen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/upscale_window/upscale_window.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/black_bars.c \

@@ -3,4 +3,4 @@
 
 #pragma once
 
-extern void UpscaleWindow(void);
+extern void ApplyBorderlessFullscreenPatch(void);
