@@ -281,7 +281,7 @@ void InitMod(void)
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// NOP-out call to DirectInput init function
-	WriteWordBE(0x420EF6, 0xEB03);
+	WriteWordBE((void*)0x420EF6, 0xEB03);
 	// Redirect controller update function call
-	WriteRelativeAddress(0x4135CC + 1, ProcessControllerEvents);
+	WriteRelativeAddress((void*)0x4135CC + 1, ProcessControllerEvents);
 }

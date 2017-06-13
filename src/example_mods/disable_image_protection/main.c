@@ -10,5 +10,5 @@ int PixelProtection(void)
 
 void InitMod(void)
 {
-	WriteJump(0x4112E0, PixelProtection);
+	WriteJump((void*)0x4112E0, PixelProtection);
 }

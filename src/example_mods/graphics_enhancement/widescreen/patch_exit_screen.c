@@ -15,5 +15,5 @@ void DrawSprite1_hijack2(void* clip_rect, int x, int y, void* src_rect, int surf
 
 void PatchExitScreen(void)
 {
-	WriteRelativeAddress(0x40DE1D + 1, DrawSprite1_hijack2);
+	WriteRelativeAddress((void*)0x40DE1D + 1, DrawSprite1_hijack2);
 }

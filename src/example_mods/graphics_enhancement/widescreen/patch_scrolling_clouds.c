@@ -93,6 +93,6 @@ extern char ScrollClouds_asm;
 
 void PatchScrollingClouds(void)
 {
-	WriteLong(0x402809 + (4 * 6), (int)&ScrollClouds_asm);
-	WriteLong(0x402809 + (4 * 7), (int)&ScrollClouds_asm);
+	WriteLong((void*)0x402809 + (4 * 6), (int)&ScrollClouds_asm);
+	WriteLong((void*)0x402809 + (4 * 7), (int)&ScrollClouds_asm);
 }

@@ -8,6 +8,6 @@
 
 void InitMod(void)
 {
-	WriteByte(0x40B36F, FPS_TICKS);
-	WriteByte(0x40B3A9, FPS_TICKS);
+	WriteByte((void*)0x40B36F, FPS_TICKS);
+	WriteByte((void*)0x40B3A9, FPS_TICKS);
 }

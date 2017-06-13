@@ -64,11 +64,11 @@ void SetSpriteResolution(const int factor)
 	sprite_resolution_factor = factor;
 
 	// Fix background tile sizes
-	WriteRelativeAddress(0x420DAA + 1, LoadBackgroundSprite_hijack);
+	WriteRelativeAddress((void*)0x420DAA + 1, LoadBackgroundSprite_hijack);
 
-	WriteJump(0x40BC2B, &LoadBMP_FromFile_SurfaceCreationHijack);
-	WriteCall(0x40BD04, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte(0x40BD04 + 5, 0x90);
-	WriteCall(0x40C142, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte(0x40C142 + 5, 0x90);
+	WriteJump((void*)0x40BC2B, &LoadBMP_FromFile_SurfaceCreationHijack);
+	WriteCall((void*)0x40BD04, &LoadBMP_FromFile_StretchBlitHijack);
+	WriteByte((void*)0x40BD04 + 5, 0x90);
+	WriteCall((void*)0x40C142, &LoadBMP_FromFile_StretchBlitHijack);
+	WriteByte((void*)0x40C142 + 5, 0x90);
 }

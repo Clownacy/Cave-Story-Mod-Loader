@@ -387,11 +387,11 @@ void InitMod(void)
 	cubeb_context;
 	cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
 	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-	WriteJump((int)PlayMusic, PlayMusic_new);
-	WriteJump((int)PlayPreviousMusic, PlayPreviousMusic_new);
+	WriteJump(PlayMusic, PlayMusic_new);
+	WriteJump(PlayPreviousMusic, PlayPreviousMusic_new);
 	// We also need to replace the music pausing/resuming when the window focus changes
-	WriteRelativeAddress(0x412BD6 + 1, WindowFocusLost_new);
-	WriteRelativeAddress(0x412C06 + 1, WindowFocusGained_new);
+	WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
+	WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
 	// Patch fading
-	WriteJump((int)FadeMusic, FadeMusic_new);
+	WriteJump(FadeMusic, FadeMusic_new);
 }

@@ -185,6 +185,6 @@ void InitMod(void)
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// WASD controls
-	WriteRelativeAddress(0x412CEE + 2, &HandleKeyPress_caller);
-	WriteRelativeAddress(0x412CBC + 2, &HandleKeyRelease_caller);
+	WriteRelativeAddress((void*)0x412CEE + 2, &HandleKeyPress_caller);
+	WriteRelativeAddress((void*)0x412CBC + 2, &HandleKeyRelease_caller);
 }

@@ -75,8 +75,8 @@ __declspec(dllexport) void FixDoorEnterBug(void)
 {
 	if (!patch_already_applied)
 	{
-		WriteJump(0x4157D7, &TestOnlyDownKeyIsPressedAndHeld_asm);
-		WriteJump(0x415826, &TestOnlyDownKeyIsHeld_asm);
+		WriteJump((void*)0x4157D7, &TestOnlyDownKeyIsPressedAndHeld_asm);
+		WriteJump((void*)0x415826, &TestOnlyDownKeyIsHeld_asm);
 		patch_already_applied = true;
 	}
 }

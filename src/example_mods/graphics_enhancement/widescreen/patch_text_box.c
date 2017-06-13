@@ -30,25 +30,25 @@ void ClearScreenHijack(RECT* rect, int flags)
 
 void PatchTextBox(void)
 {
-//	WriteByte(0x41A350, 0xC3);
-	WriteRelativeAddress(0x42201A + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422058 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x42207F + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422118 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422180 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x4222C6 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x4222E0 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422300 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x42231D + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x42233A + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422357 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x4223DB + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x422446 + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x4224CD + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x4224FE + 1, TextBoxDrawSpriteHijack);
-	WriteRelativeAddress(0x42220D + 1, ClearScreenHijack);
-	WriteRelativeAddress(0x41084E + 1, DrawHUD_Air_hijack);
+//	WriteByte((void*)0x41A350, 0xC3);
+	WriteRelativeAddress((void*)0x42201A + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422058 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x42207F + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422118 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422180 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x4222C6 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x4222E0 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422300 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x42231D + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x42233A + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422357 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x4223DB + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x422446 + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x4224CD + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x4224FE + 1, TextBoxDrawSpriteHijack);
+	WriteRelativeAddress((void*)0x42220D + 1, ClearScreenHijack);
+	WriteRelativeAddress((void*)0x41084E + 1, DrawHUD_Air_hijack);
 
-	WriteLong(0x4219F9 + 6, ((SCREEN_WIDTH - 244) / 2) + 14);
-	WriteLong(0x421A0D + 6, SCREEN_WIDTH - (((SCREEN_WIDTH - 244) / 2) + 14));
+	WriteLong((void*)0x4219F9 + 6, ((SCREEN_WIDTH - 244) / 2) + 14);
+	WriteLong((void*)0x421A0D + 6, SCREEN_WIDTH - (((SCREEN_WIDTH - 244) / 2) + 14));
 }

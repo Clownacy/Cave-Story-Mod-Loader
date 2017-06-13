@@ -39,6 +39,6 @@ extern char DrawForegroundBG_patch;
 
 void FixSubForegroundBug(void)
 {
-	WriteJump(0x4139A0, GetTileID_new);
-	WriteJump(0x413BA7, &DrawForegroundBG_patch);
+	WriteJump((void*)0x4139A0, GetTileID_new);
+	WriteJump((void*)0x413BA7, &DrawForegroundBG_patch);
 }

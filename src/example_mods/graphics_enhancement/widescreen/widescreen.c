@@ -35,31 +35,31 @@ void SetWidescreen(void)
 {
 	// Patch clip rectangles
 	// Default clip
-	WriteLong(0x48F91C + 8, SCREEN_WIDTH);
+	WriteLong((void*)0x48F91C + 8, SCREEN_WIDTH);
 	// Some other clip
-	WriteLong(0x48F92C + 8, SCREEN_WIDTH);
+	WriteLong((void*)0x48F92C + 8, SCREEN_WIDTH);
 	// SomethingHUDNumbers
-	WriteLong(0x40F39D + 6, SCREEN_WIDTH);
+	WriteLong((void*)0x40F39D + 6, SCREEN_WIDTH);
 	// GameLoop_StageSelect, for the screengrab
-	WriteLong(0x41DA1F + 3, SCREEN_WIDTH);
+	WriteLong((void*)0x41DA1F + 3, SCREEN_WIDTH);
 	// This one I think has to do with text box drawing, but I'm not sure yet
-//	WriteLong(0x498290 + 8, (0xD8 * SCREEN_WIDTH) / 320);
+//	WriteLong((void*)0x498290 + 8, (0xD8 * SCREEN_WIDTH) / 320);
 
 	// Patch WinMain (window creation and other stuff)
-	WriteLong(0x4126E5 + 3, SCREEN_WIDTH);
-	WriteLong(0x4127BC + 6, SCREEN_WIDTH);
-	WriteLong(0x4127D2 + 6, SCREEN_WIDTH * 2);
-	WriteLong(0x41293F + 6, SCREEN_WIDTH * 2);
+	WriteLong((void*)0x4126E5 + 3, SCREEN_WIDTH);
+	WriteLong((void*)0x4127BC + 6, SCREEN_WIDTH);
+	WriteLong((void*)0x4127D2 + 6, SCREEN_WIDTH * 2);
+	WriteLong((void*)0x41293F + 6, SCREEN_WIDTH * 2);
 
 	// InitDirectDraw
-	WriteLong(0x40B53F + 2, SCREEN_WIDTH);
-	WriteLong(0x40B571 + 2, SCREEN_WIDTH);
-	WriteLong(0x40B594 + 2, SCREEN_WIDTH);
-	WriteLong(0x40B62F + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40B53F + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40B571 + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40B594 + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40B62F + 2, SCREEN_WIDTH);
 
 	// ??????? (sub_40F040) The function appears to be unused. Looks camera-related.
-	//WriteLong(0x40F0C5 + 2, SCREEN_WIDTH);
-	//WriteLong(0x40F0E0 + 2, SCREEN_WIDTH);
+	//WriteLong((void*)0x40F0C5 + 2, SCREEN_WIDTH);
+	//WriteLong((void*)0x40F0E0 + 2, SCREEN_WIDTH);
 
 	FixSubForegroundBug();
 	PatchBeetleAndBasu();

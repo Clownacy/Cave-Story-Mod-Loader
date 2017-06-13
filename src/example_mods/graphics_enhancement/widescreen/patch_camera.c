@@ -87,15 +87,15 @@ void DrawWater_new(void);
 void PatchCamera(void)
 {
 	// Patch camera to centre properly
-	WriteLong(0x40EE90 + 1, (SCREEN_WIDTH / 2) * 0x200);	// Patch camera so Quote is still centred
-	WriteLong(0x40EF19 + 2, SCREEN_WIDTH);
-	WriteLong(0x40EF34 + 2, SCREEN_WIDTH);
-	WriteJump(0x40EED1, &UpdateCamera_extra_asm);
+	WriteLong((void*)0x40EE90 + 1, (SCREEN_WIDTH / 2) * 0x200);	// Patch camera so Quote is still centred
+	WriteLong((void*)0x40EF19 + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40EF34 + 2, SCREEN_WIDTH);
+	WriteJump((void*)0x40EED1, &UpdateCamera_extra_asm);
 	// SetCameraUponEnterRoom - This function is what decides where the camera starts off when you enter a room
-	WriteLong(0x40F15B + 2, (SCREEN_WIDTH / 2) * 0x200);
-	WriteLong(0x40F1BE + 1, SCREEN_WIDTH);
-	WriteLong(0x40F1D8 + 2, SCREEN_WIDTH);
+	WriteLong((void*)0x40F15B + 2, (SCREEN_WIDTH / 2) * 0x200);
+	WriteLong((void*)0x40F1BE + 1, SCREEN_WIDTH);
+	WriteLong((void*)0x40F1D8 + 2, SCREEN_WIDTH);
 
-	WriteRelativeAddress(0x410633 + 1, DrawBackground_hijack);
-	WriteJump(0x402830, DrawWater_new);
+	WriteRelativeAddress((void*)0x410633 + 1, DrawBackground_hijack);
+	WriteJump((void*)0x402830, DrawWater_new);
 }

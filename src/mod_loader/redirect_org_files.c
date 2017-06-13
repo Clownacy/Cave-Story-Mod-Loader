@@ -79,11 +79,11 @@ void RedirectOrgFiles(void)
 {
 	PrintDebug("Applying Org file redirection patches\n");
 
-//	WriteRelativeAddress(0x41C709 + 1, LoadOrg);
-	WriteJump(0x41BAEC, &sub_41BAD0_new_segment);	// Skip all the resource stuff
-//	WriteCall(0x41BB1A, GetOrgFileBuffer);
-//	WriteByte(0x41BB1A + 5, 0x90);
-//	WriteByte(0x41BB19 + 0, 0xB8);
-//	WriteLong(0x41BB19 + 1, file_memory);
-//	WriteWord(0x41BB19 + 5, 0x008B);
+//	WriteRelativeAddress((void*)0x41C709 + 1, LoadOrg);
+	WriteJump((void*)0x41BAEC, &sub_41BAD0_new_segment);	// Skip all the resource stuff
+//	WriteCall((void*)0x41BB1A, GetOrgFileBuffer);
+//	WriteByte((void*)0x41BB1A + 5, 0x90);
+//	WriteByte((void*)0x41BB19 + 0, 0xB8);
+//	WriteLong((void*)0x41BB19 + 1, file_memory);
+//	WriteWord((void*)0x41BB19 + 5, 0x008B);
 }
