@@ -51,8 +51,14 @@ void LoadMod(const char* const filename)
 		return;
 	}
 
+	void *settings = ReadSettings(filename);
+
+	PrintDebug("    Mod's debug output:\n\n");
+
 	// Run mod
-	ModEntry(this_hmodule, ReadSettings(filename), mod_folder);
+	ModEntry(this_hmodule, settings, mod_folder);
+
+	PrintDebug("\n    End of mod's debug output\n");
 
 	SetDllDirectory(NULL);
 
