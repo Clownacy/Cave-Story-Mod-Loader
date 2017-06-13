@@ -47,10 +47,13 @@ void InitMod(void)
 
 	if (borderless_fullscreen)
 		ApplyBorderlessFullscreenPatch();
-	
-	SetWidescreen();
 
-	SetSpriteResolution(sprite_resolution_factor);
+	if (aspect_ratio_x != 4 || aspect_ratio_y != 3)
+		SetWidescreen();
 
-	UpscaleWindow();
+	if (sprite_resolution_factor != 1)
+		SetSpriteResolution(sprite_resolution_factor);
+
+	if (window_upscale_factor != 2)
+		UpscaleWindow();
 }
