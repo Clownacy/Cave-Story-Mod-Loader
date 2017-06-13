@@ -12,6 +12,10 @@
 
 void InitMod(void)
 {
+	// Disable window.rect (this entire mod breaks it anyway)
+	WriteByte((void*)0x40F705, 0xEB);
+	WriteByte((void*)0x412DC3, 0xEB);
+
 	int _aspect_ratio_x = strtol(GetSetting("aspect_ratio_x"), NULL, 10);
 	if (_aspect_ratio_x == 0)
 		_aspect_ratio_x = 16;
