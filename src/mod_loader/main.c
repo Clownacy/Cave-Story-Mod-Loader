@@ -55,6 +55,8 @@ void LoadMod(const char* const filename)
 	ModEntry(this_hmodule, ReadSettings(filename), mod_folder);
 
 	SetDllDirectory(NULL);
+
+	PrintDebug("  Done loading mod\n");
 }
 
 __declspec(dllexport) void init(void)
