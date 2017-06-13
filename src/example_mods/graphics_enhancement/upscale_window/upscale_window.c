@@ -9,6 +9,8 @@
 
 void UpscaleWindow(void)
 {
+	PrintDebug("Applying 'upscale window' patch\n");
+
 	// Patch window creation
 	WriteLong((void*)0x40B4D1 + 6, window_upscale_factor);
 	WriteLong((void*)0x4127D2 + 6, SCREEN_WIDTH * window_upscale_factor);

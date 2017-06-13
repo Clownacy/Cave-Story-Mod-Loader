@@ -16,6 +16,8 @@ void (*WriteLongBE)(void* const address, const int value);
 void (*WriteJump)(void* const address, const void* const new_destination);
 void (*WriteCall)(void* const address, const void* const new_destination);
 void (*FixDoorEnterBug)(void);
+void (*PrintError)(const char* const format, ...);
+void (*PrintDebug)(const char* const format, ...);
 
 static char* (*GetSetting_inner)(const char* const filename, const void* const settings);
 
@@ -43,6 +45,8 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const void
 	WriteCall = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
 	GetSetting_inner = (char* (*)(const char* const, const void* const))GetProcAddress(mod_loader_hmodule, "GetSetting");
+	PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
+	PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");
 
 	InitMod();
 }

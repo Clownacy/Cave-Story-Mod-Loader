@@ -15,6 +15,8 @@ extern void (*WriteLongBE)(void* const address, const int value);
 extern void (*WriteJump)(void* const address, const void* const new_destination);
 extern void (*WriteCall)(void* const address, const void* const new_destination);
 extern void (*FixDoorEnterBug)(void);
+extern void (*PrintError)(const char* const format, ...);
+extern void (*PrintDebug)(const char* const format, ...);
 
 // Mod loader helper functions
 extern const char* const GetSetting(const char* const setting_name);

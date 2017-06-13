@@ -28,7 +28,7 @@ void PrintToFile(const char* const format, va_list args, const char* const file_
 	fclose(log_file);
 }
 
-void PrintError(const char* const format, ...)
+__declspec(dllexport) void PrintError(const char* const format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -39,7 +39,7 @@ void PrintError(const char* const format, ...)
 	va_end(args);
 }
 
-void PrintDebug(const char* const format, ...)
+__declspec(dllexport) void PrintDebug(const char* const format, ...)
 {
 	va_list args;
 	va_start(args, format);

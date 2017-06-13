@@ -33,6 +33,8 @@
 
 void SetWidescreen(void)
 {
+	PrintDebug("Applying 'widescreen' patch\n");
+
 	// Patch clip rectangles
 	// Default clip
 	WriteLong((void*)0x48F91C + 8, SCREEN_WIDTH);

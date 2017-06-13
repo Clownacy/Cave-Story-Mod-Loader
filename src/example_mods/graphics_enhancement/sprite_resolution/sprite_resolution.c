@@ -61,6 +61,8 @@ extern char LoadBMP_FromFile_StretchBlitHijack;
 
 void SetSpriteResolution(const int factor)
 {
+	PrintDebug("Applying 'set sprite resolution' patch\n");
+
 	sprite_resolution_factor = factor;
 
 	// Fix background tile sizes

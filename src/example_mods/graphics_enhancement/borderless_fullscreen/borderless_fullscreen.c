@@ -48,6 +48,8 @@ extern char SetupFullscreenBlitting_asm;
 
 void ApplyBorderlessFullscreenPatch(void)
 {
+	PrintDebug("Applying 'borderless fullscreen' patch\n");
+
 	// Hijack the window_surface_width/window_surface_height setter
 	WriteByte((void*)0x40B5AB, 0x90);
 	WriteCall((void*)0x40B5AB + 1, &SetupFullscreenBlitting_asm);
