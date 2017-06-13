@@ -76,5 +76,5 @@ __declspec(dllexport) const char* const GetSetting(const char* const setting_nam
 		}
 	}
 
-	return NULL;
+	return "";
 }
