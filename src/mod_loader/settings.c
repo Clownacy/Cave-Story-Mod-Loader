@@ -3,7 +3,9 @@
 
 #include "settings.h"
 
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <windows.h>
 
@@ -79,7 +81,7 @@ Setting* ReadSettings(const char* const filename)
 	return settings_list_head;
 }
 
-__declspec(dllexport) const char* const GetSetting(const char* const setting_name, const Setting* const settings_list_head)
+__declspec(dllexport) const char* const GetSettingString(const char* const setting_name, const Setting* const settings_list_head)
 {
 	for (const Setting *setting = settings_list_head; setting != NULL; setting = setting->next)
 	{
@@ -90,4 +92,14 @@ __declspec(dllexport) const char* const GetSetting(const char* const setting_nam
 	}
 
 	return "";
+}
+
+__declspec(dllexport) int GetSettingInt(const char* const setting_name, const Setting* const settings_list_head)
+{
+	return strtol(GetSettingString(setting_name, settings_list_head), NULL, 10);
+}
+
+__declspec(dllexport) bool GetSettingBool(const char* const setting_name, const Setting* const settings_list_head)
+{
+	return (strcmp(GetSettingString(setting_name, settings_list_head), "true") == 0);
 }

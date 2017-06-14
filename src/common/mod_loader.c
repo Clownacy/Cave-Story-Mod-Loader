@@ -3,6 +3,7 @@
 
 #include "mod_loader.h"
 
+#include <stdbool.h>
 #include <windows.h>
 
 extern void InitMod(void);
@@ -19,15 +20,27 @@ void (*FixDoorEnterBug)(void);
 void (*PrintError)(const char* const format, ...);
 void (*PrintDebug)(const char* const format, ...);
 
-static char* (*GetSetting_inner)(const char* const filename, const Setting* const settings);
+static char* (*GetSettingString_inner)(const char* const filename, const Setting* const settings);
+static int (*GetSettingInt_inner)(const char* const filename, const Setting* const settings);
+static bool (*GetSettingBool_inner)(const char* const filename, const Setting* const settings);
 
 const char *location_path;
 
 static const Setting *settings;
 
-const char* const GetSetting(const char* const setting_name)
+const char* const GetSettingString(const char* const setting_name)
 {
-	return GetSetting_inner(setting_name, settings);
+	return GetSettingString_inner(setting_name, settings);
+}
+
+int GetSettingInt(const char* const setting_name)
+{
+	return GetSettingInt_inner(setting_name, settings);
+}
+
+bool GetSettingBool(const char* const setting_name)
+{
+	return GetSettingBool_inner(setting_name, settings);
 }
 
 __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Setting* const settings_p, const char* const location_path_p)
@@ -44,7 +57,11 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	WriteJump = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteJump");
 	WriteCall = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
-	GetSetting_inner = (char* (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSetting");
+
+	GetSettingString_inner = (char* (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");
+	GetSettingInt_inner = (int (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
+	GetSettingBool_inner = (bool (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
+
 	PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
 	PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");
 

@@ -22,7 +22,7 @@ void InitLogging(void)
 	remove(ERROR_PATH);
 	remove(DEBUG_PATH);
 
-	console_enabled = (strcmp(GetSetting("debug_console", mod_loader_settings), "true") == 0);
+	console_enabled = GetSettingBool("debug_console", mod_loader_settings);
 
 	if (console_enabled)
 	{

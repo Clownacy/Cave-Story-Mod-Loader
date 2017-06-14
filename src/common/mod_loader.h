@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct Setting Setting;
 
 extern const char* location_path;
@@ -21,4 +23,6 @@ extern void (*PrintError)(const char* const format, ...);
 extern void (*PrintDebug)(const char* const format, ...);
 
 // Mod loader helper functions
-extern const char* const GetSetting(const char* const setting_name);
+extern const char* const GetSettingString(const char* const setting_name);
+extern int GetSettingInt(const char* const setting_name);
+extern bool GetSettingBool(const char* const setting_name);

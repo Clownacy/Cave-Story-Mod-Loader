@@ -44,8 +44,6 @@ void DrawBlackBars(int x_pos, int y_pos)
 
 void PatchBlackBars(void)
 {
-	const char* const black_bars_setting = GetSetting("black_bars");
-
-	if (black_bars_setting != NULL && strcmp(black_bars_setting, "true") == 0)
+	if (GetSettingBool("black_bars"))
 		WriteRelativeAddress((void*)0x4106C3 + 1, DrawBlackBars);
 }

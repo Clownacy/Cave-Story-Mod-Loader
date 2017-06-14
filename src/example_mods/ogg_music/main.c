@@ -377,7 +377,7 @@ void __cdecl FadeMusic_new(void)
 
 void InitMod(void)
 {
-	const char* const playlist_filename = GetSetting("playlist");
+	const char* const playlist_filename = GetSettingString("playlist");
 	if (playlist_filename == NULL)
 	{
 		return;
