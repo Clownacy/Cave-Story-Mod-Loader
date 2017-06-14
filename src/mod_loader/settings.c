@@ -17,6 +17,8 @@ typedef struct Setting
 	struct Setting *next;
 } Setting;
 
+Setting *mod_loader_settings;
+
 void AddSetting(char *setting_name, char *setting_value, Setting **settings_list_head)
 {
 	Setting *setting = malloc(sizeof(Setting));
@@ -31,14 +33,23 @@ Setting* ReadSettings(const char* const filename)
 {
 	Setting *settings_list_head = NULL;
 
-	char *settings_path = sprintfMalloc("mods/%s/settings.txt", filename);
-
-	FILE *settings_file = fopen(settings_path, "r");
-	free (settings_path);
+	FILE *settings_file;
+	if (filename)
+	{
+		char *settings_path = sprintfMalloc("mods/%s/settings.txt", filename);
+		settings_file = fopen(settings_path, "r");
+		free(settings_path);
+	}
+	else
+	{
+		settings_file = fopen("mods/settings.txt", "r");
+	}
 
 	if (settings_file != NULL)
 	{
-		PrintDebug("    Mod has settings file!\n");
+		if (filename)
+			PrintDebug("    Mod has settings file!\n");
+
 		char setting_string[MAX_PATH];
 		while (fgets(setting_string, MAX_PATH, settings_file) != NULL)
 		{
@@ -56,7 +67,9 @@ Setting* ReadSettings(const char* const filename)
 			strncpy(setting_value, setting_value_string, setting_value_length);
 			setting_value[setting_value_length] = '\0';
 
-			PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
+			if (filename)
+				PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
+
 			AddSetting(setting_name, setting_value, &settings_list_head);
 		}
 

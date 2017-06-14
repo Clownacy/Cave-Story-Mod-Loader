@@ -69,6 +69,8 @@ void LoadMod(const char* const filename)
 
 __declspec(dllexport) void init(void)
 {
+	mod_loader_settings = ReadSettings(NULL);
+
 	InitLogging();
 	//RedirectOrgFiles();
 
