@@ -37,6 +37,20 @@ cubeb *cubeb_context;
 
 int current_loop_setting;
 
+char* sprintfMalloc(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+
+	const int string_length = vsnprintf(NULL, 0, format, args) + 1;
+	char *string = malloc(string_length);
+	vsnprintf(string, string_length, format, args);
+
+	va_end(args);
+
+	return string;
+}
+
 long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
 	const unsigned int BYTES_PER_SAMPLE = song.channels * 2;	// 2 channels, 16-bit
@@ -254,21 +268,13 @@ bool PlayOggMusic(const int song_id)
 	if (playlist[song_id - 1].split)
 	{
 		// Play split-Ogg music (Cave Story 3D)
-		const int song_intro_file_path_length = snprintf(NULL, 0, "%s_intro.ogg", song_name) + 1;
-		song_intro_file_path = malloc(song_intro_file_path_length);
-		snprintf(song_intro_file_path, song_intro_file_path_length, "%s_intro.ogg", song_name);
-
-		const int song_loop_file_path_length = snprintf(NULL, 0, "%s_loop.ogg", song_name) + 1;
-		song_loop_file_path = malloc(song_loop_file_path_length);
-		snprintf(song_loop_file_path, song_loop_file_path_length, "%s_loop.ogg", song_name);
+		song_intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
+		song_loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
 	}
 	else
 	{
 		// Play single-Ogg music (Cave Story WiiWare)
-		const int song_file_path_length = snprintf(NULL, 0, "%s.ogg", song_name) + 1;
-		song_intro_file_path = malloc(song_file_path_length);
-		snprintf(song_intro_file_path, song_file_path_length, "%s.ogg", song_name);
-	
+		song_intro_file_path = sprintfMalloc("%s.ogg", song_name);
 		song_loop_file_path = NULL;
 	}
 
