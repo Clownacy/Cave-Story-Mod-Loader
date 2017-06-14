@@ -8,6 +8,7 @@
 #include <windows.h>
 
 #include "log.h"
+#include "sprintfMalloc.h"
 
 typedef struct Setting
 {
@@ -30,10 +31,10 @@ Setting* ReadSettings(const char* const filename)
 {
 	Setting *settings_list_head = NULL;
 
-	char settings_path[5 + strlen(filename) + 13 + 1];
-	sprintf(settings_path, "mods/%s/settings.txt", filename);
+	char *settings_path = sprintfMalloc("mods/%s/settings.txt", filename);
 
 	FILE *settings_file = fopen(settings_path, "r");
+	free (settings_path);
 
 	if (settings_file != NULL)
 	{
