@@ -1,0 +1,41 @@
+Ogg11/WANPAKU, loop, split
+Ogg11/ANZEN, loop, split
+Ogg11/GAMEOVER, split
+Ogg11/GRAVITY, loop, split
+Ogg11/WEED, loop, split
+Ogg11/MDOWN2, loop, split
+Ogg11/FIREEYE, loop, split
+Ogg11/VIVI, loop, split
+Ogg11/MURA, loop, split
+Ogg11/FANFALE1, split
+Ogg11/GINSUKE, loop, split
+Ogg11/CEMETERY, loop, split
+Ogg11/PLANT, loop, split
+Ogg11/KODOU, loop, split
+Ogg11/FANFALE3, split
+Ogg11/FANFALE2, split
+Ogg11/DR, loop, split
+Ogg11/ESCAPE, loop, split
+Ogg11/JENKA, loop, split
+Ogg11/MAZE, loop, split
+Ogg11/ACCESS, loop, split
+Ogg11/IRONH, loop, split
+Ogg11/GRAND, loop, split
+Ogg11/Curly, loop, split
+Ogg11/OSIDE, loop, split
+Ogg11/REQUIEM, loop, split
+Ogg11/WANPAK2, loop, split
+Ogg11/QUIET, loop, split
+Ogg11/LASTCAVE, loop, split
+Ogg11/BALCONY, loop, split
+Ogg11/LASTBTL, loop
+Ogg11/LASTBT3, loop, split
+Ogg11/ENDING, loop, split
+Ogg11/ZONBIE, loop, split
+Ogg11/BDOWN, loop, split
+Ogg11/HELL, loop, split
+Ogg11/JENKA2, loop, split
+Ogg11/MARINE, loop, split
+Ogg11/BALLOS, loop, split
+Ogg11/TOROKO, split
+Ogg11/WHITE, loop, split

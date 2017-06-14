@@ -1,0 +1,41 @@
+Ogg/WANPAKU, loop
+Ogg/ANZEN, loop
+Ogg/GAMEOVER
+Ogg/GRAVITY, loop
+Ogg/WEED, loop
+Ogg/MDOWN2, loop
+Ogg/FIREEYE, loop
+Ogg/VIVI, loop
+Ogg/MURA, loop
+Ogg/FANFALE1
+Ogg/GINSUKE, loop
+Ogg/CEMETERY, loop
+Ogg/PLANT, loop
+Ogg/KODOU, loop
+Ogg/FANFALE3
+Ogg/FANFALE2
+Ogg/DR, loop
+Ogg/ESCAPE, loop
+Ogg/JENKA, loop
+Ogg/MAZE, loop
+Ogg/ACCESS, loop
+Ogg/IRONH, loop
+Ogg/GRAND, loop
+Ogg/Curly, loop
+Ogg/OSIDE, loop
+Ogg/REQUIEM, loop
+Ogg/WANPAK2, loop
+Ogg/QUIET, loop
+Ogg/LASTCAVE, loop
+Ogg/BALCONY, loop
+Ogg/LASTBTL, loop
+Ogg/LASTBT3, loop
+Ogg/ENDING, loop
+Ogg/ZONBIE, loop
+Ogg/BDOWN, loop
+Ogg/HELL, loop
+Ogg/JENKA2, loop
+Ogg/MARINE, loop
+Ogg/BALLOS, loop
+Ogg/TOROKO
+Ogg/WHITE, loop

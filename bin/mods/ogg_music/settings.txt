@@ -1,1 +1,1 @@
-playlist = playlist_3d.txt
+playlist = Cave Story 3D
