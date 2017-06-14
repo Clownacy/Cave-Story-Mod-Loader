@@ -64,7 +64,7 @@ Setting* ReadSettings(const char* const filename)
 
 			// Get setting value
 			char* setting_value_string = setting_string + setting_name_length + strspn(setting_string + setting_name_length, ":= \t");
-			size_t setting_value_length = strcspn(setting_value_string, ":= \t");
+			size_t setting_value_length = strcspn(setting_value_string, "");
 			char* setting_value = malloc(setting_value_length + 1);
 			strncpy(setting_value, setting_value_string, setting_value_length);
 			setting_value[setting_value_length] = '\0';
