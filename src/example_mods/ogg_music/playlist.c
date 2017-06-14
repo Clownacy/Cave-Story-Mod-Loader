@@ -8,6 +8,9 @@
 #include <string.h>
 #include <windows.h>
 
+#include "mod_loader.h"
+#include "sprintfMalloc.h"
+
 SongEntry playlist[] = {
 	{"data/Ogg/WANPAKU", true, false, true},
 	{"data/Ogg/ANZEN", true, false, true},
@@ -52,11 +55,16 @@ SongEntry playlist[] = {
 	{"data/Ogg/WHITE", true, false, true}
 };
 
-void LoadPlaylist(const char* const playlist_path)
+void LoadPlaylist(const char* const playlist_folder)
 {
+	char *playlist_path = sprintfMalloc("%s/playlist.txt", playlist_folder);
 	FILE *playlist_file = fopen(playlist_path, "r");
 
-	if (playlist_file != NULL)
+	if (playlist_file == NULL)
+	{
+		PrintError("Could not open playlist.txt at '%s'\n", playlist_path);
+	}
+	else
 	{
 		char line[MAX_PATH];
 		for (int current_song = 0; fgets(line, MAX_PATH, playlist_file) != NULL; ++current_song)
@@ -72,9 +80,14 @@ void LoadPlaylist(const char* const playlist_path)
 			if (path_length == 0)
 				continue;
 
-			char *song_path = malloc(path_length + 1);
-			strncpy(song_path, line_current_position, path_length);
-			song_path[path_length] = '\0';
+			char *song_path_rel = malloc(path_length + 1);
+			strncpy(song_path_rel, line_current_position, path_length);
+			song_path_rel[path_length] = '\0';
+
+			PrintDebug("playlist.txt: song '%s'\n", song_path_rel);
+
+			char *song_path = sprintfMalloc("%s/%s", playlist_folder, song_path_rel);
+			free(song_path_rel);
 			playlist[current_song].name = song_path;
 			playlist[current_song].loops = false;
 			playlist[current_song].split = false;
@@ -106,4 +119,6 @@ void LoadPlaylist(const char* const playlist_path)
 
 		fclose(playlist_file);
 	}
+
+	free(playlist_path);
 }
