@@ -3,6 +3,8 @@
 
 #pragma once
 
+typedef struct Setting Setting;
+
 extern const char* location_path;
 
 // Mod loader DLL functions

@@ -43,7 +43,7 @@ void LoadMod(const char* const filename)
 	}
 
 	// Get DLL entry point
-	void (*ModEntry)(HMODULE, void*, const char* const) = (void (*)(HMODULE, void*, const char* const))GetProcAddress(hmodule, "ModEntry");
+	void (*ModEntry)(HMODULE, Setting*, const char* const) = (void (*)(HMODULE, Setting*, const char* const))GetProcAddress(hmodule, "ModEntry");
 	if (ModEntry == NULL)
 	{
 		free(mod_folder);
@@ -51,7 +51,7 @@ void LoadMod(const char* const filename)
 		return;
 	}
 
-	void *settings = ReadSettings(filename);
+	Setting *settings = ReadSettings(filename);
 
 	PrintDebug("    Mod's debug output:\n\n");
 

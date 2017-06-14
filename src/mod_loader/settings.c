@@ -26,10 +26,9 @@ void AddSetting(char *setting_name, char *setting_value, Setting **settings_list
 	*settings_list_head = setting;
 }
 
-void* ReadSettings(const char* const filename)
+Setting* ReadSettings(const char* const filename)
 {
-	Setting **settings_list_head_ptr = malloc(sizeof(void*));
-	*settings_list_head_ptr = NULL;
+	Setting *settings_list_head = NULL;
 
 	char settings_path[5 + strlen(filename) + 13 + 1];
 	sprintf(settings_path, "mods/%s/settings.txt", filename);
@@ -57,18 +56,18 @@ void* ReadSettings(const char* const filename)
 			setting_value[setting_value_length] = '\0';
 
 			PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
-			AddSetting(setting_name, setting_value, settings_list_head_ptr);
+			AddSetting(setting_name, setting_value, &settings_list_head);
 		}
 
 		fclose(settings_file);
 	}
 
-	return settings_list_head_ptr;
+	return settings_list_head;
 }
 
-__declspec(dllexport) const char* const GetSetting(const char* const setting_name, const Setting* const * const settings_list_head)
+__declspec(dllexport) const char* const GetSetting(const char* const setting_name, const Setting* const settings_list_head)
 {
-	for (const Setting *setting = *settings_list_head; setting != NULL; setting = setting->next)
+	for (const Setting *setting = settings_list_head; setting != NULL; setting = setting->next)
 	{
 		if (strcmp(setting->name, setting_name) == 0)
 		{

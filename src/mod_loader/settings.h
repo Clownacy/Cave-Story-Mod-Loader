@@ -3,4 +3,6 @@
 
 #pragma once
 
-extern void* ReadSettings(const char* const filename);
+typedef struct Setting Setting;
+
+extern Setting* ReadSettings(const char* const filename);
