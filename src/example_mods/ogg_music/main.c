@@ -273,7 +273,19 @@ bool PlayOggMusic(const int song_id)
 	}
 
 	if (!LoadSong(song_intro_file_path, song_loop_file_path, playlist[song_id - 1].loops))
+	{
+		if (song_intro_file_path != NULL)
+			free(song_intro_file_path);
+		if (song_loop_file_path != NULL)
+			free(song_loop_file_path);
+
 		return false;
+	}
+
+	if (song_intro_file_path != NULL)
+		free(song_intro_file_path);
+	if (song_loop_file_path != NULL)
+		free(song_loop_file_path);
 
 	StartSong();
 
