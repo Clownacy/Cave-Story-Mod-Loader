@@ -1,6 +1,8 @@
+COMMON_PATH = src/common
+
 CC = gcc
 CFLAGS = -O3 -s -static-libgcc
-LIBS = -Isrc/common
+LIBS = -I$(COMMON_PATH)
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)
 SDL_LDFLAGS := $(shell sdl2-config --libs)
@@ -9,6 +11,7 @@ MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
 MOD_LOADER_PATH = src/mod_loader
 MOD_LOADER_SOURCES = \
+	$(COMMON_PATH)/sprintfMalloc.c \
 	$(MOD_LOADER_PATH)/fix_door_bug.c \
 	$(MOD_LOADER_PATH)/log.c \
 	$(MOD_LOADER_PATH)/main.c \
@@ -53,7 +56,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 
 all: $(MOD_LOADER_HELPER_OBJECT) bin/mod_loader_patcher.exe bin/mods/mod_loader.dll bin/mods/60fps/60fps.dll bin/mods/ogg_music/ogg_music.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
 
-$(MOD_LOADER_HELPER_OBJECT): src/common/mod_loader.c
+$(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c -o $@ $^ $(LIBS)
 
@@ -69,7 +72,7 @@ bin/mods/60fps/60fps.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/60fps/mai
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
 
-bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c
+bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -static -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 

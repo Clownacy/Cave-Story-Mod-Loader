@@ -9,6 +9,7 @@
 #include "mod_list.h"
 #include "redirect_org_files.h"
 #include "settings.h"
+#include "sprintfMalloc.h"
 
 HMODULE this_hmodule;
 
@@ -16,8 +17,7 @@ void LoadMod(const char* const filename)
 {
 	PrintDebug("  Loading mod '%s'...\n", filename);
 
-	char mod_folder_relative[5 + strlen(filename) + 1 + 1];
-	sprintf(mod_folder_relative, "mods\\%s\\", filename);
+	char *mod_folder_relative = sprintfMalloc("mods\\%s\\", filename);
 
 	size_t mod_folder_length = GetFullPathName(mod_folder_relative, 0, NULL, NULL);
 	char *mod_folder = malloc(mod_folder_length);
@@ -25,13 +25,15 @@ void LoadMod(const char* const filename)
 
 	AddToModList(mod_folder);
 
-	char mod_path[strlen(mod_folder) + strlen(filename) + 1];
-	sprintf(mod_path, "%s%s", mod_folder, filename);
+	char *mod_path = sprintfMalloc("%s%s", mod_folder, filename);
 
 	SetDllDirectory(mod_folder_relative);
+	free(mod_folder_relative);
 
 	// Load mod DLL
 	HMODULE hmodule = LoadLibrary(mod_path);
+	free(mod_path);
+
 	if (hmodule == NULL)
 	{
 		free(mod_folder);
