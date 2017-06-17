@@ -40,9 +40,6 @@ void PrintToFile(const char* const format, va_list args, const char* const file_
 
 	vfprintf(log_file, format, args);
 
-	if (console_enabled)
-		vprintf(format, args);
-
 	fclose(log_file);
 }
 
@@ -50,6 +47,9 @@ __declspec(dllexport) void PrintError(const char* const format, ...)
 {
 	va_list args;
 	va_start(args, format);
+
+	if (console_enabled)
+		vprintf(format, args);
 
 	PrintToFile(format, args, ERROR_PATH);
 	PrintToFile(format, args, DEBUG_PATH);
@@ -61,6 +61,9 @@ __declspec(dllexport) void PrintDebug(const char* const format, ...)
 {
 	va_list args;
 	va_start(args, format);
+
+	if (console_enabled)
+		vprintf(format, args);
 
 	PrintToFile(format, args, DEBUG_PATH);
 
