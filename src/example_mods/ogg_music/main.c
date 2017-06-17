@@ -142,7 +142,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		song.current_file = 0;
 	}
 
-	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
+	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_DEFAULT) < 0)
 	{
 		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
@@ -306,7 +306,7 @@ void __cdecl PlayMusic_new(const int music_id)
 		song_backup = song;
 		song = song_blank;
 
-		if (!playlist[music_id - 1].is_org && PlayOggMusic(music_id))
+		if (music_id == 0 || (!playlist[music_id - 1].is_org && PlayOggMusic(music_id)))
 		{
 			// Ogg music played successfully,
 			// silence any org music that might be playing
