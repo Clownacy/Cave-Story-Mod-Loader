@@ -35,12 +35,9 @@ static const int ALTERNATE_DIRECTION_KEY_MASK = ~(INPUT_LEFT | INPUT_RIGHT | INP
 
 static bool TestDownKey(const int input_bitfield)
 {
-	const bool using_normal_controls = *down_key_mapping == INPUT_DOWN;	// If we're using alternate controls, the down key mask is set to 0x20000
+	const int current_direction_keys_mask = (*down_key_mapping == INPUT_DOWN) ? NORMAL_DIRECTION_KEY_MASK : ALTERNATE_DIRECTION_KEY_MASK;
 
-	const int current_direction_keys_mask = using_normal_controls ? NORMAL_DIRECTION_KEY_MASK : ALTERNATE_DIRECTION_KEY_MASK;
-	const int current_down_key_mask = using_normal_controls ? INPUT_DOWN : INPUT_ALT_DOWN;
-
-	return (input_bitfield & current_direction_keys_mask) == current_down_key_mask;
+	return (input_bitfield & current_direction_keys_mask) == *down_key_mapping;
 }
 
 bool TestOnlyDownKeyIsPressedAndHeld(void)
@@ -56,7 +53,7 @@ bool TestOnlyDownKeyIsHeld(void)
 __asm(
 "_TestOnlyDownKeyIsPressedAndHeld_asm:\n"
 "	call	_TestOnlyDownKeyIsPressedAndHeld\n"
-"	or	%eax, %eax\n"
+"	test	%al, %al\n"
 "	jz	0x415826\n"
 "	jmp	0x4157F3\n"
 );
@@ -65,7 +62,7 @@ extern char TestOnlyDownKeyIsPressedAndHeld_asm;
 __asm(
 "_TestOnlyDownKeyIsHeld_asm:\n"
 "	call	_TestOnlyDownKeyIsHeld\n"
-"	or	%eax, %eax\n"
+"	test	%al, %al\n"
 "	jz	0x415835\n"
 "	jmp	0x4158B3\n"
 );
