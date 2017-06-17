@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <cubeb/cubeb.h>
@@ -71,16 +72,7 @@ long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, vo
 
 void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
 {
-	if (state == CUBEB_STATE_STARTED)
-		printf("state = CUBEB_STATE_STARTED\n");
-	else if (state == CUBEB_STATE_STOPPED)
-		printf("state = CUBEB_STATE_STOPPED\n");
-	else if (state == CUBEB_STATE_DRAINED)
-	{
-		printf("state = CUBEB_STATE_DRAINED\n");
-	}
-	else if (state == CUBEB_STATE_ERROR)
-		printf("state = CUBEB_STATE_ERROR\n");
+
 }
 
 void UnloadSong(Song *song)
@@ -89,15 +81,13 @@ void UnloadSong(Song *song)
 	{
 		if (cubeb_stream_stop(song->stream) != CUBEB_OK)
 		{
-			printf("Could not stop the stream");
+			PrintError("ogg_music: Could not stop the stream");
 			return;
 		}
 		cubeb_stream_destroy(song->stream);
 
 		ov_clear(&song->vorbis_file[0]);
-		fclose(song->file[0]);
 		ov_clear(&song->vorbis_file[1]);
-		fclose(song->file[1]);
 	}
 }
 
@@ -107,7 +97,7 @@ void StopSong(void)
 	{
 		if (cubeb_stream_stop(song.stream) != CUBEB_OK)
 		{
-			printf("Could not stop the stream");
+			PrintError("ogg_music: Could not stop the stream");
 		}
 	}
 }
@@ -118,7 +108,7 @@ void StartSong(void)
 	{
 		if (cubeb_stream_start(song.stream) != CUBEB_OK)
 		{
-			printf("Could not start the stream");
+			PrintError("ogg_music: Could not start the stream");
 		}
 	}
 }
@@ -154,7 +144,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
 	{
-		printf("Input does not appear to be an Ogg bitstream.\n");
+		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
 		if (song.file[0] != NULL)
 			fclose(song.file[0]);
@@ -166,9 +156,9 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (song.has_next_part)
 	{
-		if (ov_open_callbacks(song.file[1], &song.vorbis_file[1], NULL, 0, OV_CALLBACKS_NOCLOSE) < 0)
+		if (ov_open_callbacks(song.file[1], &song.vorbis_file[1], NULL, 0, OV_CALLBACKS_DEFAULT) < 0)
 		{
-			printf("Input does not appear to be an Ogg bitstream.\n");
+			PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
 			if (song.file[0] != NULL)
 				fclose(song.file[0]);
@@ -197,7 +187,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 	else
 	{
 		// Unsupported channel count
-		printf("Unsupported channel count\n");
+		PrintError("ogg_music: Unsupported channel count\n");
 
 		if (song.file[0] != NULL)
 			fclose(song.file[0]);
@@ -211,7 +201,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (cubeb_get_min_latency(cubeb_context, output_params, &latency_frames) != CUBEB_OK)
 	{
-		printf("Could not get minimum latency");
+		PrintError("ogg_music: Could not get minimum latency");
 
 		if (song.file[0] != NULL)
 			fclose(song.file[0]);
@@ -223,7 +213,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (cubeb_stream_init(cubeb_context, &song.stream, "Example Stream 1", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
 	{
-		printf("Could not open the stream");
+		PrintError("ogg_music: Could not open the stream");
 
 		if (song.file[0] != NULL)
 			fclose(song.file[0]);
@@ -344,7 +334,7 @@ void __cdecl PlayPreviousMusic_new(void)
 		UnloadSong(&song);
 		song = song_backup;
 		song_backup = song_blank;
-		
+
 		StartSong();
 	}
 	else
