@@ -18,6 +18,7 @@
 typedef struct Song {
 	FILE *file[2];
 	OggVorbis_File vorbis_file[2];
+	char *file_buffer[2];
 
 	unsigned int current_file;
 
@@ -88,6 +89,9 @@ void UnloadSong(Song *song)
 
 		ov_clear(&song->vorbis_file[0]);
 		ov_clear(&song->vorbis_file[1]);
+
+		free(song->file_buffer[0]);
+		free(song->file_buffer[1]);
 	}
 }
 
@@ -140,6 +144,17 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		// Both files opened successfully
 		song.has_next_part = true;
 		song.current_file = 0;
+	}
+
+	if (song.file[0])
+	{
+		song.file_buffer[0] = malloc(1024 * 1024 * 2);
+		setbuf(song.file[0], song.file_buffer[0]);
+	}
+	if (song.file[1])
+	{
+		song.file_buffer[1] = malloc(1024 * 1024 * 2);
+		setbuf(song.file[1], song.file_buffer[1]);
 	}
 
 	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_DEFAULT) < 0)
