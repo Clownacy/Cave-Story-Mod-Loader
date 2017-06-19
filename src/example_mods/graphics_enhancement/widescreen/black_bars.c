@@ -14,10 +14,10 @@ int current_level_width;
 
 void DrawBlackBars(int x_pos, int y_pos)
 {
+	DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
+
 	if (!(*(int*)0x49E1E8 & 8))	// Detect if credits are running
 	{
-		DrawWater(x_pos, y_pos);
-
 		const int bar_width = (SCREEN_WIDTH - (current_level_width * 16)) / 2;
 
 		if (bar_width > 0)
