@@ -41,7 +41,6 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fps_counter.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_gaudi.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_inventory_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_ironhead.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_island_crash.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_loading_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_map_screen.c \

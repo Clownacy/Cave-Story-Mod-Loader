@@ -3,6 +3,7 @@
 
 #include "black_bars.h"
 
+#include <stdbool.h>
 #include <windows.h>
 
 #include "cave_story.h"
@@ -12,17 +13,21 @@
 
 int current_level_width;
 
+static bool disable_ironhead_black_bars;
+
 void DrawBlackBars(int x_pos, int y_pos)
 {
 	DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
 
 	if (!(*(int*)0x49E1E8 & 8))	// Detect if credits are running
 	{
-		const int bar_width = (SCREEN_WIDTH - (current_level_width * 16)) / 2;
+		const bool is_ironhead_arena = !disable_ironhead_black_bars && *current_room == 0x1F;
+		const int room_width = is_ironhead_arena ? 320 : (current_level_width * 16);
+		const int bar_width = (SCREEN_WIDTH - room_width) / 2;
 
 		if (bar_width > 0)
 		{
-			int rumble_delta = -((x_pos / 0x200) + (16 / 2)) - bar_width;
+			const int rumble_delta = is_ironhead_arena ? 0 : -((x_pos / 0x200) + (16 / 2)) - bar_width;
 
 			// Draw left black bar
 			RECT bar_rect;
@@ -45,5 +50,10 @@ void DrawBlackBars(int x_pos, int y_pos)
 void PatchBlackBars(void)
 {
 	if (GetSettingBool("black_bars"))
+	{
 		WriteRelativeAddress((void*)0x4106C3 + 1, DrawBlackBars);
+
+		disable_ironhead_black_bars = GetSettingBool("disable_ironhead_black_bars");
+
+	}
 }

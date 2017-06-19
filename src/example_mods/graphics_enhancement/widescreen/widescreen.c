@@ -19,7 +19,6 @@
 #include "patch_fps_counter.h"
 #include "patch_gaudi.h"
 #include "patch_inventory_screen.h"
-#include "patch_ironhead.h"
 #include "patch_island_crash.h"
 #include "patch_loading_screen.h"
 #include "patch_map_screen.h"
@@ -76,7 +75,6 @@ void SetWidescreen(void)
 	PatchFPSCounter();
 	PatchGaudi();
 	PatchInventoryScreen();
-	PatchIronhead();
 	PatchIslandCrash();
 	PatchLoadingScreen();
 	PatchMapMenu();
