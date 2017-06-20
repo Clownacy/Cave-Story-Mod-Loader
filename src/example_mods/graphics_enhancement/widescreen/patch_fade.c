@@ -9,13 +9,10 @@
 
 #include "../common.h"
 
-char *fade_buffer_bool;
-char *fade_buffer_int;
-
 void PatchFade(void)
 {
-	fade_buffer_bool = malloc(SCREEN_WIDTH * 240);
-	fade_buffer_int = malloc(SCREEN_WIDTH * 240);
+	char *fade_buffer_bool = malloc(SCREEN_WIDTH * 240);
+	char *fade_buffer_int = malloc(SCREEN_WIDTH * 240);
 
 	const int screen_width_tiles = ScreenWidthToTiles(16);
 	// BeginFadeOut

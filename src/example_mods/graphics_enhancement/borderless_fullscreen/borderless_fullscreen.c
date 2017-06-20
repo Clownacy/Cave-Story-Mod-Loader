@@ -65,7 +65,7 @@ void ApplyBorderlessFullscreenPatch(void)
 	if (file != NULL)
 	{
 		fseek(file, 0x6C, SEEK_SET);
-		unsigned char video_mode = fgetc(file);
+		const unsigned char video_mode = fgetc(file);
 		fclose(file);
 
 		if (video_mode != 0 && video_mode != 3 && video_mode != 4)
@@ -86,7 +86,7 @@ void ApplyBorderlessFullscreenPatch(void)
 		unsigned int gcd_value2 = monitor_height;
 		while (gcd_value2 != 0)
 		{
-			unsigned int remainder = gcd_value1 % gcd_value2;
+			const unsigned int remainder = gcd_value1 % gcd_value2;
 			gcd_value1 = gcd_value2;
 			gcd_value2 = remainder;
 		}

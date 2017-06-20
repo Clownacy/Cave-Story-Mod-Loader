@@ -15,7 +15,7 @@ int current_level_width;
 
 static bool disable_ironhead_black_bars;
 
-void DrawBlackBars(int x_pos, int y_pos)
+static void DrawBlackBars(int x_pos, int y_pos)
 {
 	DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
 
@@ -54,6 +54,5 @@ void PatchBlackBars(void)
 		WriteRelativeAddress((void*)0x4106C3 + 1, DrawBlackBars);
 
 		disable_ironhead_black_bars = GetSettingBool("disable_ironhead_black_bars");
-
 	}
 }

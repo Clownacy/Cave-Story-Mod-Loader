@@ -3,7 +3,6 @@
 
 #include "sprite_resolution.h"
 
-#include <ddraw.h>
 #include <stdbool.h>
 #include <windows.h>
 
@@ -12,12 +11,12 @@
 
 #include "../common.h"
 
-int sprite_resolution_factor;
+static int sprite_resolution_factor;
 
 // LoadBackgroundSprite actually figures out the size of the image
 // and tiles it accordingly. But since we're working with double-res,
 // we need it to tile these at half-size.
-void LoadBackgroundSprite_hijack(char* filename, int something)
+static void LoadBackgroundSprite_hijack(char* filename, int something)
 {
 	LoadBackgroundSprite(filename, something);
 

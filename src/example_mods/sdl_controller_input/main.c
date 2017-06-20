@@ -7,7 +7,7 @@
 #include "controls.h"
 #include "mod_loader.h"
 
-enum
+typedef enum InputID
 {
 	ID_MAP,
 	ID_LEFT,
@@ -20,9 +20,9 @@ enum
 	ID_PREVIOUSWEAPON,
 	ID_INVENTORY,
 	ID_MAX
-};
+} InputID;
 
-const int input_masks[] = {
+static const int input_masks[] = {
 	INPUT_MAP,
 	INPUT_LEFT | INPUT_ALT_LEFT,
 	INPUT_RIGHT | INPUT_ALT_RIGHT,
@@ -35,26 +35,26 @@ const int input_masks[] = {
 	INPUT_INVENTORY
 };
 
-SDL_Event event;
-SDL_GameController *controller;
-int controller_id;
+static SDL_Event event;
+static SDL_GameController *controller;
+static int controller_id;
 
 static int input_totals[ID_MAX];
 
-void SetInput(const int input_id)
+static void SetInput(const int input_id)
 {
 	++input_totals[input_id];
 
 	*input_bitfield_held |= input_masks[input_id];
 }
 
-void ClearInput(const int input_id)
+static void ClearInput(const InputID input_id)
 {
 	if (--input_totals[input_id] == 0)
 		*input_bitfield_held &= ~input_masks[input_id];
 }
 
-void DoButton(const int input_id)
+static void DoButton(const InputID input_id)
 {
 	if (event.cbutton.type == SDL_CONTROLLERBUTTONDOWN)
 		SetInput(input_id);
@@ -62,7 +62,7 @@ void DoButton(const int input_id)
 		ClearInput(input_id);
 }
 
-void DoTrigger(const int input_id, const int trigger_id)
+static void DoTrigger(const InputID input_id, const int trigger_id)
 {
 	static int trigger_input[2];
 
@@ -84,17 +84,17 @@ void DoTrigger(const int input_id, const int trigger_id)
 	}
 }
 
-inline void DoLeftTrigger(const int input_id)
+static inline void DoLeftTrigger(const InputID input_id)
 {
 	DoTrigger(input_id, 0);
 }
 
-inline void DoRightTrigger(const int input_id)
+static inline void DoRightTrigger(const InputID input_id)
 {
 	DoTrigger(input_id, 1);
 }
 
-void DoStick(const int input_id1, const int input_id2, const int stick_id)
+static void DoStick(const InputID input_id1, const InputID input_id2, const int stick_id)
 {
 	static int stick_input[1];
 
@@ -133,12 +133,12 @@ void DoStick(const int input_id1, const int input_id2, const int stick_id)
 	}
 }
 
-inline void DoLeftStick(const int input_id1, const int input_id2)
+static inline void DoLeftStick(const InputID input_id1, const InputID input_id2)
 {
 	DoStick(input_id1, input_id2, 0);
 }
 
-__cdecl void ProcessControllerEvents(void)
+static void ProcessControllerEvents(void)
 {
 	while (SDL_PollEvent(&event) != 0)
 	{

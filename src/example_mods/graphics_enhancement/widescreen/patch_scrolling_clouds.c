@@ -10,7 +10,7 @@
 
 #include "../common.h"
 
-void DrawSkyRow(const int scroll_type)
+static void DrawSkyRow(const int scroll_type)
 {
 	RECT src_rect_sky = {0, 0, 320, 88};
 	const int sky_width = src_rect_sky.right - src_rect_sky.left;
@@ -47,7 +47,7 @@ void DrawSkyRow(const int scroll_type)
 	}
 }
 
-void __stdcall ScrollClouds(const int scroll_type)
+__stdcall void ScrollClouds(const int scroll_type)
 {
 	DrawSkyRow(scroll_type);
 

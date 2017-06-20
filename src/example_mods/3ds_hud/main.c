@@ -7,7 +7,7 @@
 #define HUD_X 8
 #define HUD_Y 4
 
-void DrawHUD_WeaponIcons_hijack(void *clip_rect, int x_pos, int y_pos, void *src_rect, int surface_id)
+static void DrawHUD_WeaponIcons_hijack(void *clip_rect, int x_pos, int y_pos, void *src_rect, int surface_id)
 {
 	DrawSprite_WithTransparency(clip_rect, x_pos + HUD_X + 56, y_pos, src_rect, surface_id);
 }

@@ -31,16 +31,16 @@ typedef struct Song {
 	cubeb_stream *stream;
 } Song;
 
-const Song song_blank;
+static const Song song_blank;
 
-Song song;
-Song song_backup;
+static Song song;
+static Song song_backup;
 
-cubeb *cubeb_context;
+static cubeb *cubeb_context;
 
-int current_loop_setting;
+static int current_loop_setting;
 
-long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
+static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
 	const unsigned int BYTES_PER_SAMPLE = song.channels * 2;	// 2 channels, 16-bit
 	const unsigned long bytes_to_do = samples_to_do * BYTES_PER_SAMPLE;
@@ -71,12 +71,12 @@ long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, vo
 	return bytes_done_total / BYTES_PER_SAMPLE;
 }
 
-void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
+static void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
 {
 
 }
 
-void UnloadSong(Song *song)
+static void UnloadSong(Song *song)
 {
 	if (song->stream)
 	{
@@ -95,7 +95,7 @@ void UnloadSong(Song *song)
 	}
 }
 
-void StopSong(void)
+static void StopSong(void)
 {
 	if (song.stream)
 	{
@@ -106,7 +106,7 @@ void StopSong(void)
 	}
 }
 
-void StartSong(void)
+static void StartSong(void)
 {
 	if (song.stream)
 	{
@@ -117,7 +117,7 @@ void StartSong(void)
 	}
 }
 
-bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
+static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 {
 	if (intro_file_path == NULL && loop_file_path == NULL)
 	{
@@ -243,7 +243,7 @@ bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 	return true;
 }
 
-bool PlayOggMusic(const int song_id)
+static bool PlayOggMusic(const int song_id)
 {
 	if (song_id == 0)
 	{
@@ -290,7 +290,7 @@ bool PlayOggMusic(const int song_id)
 	return true;
 }
 
-void PlayOrgMusic(const int music_id)
+static void PlayOrgMusic(const int music_id)
 {
 	*previous_song_last_position = GetOrgMusicPosition();
 	sub_41C7F0();
@@ -300,7 +300,7 @@ void PlayOrgMusic(const int music_id)
 	StartOrgPlayback();
 }
 
-void PlayPreviousOrgMusic(void)
+static void PlayPreviousOrgMusic(void)
 {
 	sub_41C7F0();
 	LoadOrgMusic(org_playlist[*previous_music]);
@@ -309,7 +309,7 @@ void PlayPreviousOrgMusic(void)
 	StartOrgPlayback();
 }
 
-void __cdecl PlayMusic_new(const int music_id)
+static void PlayMusic_new(const int music_id)
 {
 	if (music_id == 0 || music_id != *current_music)
 	{
@@ -338,7 +338,7 @@ void __cdecl PlayMusic_new(const int music_id)
 	}
 }
 
-void __cdecl PlayPreviousMusic_new(void)
+static void PlayPreviousMusic_new(void)
 {
 	if (!song_backup.is_org)
 	{
@@ -361,19 +361,19 @@ void __cdecl PlayPreviousMusic_new(void)
 	*current_music = *previous_music;
 }
 
-void __cdecl WindowFocusGained_new(void)
+static void WindowFocusGained_new(void)
 {
 	StartSong();
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
-void __cdecl WindowFocusLost_new(void)
+static void WindowFocusLost_new(void)
 {
 	StopSong();
 	sub_41C7F0();	// The instruction we hijacked to get here
 }
 
-void __cdecl FadeMusic_new(void)
+static void FadeMusic_new(void)
 {
 	*music_fade_flag = 1;
 //	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out

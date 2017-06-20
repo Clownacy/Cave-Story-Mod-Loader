@@ -3,7 +3,7 @@
 
 #include "mod_loader.h"
 
-const char* const cursor_filename = "CURSOR_IKA";
+static const char* const cursor_filename = "CURSOR_IKA";
 
 void InitMod(void)
 {

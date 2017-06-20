@@ -9,7 +9,7 @@
 #include "../common.h"
 #include "drawsprite1_centred.h"
 
-void SomethingHUDNumbers_hijack(int x, int y, int a3, int a4)
+static void SomethingHUDNumbers_hijack(int x, int y, int a3, int a4)
 {
 	DrawNumber(((SCREEN_WIDTH - 320) / 2) + x, y, a3, a4);
 }

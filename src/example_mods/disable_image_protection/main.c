@@ -3,7 +3,7 @@
 
 #include "mod_loader.h"
 
-int PixelProtection(void)
+static int PixelProtection(void)
 {
 	return 1;
 }

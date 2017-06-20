@@ -19,7 +19,7 @@ __asm(
 );
 extern char DrawSprite_WithTransparency_nudged;
 
-void DrawCreditsImage_new(void)
+static void DrawCreditsImage_new(void)
 {
 	void (*DrawSprite_WithTransparency)(RECT *clip_rect, int x_pos, int y_pos, RECT *src_rect, int surface_ID) = (void (*)(RECT*, int, int, RECT*, int))0x40C3C0;
 	int credits_picture_x = *(int*)0x49D60C;

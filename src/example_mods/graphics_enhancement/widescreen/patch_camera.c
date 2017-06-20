@@ -24,9 +24,9 @@
 #include "../common.h"
 #include "black_bars.h"
 
-bool small_room;
+static bool small_room;
 
-bool __stdcall UpdateCamera_extra(const unsigned int level_width, const unsigned int level_height)
+__stdcall bool UpdateCamera_extra(const unsigned int level_width, const unsigned int level_height)
 {
 	current_level_width = level_width;
 

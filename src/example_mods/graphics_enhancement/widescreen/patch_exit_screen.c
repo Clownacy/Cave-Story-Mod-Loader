@@ -8,7 +8,7 @@
 
 #include "../common.h"
 
-void DrawSprite1_hijack2(void* clip_rect, int x, int y, void* src_rect, int surface_ID)
+static void DrawSprite1_hijack2(void* clip_rect, int x, int y, void* src_rect, int surface_ID)
 {
 	DrawSprite_WithTransparency(clip_rect, ((SCREEN_WIDTH - 208) / 2), y, src_rect, surface_ID);
 }

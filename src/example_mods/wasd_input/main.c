@@ -7,7 +7,7 @@
 #include "controls.h"
 #include "mod_loader.h"
 
-void __stdcall HandleKeyPress(const int key_code)
+__stdcall void HandleKeyPress(const int key_code)
 {
 	switch(key_code)
 	{
@@ -88,7 +88,7 @@ void __stdcall HandleKeyPress(const int key_code)
 	}
 }
 
-void __stdcall HandleKeyRelease(const int key_code)
+__stdcall void HandleKeyRelease(const int key_code)
 {
 	switch(key_code)
 	{

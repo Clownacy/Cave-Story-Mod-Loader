@@ -7,12 +7,12 @@
 #include "mod_loader.h"
 
 // This here fixes a bug in the game's sub-FG renderer, where out-of-bound tiles
-// are draw. The function returns 0 in the event of an error, but 0 is a valid
+// are drawn. The function returns 0 in the event of an error, but 0 is a valid
 // number for sub-FG, so we use a flag instead.
 
 char bad_tile_flag;
 
-char GetTileID_new(const int tile_x, const int tile_y)
+static char GetTileID_new(const int tile_x, const int tile_y)
 {
 	if (tile_x >= 0 && tile_y >= 0 && tile_x < (*level_width) && tile_y < (*level_height))
 	{
