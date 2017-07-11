@@ -54,31 +54,38 @@ void main(int argc, char *argv[])
 	else
 	{
 		FILE *in_file = fopen(argv[1], "rb");
-		fseek(in_file, 0, SEEK_END);
-		size_t file_size = ftell(in_file);
-		rewind(in_file);
-
-		unsigned char *file_memory = malloc(file_size);
-		fread(file_memory, 1, file_size, in_file);
-		fclose(in_file);
-
-		if (!memcmp(patched_code_1, &file_memory[0x12429], PATCH_1_SIZE) && !memcmp(patched_code_2, &file_memory[0x10C10], PATCH_2_SIZE))
+		if (in_file == NULL)
 		{
-			printf("Error: EXE has already been patched\n\n");
+			printf("Could not open file '%s'\n", argv[1]);
 		}
 		else
 		{
-			DoPatch(vanilla_code_1, patched_code_1, file_memory, 0x12429, PATCH_1_SIZE);
-			DoPatch(vanilla_code_2, patched_code_2, file_memory, 0x10C10, PATCH_2_SIZE);
+			fseek(in_file, 0, SEEK_END);
+			size_t file_size = ftell(in_file);
+			rewind(in_file);
 
-			FILE *out_file = fopen("Doukutsu_mod_loader.exe", "wb");
-			fwrite(file_memory, 1, file_size, out_file);
-			fclose(out_file);
+			unsigned char *file_memory = malloc(file_size);
+			fread(file_memory, 1, file_size, in_file);
+			fclose(in_file);
 
-			printf("Patched EXE created as 'Doukutsu_mod_loader.exe'\n\n");
+			if (!memcmp(patched_code_1, &file_memory[0x12429], PATCH_1_SIZE) && !memcmp(patched_code_2, &file_memory[0x10C10], PATCH_2_SIZE))
+			{
+				printf("Error: EXE has already been patched\n\n");
+			}
+			else
+			{
+				DoPatch(vanilla_code_1, patched_code_1, file_memory, 0x12429, PATCH_1_SIZE);
+				DoPatch(vanilla_code_2, patched_code_2, file_memory, 0x10C10, PATCH_2_SIZE);
+
+				FILE *out_file = fopen("Doukutsu_mod_loader.exe", "wb");
+				fwrite(file_memory, 1, file_size, out_file);
+				fclose(out_file);
+
+				printf("Patched EXE created as 'Doukutsu_mod_loader.exe'\n\n");
+			}
+
+			free(file_memory);
 		}
-
-		free(file_memory);
 	}
 	printf("Press enter to close this window...\n");
 	getchar();
