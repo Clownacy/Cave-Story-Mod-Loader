@@ -15,8 +15,15 @@
 
 #include "playlist.h"
 
+typedef struct VorbisMemoryFile
+{
+	char *data_start;
+	size_t data_size;
+	signed long current_offset;
+} VorbisMemoryFile;
+
 typedef struct Song {
-	FILE *file[2];
+	VorbisMemoryFile *file[2];
 	OggVorbis_File vorbis_file[2];
 	char *file_buffer[2];
 
@@ -30,6 +37,86 @@ typedef struct Song {
 
 	cubeb_stream *stream;
 } Song;
+
+static VorbisMemoryFile* VorbisMemoryFile_FOpen(char *file_path)
+{
+	VorbisMemoryFile *memory_file = NULL;
+
+	FILE *file = fopen(file_path, "rb");
+	if (file != NULL)
+	{
+		memory_file = malloc(sizeof(VorbisMemoryFile));
+
+		fseek(file, 0, SEEK_END);
+		memory_file->data_size = ftell(file);
+		rewind(file);
+
+		memory_file->data_start = malloc(memory_file->data_size);
+
+		fread(memory_file->data_start, 1, memory_file->data_size, file);
+
+		fclose(file);
+
+		memory_file->current_offset = 0;
+	}
+
+	return memory_file;
+}
+
+static size_t VorbisMemoryFile_FRead(void *output, size_t size, size_t count, VorbisMemoryFile *file)
+{
+	const unsigned int elements_remaining = (file->data_size - file->current_offset) / size;
+
+	if (count > elements_remaining)
+		count = elements_remaining;
+
+	memcpy(output, file->data_start + file->current_offset, size * count);
+
+	file->current_offset += size * count;
+
+	return count;
+}
+
+static int VorbisMemoryFile_FSeek(VorbisMemoryFile *file, ogg_int64_t offset, int origin)
+{
+	if (origin == SEEK_SET)
+	{
+		file->current_offset = offset;
+	}
+	else if (origin == SEEK_CUR)
+	{
+		file->current_offset += offset;
+	}
+	else if (origin == SEEK_END)
+	{
+		file->current_offset = file->data_size + offset;
+	}
+
+	if (file->current_offset < 0 || file->current_offset > file->data_size)
+		return -1;
+	else
+		return 0;
+}
+
+static int VorbisMemoryFile_FClose(VorbisMemoryFile *file)
+{
+	free(file->data_start);
+	free(file);
+
+	return 0;
+}
+
+static long VorbisMemoryFile_FTell(VorbisMemoryFile *file)
+{
+	return file->current_offset;
+}
+
+static ov_callbacks ov_callback_memory = {
+  (size_t (*)(void *, size_t, size_t, void *))  VorbisMemoryFile_FRead,
+  (int (*)(void *, ogg_int64_t, int))           VorbisMemoryFile_FSeek,
+  (int (*)(void *))                             VorbisMemoryFile_FClose,
+  (long (*)(void *))                            VorbisMemoryFile_FTell
+};
 
 static const Song song_blank;
 
@@ -125,8 +212,8 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		return false;
 	}
 
-	song.file[0] = intro_file_path ? fopen(intro_file_path, "rb") : NULL;
-	song.file[1] = loop_file_path ? fopen(loop_file_path, "rb") : NULL;
+	song.file[0] = intro_file_path ? VorbisMemoryFile_FOpen(intro_file_path) : NULL;
+	song.file[1] = loop_file_path ? VorbisMemoryFile_FOpen(loop_file_path) : NULL;
 
 	if (song.file[0] == NULL && song.file[1] == NULL)
 	{
@@ -146,39 +233,28 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		song.current_file = 0;
 	}
 
-	if (song.file[0])
-	{
-		song.file_buffer[0] = malloc(1024 * 1024 * 2);
-		setbuf(song.file[0], song.file_buffer[0]);
-	}
-	if (song.file[1])
-	{
-		song.file_buffer[1] = malloc(1024 * 1024 * 2);
-		setbuf(song.file[1], song.file_buffer[1]);
-	}
-
-	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, OV_CALLBACKS_DEFAULT) < 0)
+	if (ov_open_callbacks(song.file[song.current_file], &song.vorbis_file[song.current_file], NULL, 0, ov_callback_memory) < 0)
 	{
 		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
 		if (song.file[0] != NULL)
-			fclose(song.file[0]);
+			VorbisMemoryFile_FClose(song.file[0]);
 		if (song.file[1] != NULL)
-			fclose(song.file[1]);
+			VorbisMemoryFile_FClose(song.file[1]);
 
 		return false;
 	}
 
 	if (song.has_next_part)
 	{
-		if (ov_open_callbacks(song.file[1], &song.vorbis_file[1], NULL, 0, OV_CALLBACKS_DEFAULT) < 0)
+		if (ov_open_callbacks(song.file[1], &song.vorbis_file[1], NULL, 0, ov_callback_memory) < 0)
 		{
 			PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
 			if (song.file[0] != NULL)
-				fclose(song.file[0]);
+				VorbisMemoryFile_FClose(song.file[0]);
 			if (song.file[1] != NULL)
-				fclose(song.file[1]);
+				VorbisMemoryFile_FClose(song.file[1]);
 
 			return false;
 		}
@@ -205,9 +281,9 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		PrintError("ogg_music: Unsupported channel count\n");
 
 		if (song.file[0] != NULL)
-			fclose(song.file[0]);
+			VorbisMemoryFile_FClose(song.file[0]);
 		if (song.file[1] != NULL)
-			fclose(song.file[1]);
+			VorbisMemoryFile_FClose(song.file[1]);
 
 		return false;
 	}
@@ -219,9 +295,9 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		PrintError("ogg_music: Could not get minimum latency");
 
 		if (song.file[0] != NULL)
-			fclose(song.file[0]);
+			VorbisMemoryFile_FClose(song.file[0]);
 		if (song.file[1] != NULL)
-			fclose(song.file[1]);
+			VorbisMemoryFile_FClose(song.file[1]);
 
 		return false;
 	}
@@ -231,9 +307,9 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		PrintError("ogg_music: Could not open the stream");
 
 		if (song.file[0] != NULL)
-			fclose(song.file[0]);
+			VorbisMemoryFile_FClose(song.file[0]);
 		if (song.file[1] != NULL)
-			fclose(song.file[1]);
+			VorbisMemoryFile_FClose(song.file[1]);
 
 		return false;
 	}
