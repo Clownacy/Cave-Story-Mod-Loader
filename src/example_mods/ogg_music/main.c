@@ -34,6 +34,7 @@ typedef struct Song {
 	bool has_next_part;
 	bool loops;
 	bool is_org;
+	unsigned int sample_rate;
 
 	cubeb_stream *stream;
 } Song;
@@ -134,6 +135,13 @@ static cubeb *cubeb_context;
 
 static int current_loop_setting;
 
+static struct
+{
+	bool active;
+	unsigned int counter;
+	unsigned int volume;
+} fade;
+
 static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
 	const unsigned int BYTES_PER_SAMPLE = song.channels * 2;	// 2 channels, 16-bit
@@ -162,7 +170,32 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 		}
 	}
 
-	return bytes_done_total / BYTES_PER_SAMPLE;
+	signed short *output_buffer_short = (signed short*)output_buffer;
+	unsigned long samples_done = bytes_done_total / BYTES_PER_SAMPLE;
+
+	for (unsigned int i = 0; i < samples_done; ++i)
+	{
+		const float float_volume = fade.volume / 100.0f;
+		*output_buffer_short++ *= float_volume;
+		*output_buffer_short++ *= float_volume;
+
+		if (fade.active)
+		{
+			if (fade.counter-- == 0)
+			{
+				if (--fade.volume == 0)
+				{
+					fade.active = false;
+				}
+				else
+				{
+					fade.counter = (song.sample_rate * 5) / 100;
+				}
+			}
+		}
+	}
+
+	return samples_done;
 }
 
 static void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
@@ -271,7 +304,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	cubeb_stream_params output_params;
 	output_params.format = CUBEB_SAMPLE_S16LE;
-	output_params.rate = ov_info(&song.vorbis_file[song.current_file], -1)->rate;
+	output_params.rate = song.sample_rate = ov_info(&song.vorbis_file[song.current_file], -1)->rate;
 	if (song.channels == 1)
 	{
 		output_params.channels = 1;
@@ -370,6 +403,9 @@ static bool PlayOggMusic(const int song_id)
 
 	StartSong();
 
+	fade.volume = 100;
+	fade.active = false;
+
 	return true;
 }
 
@@ -461,6 +497,8 @@ static void FadeMusic_new(void)
 	*music_fade_flag = 1;
 //	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
 //	Mix_FadeOutMusic(1000 * 5);
+	fade.counter = (song.sample_rate * 5) / 100;
+	fade.active = true;
 }
 
 void InitMod(void)
