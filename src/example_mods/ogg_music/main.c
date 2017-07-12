@@ -477,7 +477,6 @@ void InitMod(void)
 	LoadPlaylist(playlist_path);
 
 	// Setup music system
-	cubeb_context;
 	cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
 	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
 	WriteJump(PlayMusic, PlayMusic_new);
