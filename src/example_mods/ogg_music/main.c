@@ -17,7 +17,7 @@
 
 typedef struct VorbisMemoryFile
 {
-	char *data_start;
+	char *data;
 	size_t data_size;
 	signed long current_offset;
 } VorbisMemoryFile;
@@ -51,9 +51,9 @@ static VorbisMemoryFile* VorbisMemoryFile_FOpen(char *file_path)
 		memory_file->data_size = ftell(file);
 		rewind(file);
 
-		memory_file->data_start = malloc(memory_file->data_size);
+		memory_file->data = malloc(memory_file->data_size);
 
-		fread(memory_file->data_start, 1, memory_file->data_size, file);
+		fread(memory_file->data, 1, memory_file->data_size, file);
 
 		fclose(file);
 
@@ -70,7 +70,7 @@ static size_t VorbisMemoryFile_FRead(void *output, size_t size, size_t count, Vo
 	if (count > elements_remaining)
 		count = elements_remaining;
 
-	memcpy(output, file->data_start + file->current_offset, size * count);
+	memcpy(output, file->data + file->current_offset, size * count);
 
 	file->current_offset += size * count;
 
@@ -79,28 +79,35 @@ static size_t VorbisMemoryFile_FRead(void *output, size_t size, size_t count, Vo
 
 static int VorbisMemoryFile_FSeek(VorbisMemoryFile *file, ogg_int64_t offset, int origin)
 {
-	if (origin == SEEK_SET)
+	switch (origin)
 	{
-		file->current_offset = offset;
-	}
-	else if (origin == SEEK_CUR)
-	{
-		file->current_offset += offset;
-	}
-	else if (origin == SEEK_END)
-	{
-		file->current_offset = file->data_size + offset;
+		case SEEK_SET:
+		{
+			file->current_offset = offset;
+			break;
+		}
+		case SEEK_CUR:
+		{
+			file->current_offset += offset;
+			break;
+		}
+		case SEEK_END:
+		{
+			file->current_offset = file->data_size + offset;
+			break;
+		}
+		default:
+		{
+			return -1;
+		}
 	}
 
-	if (file->current_offset < 0 || file->current_offset > file->data_size)
-		return -1;
-	else
-		return 0;
+	return 0;
 }
 
 static int VorbisMemoryFile_FClose(VorbisMemoryFile *file)
 {
-	free(file->data_start);
+	free(file->data);
 	free(file);
 
 	return 0;
