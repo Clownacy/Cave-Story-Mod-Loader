@@ -403,9 +403,6 @@ static bool PlayOggMusic(const int song_id)
 
 	StartSong();
 
-	fade.volume = 100;
-	fade.active = false;
-
 	return true;
 }
 
@@ -454,6 +451,9 @@ static void PlayMusic_new(const int music_id)
 			PlayOrgMusic(music_id);
 		}
 		*current_music = music_id;
+
+		fade.volume = 100;
+		fade.active = false;
 	}
 }
 
@@ -478,6 +478,9 @@ static void PlayPreviousMusic_new(void)
 		PlayPreviousOrgMusic();
 	}
 	*current_music = *previous_music;
+
+	fade.volume = 100;
+	fade.active = false;
 }
 
 static void WindowFocusGained_new(void)
