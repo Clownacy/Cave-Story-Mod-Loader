@@ -330,7 +330,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	uint32_t latency_frames;
 
-	if (cubeb_get_min_latency(cubeb_context, output_params, &latency_frames) != CUBEB_OK)
+	if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) != CUBEB_OK)
 	{
 		PrintError("ogg_music: Could not get minimum latency");
 
