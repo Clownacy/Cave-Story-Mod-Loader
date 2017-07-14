@@ -39,6 +39,22 @@ typedef struct Song {
 	cubeb_stream *stream;
 } Song;
 
+static const Song song_blank;
+
+static Song song;
+static Song song_backup;
+
+static cubeb *cubeb_context;
+
+static int current_loop_setting;
+
+static struct
+{
+	bool active;
+	unsigned int counter;
+	unsigned int volume;
+} fade;
+
 static VorbisMemoryFile* VorbisMemoryFile_FOpen(char *file_path)
 {
 	VorbisMemoryFile *memory_file = NULL;
@@ -126,22 +142,6 @@ static ov_callbacks ov_callback_memory = {
   (long (*)(void *))                            VorbisMemoryFile_FTell
 };
 
-static const Song song_blank;
-
-static Song song;
-static Song song_backup;
-
-static cubeb *cubeb_context;
-
-static int current_loop_setting;
-
-static struct
-{
-	bool active;
-	unsigned int counter;
-	unsigned int volume;
-} fade;
-
 static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
 	const unsigned int BYTES_PER_SAMPLE = song.channels * 2;	// 2 channels, 16-bit
@@ -175,9 +175,10 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 
 	for (unsigned int i = 0; i < samples_done; ++i)
 	{
-		const float float_volume = fade.volume / 100.0f;
-		*output_buffer_short++ *= float_volume;
-		*output_buffer_short++ *= float_volume;
+		for (unsigned int j = 0; j < song.channels; ++j)
+		{
+			*output_buffer_short++ *= fade.volume / 100.0f;
+		}
 
 		if (fade.active)
 		{
@@ -209,7 +210,7 @@ static void UnloadSong(Song *song)
 	{
 		if (cubeb_stream_stop(song->stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not stop the stream");
+			PrintError("ogg_music: Could not stop the stream\n");
 			return;
 		}
 		cubeb_stream_destroy(song->stream);
@@ -228,7 +229,7 @@ static void StopSong(void)
 	{
 		if (cubeb_stream_stop(song.stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not stop the stream");
+			PrintError("ogg_music: Could not stop the stream\n");
 		}
 	}
 }
@@ -239,7 +240,7 @@ static void StartSong(void)
 	{
 		if (cubeb_stream_start(song.stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not start the stream");
+			PrintError("ogg_music: Could not start the stream\n");
 		}
 	}
 }
@@ -332,7 +333,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) != CUBEB_OK)
 	{
-		PrintError("ogg_music: Could not get minimum latency");
+		PrintError("ogg_music: Could not get minimum latency\n");
 
 		if (song.file[0] != NULL)
 			VorbisMemoryFile_FClose(song.file[0]);
@@ -344,7 +345,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 	if (cubeb_stream_init(cubeb_context, &song.stream, "Example Stream 1", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
 	{
-		PrintError("ogg_music: Could not open the stream");
+		PrintError("ogg_music: Could not open the stream\n");
 
 		if (song.file[0] != NULL)
 			VorbisMemoryFile_FClose(song.file[0]);
@@ -361,19 +362,10 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 
 static bool PlayOggMusic(const int song_id)
 {
-	if (song_id == 0)
-	{
-		// This is basically a 'stop music' command.
-		// In the Org soundtrack, this is implemented with a dummy 'XXXX' file.
-		// We don't need to cheat, so we just kill the current music and be
-		// done with it.
-		return true;
-	}
-
-	const char* const song_name = playlist[song_id - 1].name;
+	const char* const song_name = playlist[song_id].name;
 	char *song_intro_file_path, *song_loop_file_path;
 
-	if (playlist[song_id - 1].split)
+	if (playlist[song_id].split)
 	{
 		// Play split-Ogg music (Cave Story 3D)
 		song_intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
@@ -386,7 +378,7 @@ static bool PlayOggMusic(const int song_id)
 		song_loop_file_path = NULL;
 	}
 
-	if (!LoadSong(song_intro_file_path, song_loop_file_path, playlist[song_id - 1].loops))
+	if (!LoadSong(song_intro_file_path, song_loop_file_path, playlist[song_id].loops))
 	{
 		if (song_intro_file_path != NULL)
 			free(song_intro_file_path);
@@ -437,7 +429,7 @@ static void PlayMusic_new(const int music_id)
 		song_backup = song;
 		song = song_blank;
 
-		if (music_id == 0 || (!playlist[music_id - 1].is_org && PlayOggMusic(music_id)))
+		if (music_id == 0 || (!playlist[music_id - 1].is_org && PlayOggMusic(music_id - 1)))
 		{
 			// Ogg music played successfully,
 			// silence any org music that might be playing
@@ -461,8 +453,7 @@ static void PlayPreviousMusic_new(void)
 {
 	if (!song_backup.is_org)
 	{
-		// Ogg music played successfully,
-		// silence any org music that might be playing
+		// Silence any Org music that might be playing
 		PlayOrgMusic(0);
 
 		UnloadSong(&song);
@@ -473,8 +464,7 @@ static void PlayPreviousMusic_new(void)
 	}
 	else
 	{
-		// Ogg music failed to play,
-		// play Org instead
+		// Play Org instead
 		PlayPreviousOrgMusic();
 	}
 	*current_music = *previous_music;
@@ -498,8 +488,6 @@ static void WindowFocusLost_new(void)
 static void FadeMusic_new(void)
 {
 	*music_fade_flag = 1;
-//	intro_playing = false;	// A bit of a hack, but we can't have a new song kick in just because we faded out
-//	Mix_FadeOutMusic(1000 * 5);
 	fade.counter = (song.sample_rate * 5) / 100;
 	fade.active = true;
 }
@@ -507,24 +495,22 @@ static void FadeMusic_new(void)
 void InitMod(void)
 {
 	const char* const playlist_filename = GetSettingString("playlist");
-	if (playlist_filename == NULL)
+	if (playlist_filename != NULL)
 	{
-		return;
+		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
+		strcpy(playlist_path, location_path);
+		strcat(playlist_path, playlist_filename);
+		LoadPlaylist(playlist_path);
+
+		// Setup music system
+		cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
+		// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
+		WriteJump(PlayMusic, PlayMusic_new);
+		WriteJump(PlayPreviousMusic, PlayPreviousMusic_new);
+		// We also need to replace the music pausing/resuming when the window focus changes
+		WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
+		WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
+		// Patch fading
+		WriteJump(FadeMusic, FadeMusic_new);
 	}
-
-	char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
-	strcpy(playlist_path, location_path);
-	strcat(playlist_path, playlist_filename);
-	LoadPlaylist(playlist_path);
-
-	// Setup music system
-	cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
-	// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-	WriteJump(PlayMusic, PlayMusic_new);
-	WriteJump(PlayPreviousMusic, PlayPreviousMusic_new);
-	// We also need to replace the music pausing/resuming when the window focus changes
-	WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
-	WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
-	// Patch fading
-	WriteJump(FadeMusic, FadeMusic_new);
 }
