@@ -6,6 +6,7 @@
 #include "cave_story.h"
 #include "controls.h"
 #include "mod_loader.h"
+#include "sprintfMalloc.h"
 
 typedef enum InputID
 {
@@ -266,6 +267,12 @@ void InitMod(void)
 	// This also initialises the SDL Event system
 	// but it doesn't grab window events
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
+	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", location_path);
+	if (SDL_GameControllerAddMappingsFromFile(controller_mappings_path) == -1)
+	{
+		PrintError("sdl_controller_input: Could not load 'gamecontrollerdb.txt'. DInput devices will not be supported\n");
+	}
+	free(controller_mappings_path);
 
 	// Grab all controllers that were plugged-in before the game was started
 	for (int i=0; i < SDL_NumJoysticks(); ++i)
