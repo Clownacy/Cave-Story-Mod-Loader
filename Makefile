@@ -1,11 +1,11 @@
 COMMON_PATH = src/common
 
 CC = gcc
-CFLAGS = -O3 -s -static-libgcc
+CFLAGS = -O3 -s -static
 LIBS = -I$(COMMON_PATH)
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LDFLAGS := $(shell sdl2-config --libs)
+SDL_LDFLAGS := $(shell sdl2-config --static-libs)
 
 MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
@@ -73,7 +73,7 @@ bin/mods/60fps/60fps.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/60fps/mai
 
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -static -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
