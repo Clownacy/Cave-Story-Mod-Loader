@@ -1,5 +1,5 @@
-aspect_ratio_x 4
-aspect_ratio_y 3
+aspect_ratio_x 16
+aspect_ratio_y 9
 window_upscale 2
 sprite_resolution 1
 black_bars true
