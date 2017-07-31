@@ -10,7 +10,7 @@
 
 #include "settings.h"
 
-#define VERSION "v1.2.1.1"
+#define VERSION "v1.3"
 
 #define ERROR_PATH "mods/error.txt"
 #define DEBUG_PATH "mods/debug.txt"
