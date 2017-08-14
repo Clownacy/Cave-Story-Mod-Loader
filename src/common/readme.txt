@@ -1,1 +1,1 @@
-These are resources commonly used by DLL mods. Included is the mod loader bootstrapper, which sets up function calls, and mod metadata.
+These are resources commonly used by DLL mods. Included is the mod loader helper wrapper, which sets up function calls, and mod metadata.
