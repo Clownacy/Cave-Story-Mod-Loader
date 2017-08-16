@@ -15,14 +15,17 @@
 #define ERROR_PATH "mods/error.txt"
 #define DEBUG_PATH "mods/debug.txt"
 
-bool console_enabled;
+static bool console_enabled;
+static bool logging_enabled;
 
 void InitLogging(void)
 {
-	remove(ERROR_PATH);
-	remove(DEBUG_PATH);
-
 	console_enabled = GetSettingBool("debug_console", mod_loader_settings);
+	logging_enabled = GetSettingBool("logging", mod_loader_settings);
+
+	remove(ERROR_PATH);
+	if (logging_enabled)
+		remove(DEBUG_PATH);
 
 	if (console_enabled)
 	{
@@ -52,7 +55,8 @@ __declspec(dllexport) void PrintError(const char* const format, ...)
 		vprintf(format, args);
 
 	PrintToFile(format, args, ERROR_PATH);
-	PrintToFile(format, args, DEBUG_PATH);
+	if (logging_enabled)
+		PrintToFile(format, args, DEBUG_PATH);
 
 	va_end(args);
 }
@@ -65,7 +69,8 @@ __declspec(dllexport) void PrintDebug(const char* const format, ...)
 	if (console_enabled)
 		vprintf(format, args);
 
-	PrintToFile(format, args, DEBUG_PATH);
+	if (logging_enabled)
+		PrintToFile(format, args, DEBUG_PATH);
 
 	va_end(args);
 }
