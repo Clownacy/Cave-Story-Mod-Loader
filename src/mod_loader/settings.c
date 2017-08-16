@@ -31,6 +31,32 @@ void AddSetting(char *setting_name, char *setting_value, Setting **settings_list
 	*settings_list_head = setting;
 }
 
+static char* TrimSettingString(char *string, unsigned int string_length)
+{
+	if (string_length != 0)
+	{
+		unsigned int start_padding = 0;
+		while (string[start_padding] == ' ' || string[start_padding] == '\t')
+			if (++start_padding == string_length)
+				break;
+
+		unsigned int end_padding = string_length;
+		while (string[end_padding - 1] == ' ' || string[end_padding - 1] == '\t')
+			if (--end_padding == 0)
+				break;
+
+		char *string_trimmed = malloc(end_padding - start_padding + 1);
+		strncpy(string_trimmed, &string[start_padding], end_padding - start_padding);
+		string_trimmed[end_padding - start_padding] = '\0';
+
+		return string_trimmed;
+	}
+	else
+	{
+		return "\0";
+	}
+}
+
 Setting* ReadSettings(const char* const filename)
 {
 	Setting *settings_list_head = NULL;
@@ -56,18 +82,9 @@ Setting* ReadSettings(const char* const filename)
 		while (fgets(setting_string, MAX_PATH, settings_file) != NULL)
 		{
 			setting_string[strcspn(setting_string, "\r\n")] = '\0';	// Trim newline characters
-			// Get setting name
-			size_t setting_name_length = strcspn(setting_string, ":= \t");
-			char* setting_name = malloc(setting_name_length + 1);
-			strncpy(setting_name, setting_string, setting_name_length);
-			setting_name[setting_name_length] = '\0';
 
-			// Get setting value
-			char* setting_value_string = setting_string + setting_name_length + strspn(setting_string + setting_name_length, ":= \t");
-			size_t setting_value_length = strcspn(setting_value_string, "");
-			char* setting_value = malloc(setting_value_length + 1);
-			strncpy(setting_value, setting_value_string, setting_value_length);
-			setting_value[setting_value_length] = '\0';
+			char* setting_name = TrimSettingString(setting_string, strcspn(setting_string, ":="));
+			char* setting_value = TrimSettingString(setting_string + strcspn(setting_string, ":=") + 1, strlen(setting_string + strcspn(setting_string, ":=") + 1));
 
 			if (filename)
 				PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
