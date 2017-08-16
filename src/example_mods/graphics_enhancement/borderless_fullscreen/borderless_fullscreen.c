@@ -74,6 +74,12 @@ void ApplyBorderlessFullscreenPatch(void)
 			borderless_fullscreen_auto_aspect_ratio = false;
 			borderless_fullscreen_auto_window_upscale = false;
 		}
+		else
+		{
+			// Disable window.rect
+			WriteByte((void*)0x40F705, 0xEB);
+			WriteByte((void*)0x412DC3, 0xEB);
+		}
 	}
 
 	if (borderless_fullscreen_auto_aspect_ratio)
