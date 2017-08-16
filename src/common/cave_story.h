@@ -23,6 +23,7 @@ static int* const input_bitfield_held = (void*)0x49E210;
 static int* const input_bitfield_newly_pressed = (void*)0x49E214;
 static int* const level_layout_buffer = (int*)0x49E480;
 static char* const byte_49E484 = (char*)0x49E484;
+static HWND* const hWnd = (HWND* const)0x49E458;
 static int* const gamepad_enabled = (int* const)0x49E45C;
 static unsigned short* const level_width = (unsigned short*)0x49E586;
 static unsigned short* const level_height = (unsigned short*)0x49E588;
