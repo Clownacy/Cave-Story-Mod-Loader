@@ -1,0 +1,2 @@
+debug_console = false
+logging = false
