@@ -1,6 +1,7 @@
 // Mod loader bootstrapper for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include <stdlib.h>
 #define DllCanUnloadNow DllCanUnloadNow_thisiswhysuperheadersarebad
 #define DllGetClassObject DllGetClassObject_thisiswhysuperheadersarebad
 #include <windows.h>
@@ -8,7 +9,6 @@
 #undef DllGetClassObject
 
 #include "sprintfMalloc.h"
-#include "stdlib.h"
 
 void *Original_DirectSoundCreate;
 void *Original_DirectSoundEnumerateA;
@@ -24,24 +24,22 @@ void *Original_DirectSoundCreate8;
 void *Original_DirectSoundCaptureCreate8;
 
 HMODULE mod_loader_hmodule;
-char *mod_loader_function = "init";
+
+void LoadDLLModLoader(void)
+{
+	void (*ModInit)(void) = (void(*)(void))GetProcAddress(mod_loader_hmodule, "init");
+
+	if (ModInit)
+		ModInit();
+}
 
 __asm(
-"_LoadDLLModLoader:\n"
-"	push	%ebp\n"
-"	movl	%esp, %ebp\n"
-"	push	_mod_loader_function\n"
-"	push	_mod_loader_hmodule\n"
-"	call	_GetProcAddress@8\n"
-"	test	%eax, %eax\n"
-"	jz	done$\n"
-"	call	*%eax\n"
-"done$:\n"
-"	movl	(0x498B20), %eax\n"
-"	pop	%ebp\n"
+"_ASM_LoadDLLModLoader:\n"
+"	call	_LoadDLLModLoader\n"
+"	movl	(0x498B20),%eax\n"
 "	ret\n"
 );
-extern void LoadDLLModLoader(void);
+extern char ASM_LoadDLLModLoader;
 
 BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Reserved)
 {
@@ -51,7 +49,7 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 		GetWindowsDirectory(windir, MAX_PATH);
 		char *dsound_path = sprintfMalloc("%s\\System32\\dsound.dll", windir);
 		free(windir);
-		const HMODULE original_dll = LoadLibraryA(dsound_path);
+		const HMODULE original_dll = LoadLibrary(dsound_path);
 		free(dsound_path);
 
 		Original_DirectSoundCreate = GetProcAddress(original_dll, "DirectSoundCreate");
@@ -67,12 +65,12 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 		Original_DirectSoundCreate8 = GetProcAddress(original_dll, "DirectSoundCreate8");
 		Original_DirectSoundCaptureCreate8 = GetProcAddress(original_dll, "DirectSoundCaptureCreate8");
 
-		mod_loader_hmodule = LoadLibrary("mods/mod_loader");
+		mod_loader_hmodule = LoadLibrary("mods/mod_loader.dll");
 		if (mod_loader_hmodule)
 		{
-			void (*WriteCall)(void*, void*) = (void (*)(void*, void*))GetProcAddress(mod_loader_hmodule, "WriteCall");
+			void (*WriteCall)(void*,void*) = (void(*)(void*,void*))GetProcAddress(mod_loader_hmodule, "WriteCall");
 			if (WriteCall)
-				WriteCall((void*)0x412429, LoadDLLModLoader);
+				WriteCall((void*)0x412429, (void*)&ASM_LoadDLLModLoader);
 		}
 	}
 
