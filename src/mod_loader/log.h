@@ -6,3 +6,4 @@
 extern void InitLogging(void);
 extern void PrintError(const char* const format, ...);
 extern void PrintDebug(const char* const format, ...);
+extern void PrintPollution(const char* const format, ...);

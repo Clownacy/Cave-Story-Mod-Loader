@@ -14,18 +14,23 @@
 
 #define ERROR_PATH "mods/error.txt"
 #define DEBUG_PATH "mods/debug.txt"
+#define POLLUTION_PATH "mods/pollution.txt"
 
 static bool console_enabled;
 static bool logging_enabled;
+static bool pollution_map_enabled;
 
 void InitLogging(void)
 {
 	console_enabled = GetSettingBool("debug_console", mod_loader_settings);
 	logging_enabled = GetSettingBool("logging", mod_loader_settings);
+	pollution_map_enabled = GetSettingBool("pollution_map", mod_loader_settings);
 
 	remove(ERROR_PATH);
 	if (logging_enabled)
 		remove(DEBUG_PATH);
+	if (pollution_map_enabled)
+		remove(POLLUTION_PATH);
 
 	if (console_enabled)
 	{
@@ -71,6 +76,17 @@ __declspec(dllexport) void PrintDebug(const char* const format, ...)
 
 	if (logging_enabled)
 		PrintToFile(format, args, DEBUG_PATH);
+
+	va_end(args);
+}
+
+__declspec(dllexport) void PrintPollution(const char* const format, ...)
+{
+	va_list args;
+	va_start(args, format);
+
+	if (pollution_map_enabled)
+		PrintToFile(format, args, POLLUTION_PATH);
 
 	va_end(args);
 }
