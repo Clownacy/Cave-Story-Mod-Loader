@@ -53,6 +53,7 @@ static struct
 	bool active;
 	unsigned int counter;
 	unsigned int volume;
+	uint16_t nonlinear_volume_table[100];
 } fade;
 
 static VorbisMemoryFile* VorbisMemoryFile_FOpen(char *file_path)
@@ -177,7 +178,7 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 	{
 		for (unsigned int j = 0; j < song.channels; ++j)
 		{
-			int16_t sample = (signed int)((*output_buffer_short) * fade.volume) / 100;
+			int16_t sample = (signed int)((*output_buffer_short) * fade.nonlinear_volume_table[fade.volume - 1]) / 100;
 			*output_buffer_short++ = sample;
 		}
 
@@ -498,6 +499,9 @@ void InitMod(void)
 	const char* const playlist_filename = GetSettingString("playlist");
 	if (playlist_filename != NULL)
 	{
+		for (unsigned int i = 0; i < 100; ++i)
+			fade.nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;
+
 		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
 		strcpy(playlist_path, location_path);
 		strcat(playlist_path, playlist_filename);
