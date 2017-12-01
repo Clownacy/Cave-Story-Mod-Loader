@@ -170,14 +170,15 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 		}
 	}
 
-	signed short *output_buffer_short = (signed short*)output_buffer;
+	int16_t *output_buffer_short = (int16_t*)output_buffer;
 	unsigned long samples_done = bytes_done_total / BYTES_PER_SAMPLE;
 
 	for (unsigned int i = 0; i < samples_done; ++i)
 	{
 		for (unsigned int j = 0; j < song.channels; ++j)
 		{
-			*output_buffer_short++ *= fade.volume / 100.0f;
+			int16_t sample = (signed int)((*output_buffer_short) * fade.volume) / 100;
+			*output_buffer_short++ = sample;
 		}
 
 		if (fade.active)
