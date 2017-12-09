@@ -247,16 +247,30 @@ static void StartSong(void)
 	}
 }
 
-static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
+static bool LoadSong(const int song_id)
 {
-	if (intro_file_path == NULL && loop_file_path == NULL)
+	const char* const song_name = playlist[song_id].name;
+	char *intro_file_path, *loop_file_path;
+
+	if (playlist[song_id].split)
 	{
-		// WTF, why did you call this in the first place?
-		return false;
+		// Play split-Ogg music (Cave Story 3D)
+		intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
+		loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
+	}
+	else
+	{
+		// Play single-Ogg music (Cave Story WiiWare)
+		intro_file_path = sprintfMalloc("%s.ogg", song_name);
+		loop_file_path = NULL;
 	}
 
-	song.file[0] = intro_file_path ? VorbisMemoryFile_FOpen(intro_file_path) : NULL;
+	song.file[0] = VorbisMemoryFile_FOpen(intro_file_path);
 	song.file[1] = loop_file_path ? VorbisMemoryFile_FOpen(loop_file_path) : NULL;
+
+	free(intro_file_path);
+	if (loop_file_path)
+		free(loop_file_path);
 
 	if (song.file[0] == NULL && song.file[1] == NULL)
 	{
@@ -280,12 +294,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 	{
 		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
-		if (song.file[0] != NULL)
-			VorbisMemoryFile_FClose(song.file[0]);
-		if (song.file[1] != NULL)
-			VorbisMemoryFile_FClose(song.file[1]);
-
-		return false;
+		goto Fail;
 	}
 
 	if (song.has_next_part)
@@ -294,12 +303,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		{
 			PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
-			if (song.file[0] != NULL)
-				VorbisMemoryFile_FClose(song.file[0]);
-			if (song.file[1] != NULL)
-				VorbisMemoryFile_FClose(song.file[1]);
-
-			return false;
+			goto Fail;
 		}
 	}
 
@@ -323,12 +327,7 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 		// Unsupported channel count
 		PrintError("ogg_music: Unsupported channel count\n");
 
-		if (song.file[0] != NULL)
-			VorbisMemoryFile_FClose(song.file[0]);
-		if (song.file[1] != NULL)
-			VorbisMemoryFile_FClose(song.file[1]);
-
-		return false;
+		goto Fail;
 	}
 
 	uint32_t latency_frames;
@@ -337,63 +336,35 @@ static bool LoadSong(char *intro_file_path, char *loop_file_path, bool loops)
 	{
 		PrintError("ogg_music: Could not get minimum latency\n");
 
-		if (song.file[0] != NULL)
-			VorbisMemoryFile_FClose(song.file[0]);
-		if (song.file[1] != NULL)
-			VorbisMemoryFile_FClose(song.file[1]);
-
-		return false;
+		goto Fail;
 	}
 
 	if (cubeb_stream_init(cubeb_context, &song.stream, "Example Stream 1", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
 	{
 		PrintError("ogg_music: Could not open the stream\n");
 
-		if (song.file[0] != NULL)
-			VorbisMemoryFile_FClose(song.file[0]);
-		if (song.file[1] != NULL)
-			VorbisMemoryFile_FClose(song.file[1]);
-
-		return false;
+		goto Fail;
 	}
 
-	song.loops = loops;
+	song.loops = playlist[song_id].loops;
 
 	return true;
+
+	Fail:
+	if (song.file[0] != NULL)
+		VorbisMemoryFile_FClose(song.file[0]);
+	if (song.file[1] != NULL)
+		VorbisMemoryFile_FClose(song.file[1]);
+
+	return false;
 }
 
 static bool PlayOggMusic(const int song_id)
 {
-	const char* const song_name = playlist[song_id].name;
-	char *song_intro_file_path, *song_loop_file_path;
-
-	if (playlist[song_id].split)
+	if (!LoadSong(song_id))
 	{
-		// Play split-Ogg music (Cave Story 3D)
-		song_intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
-		song_loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
-	}
-	else
-	{
-		// Play single-Ogg music (Cave Story WiiWare)
-		song_intro_file_path = sprintfMalloc("%s.ogg", song_name);
-		song_loop_file_path = NULL;
-	}
-
-	if (!LoadSong(song_intro_file_path, song_loop_file_path, playlist[song_id].loops))
-	{
-		if (song_intro_file_path != NULL)
-			free(song_intro_file_path);
-		if (song_loop_file_path != NULL)
-			free(song_loop_file_path);
-
 		return false;
 	}
-
-	if (song_intro_file_path != NULL)
-		free(song_intro_file_path);
-	if (song_loop_file_path != NULL)
-		free(song_loop_file_path);
 
 	StartSong();
 
