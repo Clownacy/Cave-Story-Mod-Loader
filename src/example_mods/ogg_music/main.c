@@ -13,8 +13,6 @@
 #include "mod_loader.h"
 #include "sprintfMalloc.h"
 
-#include "playlist.h"
-
 typedef struct VorbisMemoryFile
 {
 	char *data;
@@ -25,7 +23,6 @@ typedef struct VorbisMemoryFile
 typedef struct Song {
 	VorbisMemoryFile *file[2];
 	OggVorbis_File vorbis_file[2];
-	char *file_buffer[2];
 
 	unsigned int current_file;
 
@@ -38,6 +35,18 @@ typedef struct Song {
 
 	cubeb_stream *stream;
 } Song;
+
+typedef struct SongEntry
+{
+	const char *name;
+	bool loops;
+	bool split;
+	bool is_org;
+	VorbisMemoryFile *file_intro;
+	VorbisMemoryFile *file_loop;
+} SongEntry;
+
+static bool setting_preload;
 
 static const Song song_blank;
 
@@ -55,6 +64,50 @@ static struct
 	unsigned int volume;
 	uint16_t nonlinear_volume_table[100];
 } fade;
+
+static SongEntry playlist[] = {
+	{"data/Ogg/WANPAKU", true, false, true, NULL, NULL},
+	{"data/Ogg/ANZEN", true, false, true, NULL, NULL},
+	{"data/Ogg/GAMEOVER", false, false, true, NULL, NULL},
+	{"data/Ogg/GRAVITY", true, false, true, NULL, NULL},
+	{"data/Ogg/WEED", true, false, true, NULL, NULL},
+	{"data/Ogg/MDOWN2", true, false, true, NULL, NULL},
+	{"data/Ogg/FIREEYE", true, false, true, NULL, NULL},
+	{"data/Ogg/VIVI", true, false, true, NULL, NULL},
+	{"data/Ogg/MURA", true, false, true, NULL, NULL},
+	{"data/Ogg/FANFALE1", false, false, true, NULL, NULL},
+	{"data/Ogg/GINSUKE", true, false, true, NULL, NULL},
+	{"data/Ogg/CEMETERY", true, false, true, NULL, NULL},
+	{"data/Ogg/PLANT", true, false, true, NULL, NULL},
+	{"data/Ogg/KODOU", true, false, true, NULL, NULL},
+	{"data/Ogg/FANFALE3", false, false, true, NULL, NULL},
+	{"data/Ogg/FANFALE2", false, false, true, NULL, NULL},
+	{"data/Ogg/DR", true, false, true, NULL, NULL},
+	{"data/Ogg/ESCAPE", true, false, true, NULL, NULL},
+	{"data/Ogg/JENKA", true, false, true, NULL, NULL},
+	{"data/Ogg/MAZE", true, false, true, NULL, NULL},
+	{"data/Ogg/ACCESS", true, false, true, NULL, NULL},
+	{"data/Ogg/IRONH", true, false, true, NULL, NULL},
+	{"data/Ogg/GRAND", true, false, true, NULL, NULL},
+	{"data/Ogg/Curly", true, false, true, NULL, NULL},
+	{"data/Ogg/OSIDE", true, false, true, NULL, NULL},
+	{"data/Ogg/REQUIEM", true, false, true, NULL, NULL},
+	{"data/Ogg/WANPAK2", true, false, true, NULL, NULL},
+	{"data/Ogg/QUIET", true, false, true, NULL, NULL},
+	{"data/Ogg/LASTCAVE", true, false, true, NULL, NULL},
+	{"data/Ogg/BALCONY", true, false, true, NULL, NULL},
+	{"data/Ogg/LASTBTL", true, false, true, NULL, NULL},
+	{"data/Ogg/LASTBT3", true, false, true, NULL, NULL},
+	{"data/Ogg/ENDING", true, false, true, NULL, NULL},
+	{"data/Ogg/ZONBIE", true, false, true, NULL, NULL},
+	{"data/Ogg/BDOWN", true, false, true, NULL, NULL},
+	{"data/Ogg/HELL", true, false, true, NULL, NULL},
+	{"data/Ogg/JENKA2", true, false, true, NULL, NULL},
+	{"data/Ogg/MARINE", true, false, true, NULL, NULL},
+	{"data/Ogg/BALLOS", true, false, true, NULL, NULL},
+	{"data/Ogg/TOROKO", false, false, true, NULL, NULL},
+	{"data/Ogg/WHITE", true, false, true, NULL, NULL}
+};
 
 static VorbisMemoryFile* VorbisMemoryFile_FOpen(char *file_path)
 {
@@ -139,7 +192,7 @@ static long VorbisMemoryFile_FTell(VorbisMemoryFile *file)
 static ov_callbacks ov_callback_memory = {
   (size_t (*)(void *, size_t, size_t, void *))  VorbisMemoryFile_FRead,
   (int (*)(void *, ogg_int64_t, int))           VorbisMemoryFile_FSeek,
-  (int (*)(void *))                             VorbisMemoryFile_FClose,
+  (int (*)(void *))                             NULL,
   (long (*)(void *))                            VorbisMemoryFile_FTell
 };
 
@@ -220,8 +273,20 @@ static void UnloadSong(Song *song)
 		ov_clear(&song->vorbis_file[0]);
 		ov_clear(&song->vorbis_file[1]);
 
-		free(song->file_buffer[0]);
-		free(song->file_buffer[1]);
+		if (setting_preload)
+		{
+			if (song->file[0])
+				VorbisMemoryFile_FSeek(song->file[0], 0, SEEK_SET);
+			if (song->file[1])
+				VorbisMemoryFile_FSeek(song->file[1], 0, SEEK_SET);
+		}
+		else
+		{
+			if (song->file[0])
+				VorbisMemoryFile_FClose(song->file[0]);
+			if (song->file[1])
+				VorbisMemoryFile_FClose(song->file[1]);
+		}
 	}
 }
 
@@ -249,28 +314,36 @@ static void StartSong(void)
 
 static bool LoadSong(const int song_id)
 {
-	const char* const song_name = playlist[song_id].name;
-	char *intro_file_path, *loop_file_path;
-
-	if (playlist[song_id].split)
+	if (setting_preload)
 	{
-		// Play split-Ogg music (Cave Story 3D)
-		intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
-		loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
+		song.file[0] = playlist[song_id].file_intro;
+		song.file[1] = playlist[song_id].file_loop;
 	}
 	else
 	{
-		// Play single-Ogg music (Cave Story WiiWare)
-		intro_file_path = sprintfMalloc("%s.ogg", song_name);
-		loop_file_path = NULL;
+		const char* const song_name = playlist[song_id].name;
+		char *intro_file_path, *loop_file_path;
+
+		if (playlist[song_id].split)
+		{
+			// Play split-Ogg music (Cave Story 3D)
+			intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
+			loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
+		}
+		else
+		{
+			// Play single-Ogg music (Cave Story WiiWare)
+			intro_file_path = sprintfMalloc("%s.ogg", song_name);
+			loop_file_path = NULL;
+		}
+
+		song.file[0] = VorbisMemoryFile_FOpen(intro_file_path);
+		song.file[1] = loop_file_path ? VorbisMemoryFile_FOpen(loop_file_path) : NULL;
+
+		free(intro_file_path);
+		if (loop_file_path)
+			free(loop_file_path);
 	}
-
-	song.file[0] = VorbisMemoryFile_FOpen(intro_file_path);
-	song.file[1] = loop_file_path ? VorbisMemoryFile_FOpen(loop_file_path) : NULL;
-
-	free(intro_file_path);
-	if (loop_file_path)
-		free(loop_file_path);
 
 	if (song.file[0] == NULL && song.file[1] == NULL)
 	{
@@ -351,10 +424,13 @@ static bool LoadSong(const int song_id)
 	return true;
 
 	Fail:
-	if (song.file[0] != NULL)
-		VorbisMemoryFile_FClose(song.file[0]);
-	if (song.file[1] != NULL)
-		VorbisMemoryFile_FClose(song.file[1]);
+	if (!setting_preload)
+	{
+		if (song.file[0] != NULL)
+			VorbisMemoryFile_FClose(song.file[0]);
+		if (song.file[1] != NULL)
+			VorbisMemoryFile_FClose(song.file[1]);
+	}
 
 	return false;
 }
@@ -465,11 +541,107 @@ static void FadeMusic_new(void)
 	fade.active = true;
 }
 
+void LoadPlaylist(const char* const playlist_folder)
+{
+	char *playlist_path = sprintfMalloc("%s/playlist.txt", playlist_folder);
+	FILE *playlist_file = fopen(playlist_path, "r");
+
+	if (playlist_file == NULL)
+	{
+		PrintError("Could not open playlist.txt at '%s'\n", playlist_path);
+	}
+	else
+	{
+		char line[MAX_PATH];
+		for (int current_song = 0; fgets(line, MAX_PATH, playlist_file) != NULL; ++current_song)
+		{
+			char *line_current_position = line;
+
+			line_current_position[strcspn(line_current_position, "\r\n")] = '\0';	// Trim newline characters
+
+			// Get file path
+			size_t path_length = strcspn(line_current_position, ",");
+
+			// No song path
+			if (path_length == 0)
+				continue;
+
+			char *song_path_rel = malloc(path_length + 1);
+			strncpy(song_path_rel, line_current_position, path_length);
+			song_path_rel[path_length] = '\0';
+
+			PrintDebug("playlist.txt: song '%s'\n", song_path_rel);
+
+			char *song_path = sprintfMalloc("%s/%s", playlist_folder, song_path_rel);
+			free(song_path_rel);
+			playlist[current_song].name = song_path;
+			playlist[current_song].loops = false;
+			playlist[current_song].split = false;
+			playlist[current_song].is_org = false;
+
+			line_current_position += path_length;
+			line_current_position += strspn(line_current_position, ", ");
+
+			while (line_current_position[0] != '\0')
+			{
+				// Get song properties
+				size_t property_length = strcspn(line_current_position, ",");
+
+				if (property_length != 0)
+				{
+					if (strncmp(line_current_position, "loop", 4) == 0)
+						playlist[current_song].loops = true;
+					else if (strncmp(line_current_position, "split", 5) == 0)
+						playlist[current_song].split = true;
+					else if (strncmp(line_current_position, "org", 3) == 0)
+						playlist[current_song].is_org = true;
+
+					line_current_position += property_length;
+				}
+
+				line_current_position += strspn(line_current_position, ", ");
+			}
+
+			if (setting_preload)
+			{
+				const char* const song_name = playlist[current_song].name;
+				char *intro_file_path, *loop_file_path;
+
+				if (playlist[current_song].split)
+				{
+					// Play split-Ogg music (Cave Story 3D)
+					intro_file_path = sprintfMalloc("%s_intro.ogg", song_name);
+					loop_file_path = sprintfMalloc("%s_loop.ogg", song_name);
+				}
+				else
+				{
+					// Play single-Ogg music (Cave Story WiiWare)
+					intro_file_path = sprintfMalloc("%s.ogg", song_name);
+					loop_file_path = NULL;
+				}
+
+				playlist[current_song].file_intro = VorbisMemoryFile_FOpen(intro_file_path);
+				playlist[current_song].file_loop = loop_file_path ? VorbisMemoryFile_FOpen(loop_file_path) : NULL;
+
+				free(intro_file_path);
+				if (loop_file_path)
+					free(loop_file_path);
+			}
+		}
+
+		fclose(playlist_file);
+	}
+
+	free(playlist_path);
+}
+
 void InitMod(void)
 {
 	const char* const playlist_filename = GetSettingString("playlist");
 	if (playlist_filename != NULL)
 	{
+		setting_preload = GetSettingBool("preload_oggs");
+
 		for (unsigned int i = 0; i < 100; ++i)
 			fade.nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;
 
