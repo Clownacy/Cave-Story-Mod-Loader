@@ -1,12 +1,23 @@
 // SDL2 controller input mod for Freeware Cave Story
 // Copyright © 2017 Clownacy
 
+#include <stddef.h>
+#include <stdlib.h>
+
 #include "SDL2/SDL.h"
 
 #include "cave_story.h"
 #include "controls.h"
 #include "mod_loader.h"
 #include "sprintfMalloc.h"
+
+typedef struct ControllerMeta
+{
+	struct ControllerMeta *next;
+
+	SDL_GameController *controller_id;
+	unsigned int joystick_id;
+} ControllerMeta;
 
 typedef enum InputID
 {
@@ -37,10 +48,42 @@ static const int input_masks[] = {
 };
 
 static SDL_Event event;
-static SDL_GameController *controller;
-static int controller_id;
 
-static int input_totals[ID_MAX];
+static unsigned int input_totals[ID_MAX];
+
+static ControllerMeta *controller_list_head;
+
+static void AddController(unsigned int joystick_id)
+{
+	if (SDL_IsGameController(joystick_id))
+	{
+		ControllerMeta *controller = malloc(sizeof(ControllerMeta));
+		controller->next = controller_list_head;
+		controller_list_head = controller;
+
+		controller->controller_id = SDL_GameControllerOpen(joystick_id);
+		controller->joystick_id = joystick_id;
+	}
+}
+
+static void RemoveController(unsigned int joystick_id)
+{
+	for (ControllerMeta **controller_pointer = &controller_list_head; *controller_pointer != NULL; controller_pointer = &(*controller_pointer)->next)
+	{
+		ControllerMeta *controller = *controller_pointer;
+
+		if (controller->joystick_id == joystick_id)
+		{
+			// We found the disconnected controller
+			SDL_GameControllerClose(controller->controller_id);
+
+			ControllerMeta *next = controller->next;
+			free(controller);
+			*controller_pointer = next;
+			break;
+		}
+	}
+}
 
 static void SetInput(const int input_id)
 {
@@ -147,20 +190,12 @@ static void ProcessControllerEvents(void)
 		{
 			case SDL_CONTROLLERDEVICEADDED:
 			{
-				if (controller == NULL && SDL_IsGameController(event.cdevice.which))
-				{
-					controller = SDL_GameControllerOpen(event.cdevice.which);
-					controller_id = event.cdevice.which;
-				}
+				AddController(event.cdevice.which);
 				break;
 			}
 			case SDL_CONTROLLERDEVICEREMOVED:
 			{
-				if (controller != NULL && controller_id == event.cdevice.which)
-				{
-					SDL_GameControllerClose(controller);
-					controller = NULL;
-				}
+				RemoveController(event.cdevice.which);
 				break;
 			}
 			case SDL_CONTROLLERBUTTONDOWN:
@@ -265,30 +300,24 @@ static void ProcessControllerEvents(void)
 void InitMod(void)
 {
 	// This also initialises the SDL Event system
-	// but it doesn't grab window events
+	// but it doesn't grab window events, since SDL2 didn't create the window
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
+
+	// Load DInput controller mappings
 	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", location_path);
 	if (SDL_GameControllerAddMappingsFromFile(controller_mappings_path) == -1)
-	{
 		PrintError("sdl_controller_input: Could not load 'gamecontrollerdb.txt'. DInput devices will not be supported\n");
-	}
+
 	free(controller_mappings_path);
 
 	// Grab all controllers that were plugged-in before the game was started
-	for (int i=0; i < SDL_NumJoysticks(); ++i)
-	{
-		if (SDL_IsGameController(i))
-		{
-			controller = SDL_GameControllerOpen(i);
-			controller_id = i;
-			break;
-		}
-	}
+	for (unsigned int i = 0; i < SDL_NumJoysticks(); ++i)
+		AddController(i);
 
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
-	// NOP-out call to DirectInput init function
+	// Skip call to DirectInput init function
 	WriteWordBE((void*)0x420EF6, 0xEB03);
-	// Redirect controller update function call
+	// Redirect DirectInput controller update function call to our new one
 	WriteRelativeAddress((void*)0x4135CC + 1, ProcessControllerEvents);
 }
