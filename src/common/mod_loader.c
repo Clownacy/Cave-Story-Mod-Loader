@@ -16,6 +16,7 @@ void (*WriteWordBE)(void* const address, const short value);
 void (*WriteLongBE)(void* const address, const int value);
 void (*WriteJump)(void* const address, const void* const new_destination);
 void (*WriteCall)(void* const address, const void* const new_destination);
+void (*WriteNOPs)(void* const address, const unsigned int count);
 void (*FixDoorEnterBug)(void);
 void (*PrintError)(const char* const format, ...);
 void (*PrintDebug)(const char* const format, ...);
@@ -56,6 +57,7 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	WriteLongBE = (void (*)(void* const, const int))GetProcAddress(mod_loader_hmodule, "WriteLongBE");
 	WriteJump = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteJump");
 	WriteCall = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteCall");
+	WriteNOPs = (void (*)(void* const, const unsigned int))GetProcAddress(mod_loader_hmodule, "WriteNOPs");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
 
 	GetSettingString_inner = (char* (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");

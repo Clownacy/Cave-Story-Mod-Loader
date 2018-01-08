@@ -57,3 +57,14 @@ __declspec(dllexport) void WriteCall(void* const address, const void* const new_
 	WriteByte(address, 0xE8);
 	WriteRelativeAddress(address + 1, new_destination);
 }
+
+__declspec(dllexport) void WriteNOPs(void* const address, const unsigned int count)
+{
+	char *nop_buffer = malloc(count);
+	for (unsigned int i = 0; i < count; ++i)
+		nop_buffer[i] = 0x90;
+
+	WriteData(address, nop_buffer, count);
+
+	free(nop_buffer);
+}

@@ -18,6 +18,7 @@ extern void (*WriteWordBE)(void* const address, const short value);
 extern void (*WriteLongBE)(void* const address, const int value);
 extern void (*WriteJump)(void* const address, const void* const new_destination);
 extern void (*WriteCall)(void* const address, const void* const new_destination);
+extern void (*WriteNOPs)(void* const address, const unsigned int);
 extern void (*FixDoorEnterBug)(void);
 extern void (*PrintError)(const char* const format, ...);
 extern void (*PrintDebug)(const char* const format, ...);
