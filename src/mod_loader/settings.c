@@ -23,22 +23,19 @@ typedef struct Setting
 
 Setting *mod_loader_settings;
 
-void AddSetting(const char *setting_name, const char *setting_value, Setting **settings_list_head)
+static int INICallback(void *user, const char *setting_section, const char *setting_name, const char *setting_value)
 {
+	Setting **settings_list_head = (Setting**)user;
+
+	//if (is_mod_setting)
+		PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
+
 	Setting *setting = malloc(sizeof(Setting));
 	setting->name = strdup(setting_name);
 	setting->value = strdup(setting_value);
 
 	setting->next = *settings_list_head;
 	*settings_list_head = setting;
-}
-
-static int INICallback(void *settings_list_head, const char *setting_section, const char *setting_name, const char *setting_value)
-{
-	//if (is_mod_setting)
-		PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
-
-	AddSetting(setting_name, setting_value, settings_list_head);
 
 	return 1;
 }
@@ -74,15 +71,17 @@ Setting* ReadSettings(const char* const filename)
 
 __declspec(dllexport) const char* const GetSettingString(const char* const setting_name, const Setting* const settings_list_head)
 {
+	const char *setting_value = "";
+
 	for (const Setting *setting = settings_list_head; setting != NULL; setting = setting->next)
 	{
 		if (strcasecmp(setting->name, setting_name) == 0)
 		{
-			return setting->value;
+			setting_value = setting->value;
 		}
 	}
 
-	return "";
+	return setting_value;
 }
 
 __declspec(dllexport) int GetSettingInt(const char* const setting_name, const Setting* const settings_list_head)
