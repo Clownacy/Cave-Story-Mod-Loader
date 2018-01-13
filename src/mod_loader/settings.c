@@ -76,7 +76,7 @@ __declspec(dllexport) const char* const GetSettingString(const char* const setti
 {
 	for (const Setting *setting = settings_list_head; setting != NULL; setting = setting->next)
 	{
-		if (strcmp(setting->name, setting_name) == 0)
+		if (strcasecmp(setting->name, setting_name) == 0)
 		{
 			return setting->value;
 		}
@@ -87,10 +87,10 @@ __declspec(dllexport) const char* const GetSettingString(const char* const setti
 
 __declspec(dllexport) int GetSettingInt(const char* const setting_name, const Setting* const settings_list_head)
 {
-	return strtol(GetSettingString(setting_name, settings_list_head), NULL, 10);
+	return strtol(GetSettingString(setting_name, settings_list_head), NULL, 0);
 }
 
 __declspec(dllexport) bool GetSettingBool(const char* const setting_name, const Setting* const settings_list_head)
 {
-	return (strcmp(GetSettingString(setting_name, settings_list_head), "true") == 0);
+	return (strcasecmp(GetSettingString(setting_name, settings_list_head), "true") == 0);
 }
