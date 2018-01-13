@@ -16,12 +16,16 @@
 #define DEBUG_PATH "mods/debug.txt"
 #define POLLUTION_PATH "mods/pollution.txt"
 
+static bool logging_initialised;
+
 static bool console_enabled;
 static bool logging_enabled;
 static bool pollution_map_enabled;
 
 void InitLogging(void)
 {
+	logging_initialised = true;
+
 	console_enabled = GetSettingBool("debug_console", mod_loader_settings);
 	logging_enabled = GetSettingBool("logging", mod_loader_settings);
 	pollution_map_enabled = GetSettingBool("pollution_map", mod_loader_settings);
@@ -42,13 +46,16 @@ void InitLogging(void)
 	PrintDebug("Logging initialised - Mod Loader version %s\n", VERSION);
 }
 
-void PrintToFile(const char* const format, va_list args, const char* const file_path)
+static void PrintToFile(const char* const format, va_list args, const char* const file_path)
 {
-	FILE *log_file = fopen(file_path, "a");
+	if (logging_initialised)
+	{
+		FILE *log_file = fopen(file_path, "a");
 
-	vfprintf(log_file, format, args);
+		vfprintf(log_file, format, args);
 
-	fclose(log_file);
+		fclose(log_file);
+	}
 }
 
 __declspec(dllexport) void PrintError(const char* const format, ...)
@@ -82,11 +89,13 @@ __declspec(dllexport) void PrintDebug(const char* const format, ...)
 
 __declspec(dllexport) void PrintPollution(const char* const format, ...)
 {
-	va_list args;
-	va_start(args, format);
-
 	if (pollution_map_enabled)
+	{
+		va_list args;
+		va_start(args, format);
+
 		PrintToFile(format, args, POLLUTION_PATH);
 
-	va_end(args);
+		va_end(args);
+	}
 }
