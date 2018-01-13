@@ -27,8 +27,7 @@ static int INICallback(void *user, const char *setting_section, const char *sett
 {
 	Setting **settings_list_head = (Setting**)user;
 
-	//if (is_mod_setting)
-		PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
+	PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);
 
 	Setting *setting = malloc(sizeof(Setting));
 	setting->name = strdup(setting_name);

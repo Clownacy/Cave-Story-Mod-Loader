@@ -12,8 +12,8 @@ typedef struct ModListEntry
 	struct ModListEntry *next;
 } ModListEntry;
 
-ModListEntry *mod_list_head;
-unsigned int mod_count;
+static ModListEntry *mod_list_head;
+static unsigned int mod_count;
 
 void AddToModList(char *mod_path)
 {
@@ -35,7 +35,7 @@ const char* const GetModPath(unsigned int mod_num)
 
 	ModListEntry *current_mod_ptr = mod_list_head;
 
-	for (int i=0; i < mod_num; ++i)
+	for (unsigned int i = 0; i < mod_num; ++i)
 	{
 		current_mod_ptr = current_mod_ptr->next;
 
