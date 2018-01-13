@@ -12,8 +12,6 @@
 
 static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, int surface_id)
 {
-//	printf("%X\n", camera_y_pos);
-//	printf("%X %X %X\n", **(int**)0x49E1D4, camera_y_pos, *(int*)0x49E1D8);
 	RECT new_clip_rect;
 	RECT new_src_rect;
 
