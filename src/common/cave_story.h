@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include <ddraw.h>
 #include <windows.h>
 
 // Variables
+static int* const window_upscale = (int*)0x48F914;
 static RECT* const clip_rect = (RECT*)0x48F91C;
 static int* const down_key_mapping = (void*)0x49363C;
 static int* const background_tile_width = (int*)0x499C78;
@@ -15,6 +17,8 @@ static int* const window_padding_h = (int*)0x49CDA8;
 static int* const window_padding_w = (int*)0x49CDAC;
 static int* const window_surface_width = (int*)0x49D374;
 static int* const window_surface_height = (int*)0x49D378;
+static IDirectDrawSurface7** const screen_surface = (IDirectDrawSurface7** const)0x49D384;
+static IDirectDrawSurface7* const (*surfaces)[40] = (IDirectDrawSurface7*(*)[40])0x49D388;
 static signed int* const camera_x_pos = (signed int*)0x49E1C8;
 static signed int* const camera_y_pos = (signed int*)0x49E1CC;
 static signed int* const camera_x_destination = (void*)0x49E1D0;

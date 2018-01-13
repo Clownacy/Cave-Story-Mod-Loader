@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "borderless_fullscreen/borderless_fullscreen.h"
+#include "remove_sprite_alignment/remove_sprite_alignment.h"
 #include "sprite_resolution/sprite_resolution.h"
 #include "upscale_window/upscale_window.h"
 #include "widescreen/widescreen.h"
@@ -80,4 +81,7 @@ void InitMod(void)
 
 	if (window_upscale_factor != 2)
 		UpscaleWindow();
+
+	if (GetSettingBool("remove_sprite_alignment"))
+		RemoveSpriteAlignment();
 }
