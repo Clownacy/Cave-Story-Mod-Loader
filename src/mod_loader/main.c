@@ -90,7 +90,11 @@ __declspec(dllexport) void init(void)
 	{
 		// Get path of mod DLL
 		filename[strcspn(filename, "\r\n")] = '\0';	// Trim newline characters
-		LoadMod(filename);
+
+		if (strcmp(filename, ""))
+		{
+			LoadMod(filename);
+		}
 	}
 
 	PrintDebug("Done loading mods\n");
