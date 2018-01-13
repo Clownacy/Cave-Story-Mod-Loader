@@ -35,19 +35,19 @@ static const int ALTERNATE_DIRECTION_KEY_MASK = ~(INPUT_LEFT | INPUT_RIGHT | INP
 
 static bool TestDownKey(const int input_bitfield)
 {
-	const int current_direction_keys_mask = (*down_key_mapping == INPUT_DOWN) ? NORMAL_DIRECTION_KEY_MASK : ALTERNATE_DIRECTION_KEY_MASK;
+	const int current_direction_keys_mask = (CS_down_key_mapping == INPUT_DOWN) ? NORMAL_DIRECTION_KEY_MASK : ALTERNATE_DIRECTION_KEY_MASK;
 
-	return (input_bitfield & current_direction_keys_mask) == *down_key_mapping;
+	return (input_bitfield & current_direction_keys_mask) == CS_down_key_mapping;
 }
 
 bool TestOnlyDownKeyIsPressedAndHeld(void)
 {
-	return TestDownKey(*input_bitfield_held) && TestDownKey(*input_bitfield_newly_pressed);
+	return TestDownKey(CS_input_bitfield_held) && TestDownKey(CS_input_bitfield_newly_pressed);
 }
 
 bool TestOnlyDownKeyIsHeld(void)
 {
-	return TestDownKey(*input_bitfield_held);
+	return TestDownKey(CS_input_bitfield_held);
 }
 
 __asm(

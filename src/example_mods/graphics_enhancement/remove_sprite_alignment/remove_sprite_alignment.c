@@ -12,26 +12,26 @@
 
 static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, int surface_id)
 {
-//	printf("%X\n", (*camera_y_pos));
-//	printf("%X %X %X\n", **(int**)0x49E1D4, (*camera_y_pos), *(int*)0x49E1D8);
+//	printf("%X\n", camera_y_pos);
+//	printf("%X %X %X\n", **(int**)0x49E1D4, camera_y_pos, *(int*)0x49E1D8);
 	RECT new_clip_rect;
 	RECT new_src_rect;
 
-	new_clip_rect.left = clip_rect->left * (*window_upscale);
-	new_clip_rect.top = clip_rect->top * (*window_upscale);
-	new_clip_rect.right = clip_rect->right * (*window_upscale);
-	new_clip_rect.bottom = clip_rect->bottom * (*window_upscale);
+	new_clip_rect.left = clip_rect->left * CS_window_upscale;
+	new_clip_rect.top = clip_rect->top * CS_window_upscale;
+	new_clip_rect.right = clip_rect->right * CS_window_upscale;
+	new_clip_rect.bottom = clip_rect->bottom * CS_window_upscale;
 
-	new_src_rect.left = src_rect->left * (*window_upscale);
-	new_src_rect.top = src_rect->top * (*window_upscale);
-	new_src_rect.right = src_rect->right * (*window_upscale);
-	new_src_rect.bottom = src_rect->bottom * (*window_upscale);
+	new_src_rect.left = src_rect->left * CS_window_upscale;
+	new_src_rect.top = src_rect->top * CS_window_upscale;
+	new_src_rect.right = src_rect->right * CS_window_upscale;
+	new_src_rect.bottom = src_rect->bottom * CS_window_upscale;
 
 	RECT final_src_rect_1;
 	RECT final_dst_rect_1;
 
-	x = (x * (*window_upscale)) / 512;
-	y = (y * (*window_upscale)) / 512;
+	x = (x * CS_window_upscale) / 512;
+	y = (y * CS_window_upscale) / 512;
 
 	final_src_rect_1.left = new_src_rect.left;
 	final_src_rect_1.top = new_src_rect.top;
@@ -61,7 +61,7 @@ static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT
 	final_dst_rect_1.right = (final_src_rect_1.right + x - final_src_rect_1.left);
 	final_dst_rect_1.bottom = (final_src_rect_1.bottom + y - final_src_rect_1.top);
 
-	(*screen_surface)->lpVtbl->Blt((*screen_surface), &final_dst_rect_1, (*surfaces)[surface_id], &final_src_rect_1, 0x1008000, 0);
+	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, 0x1008000, 0);
 }
 
 static void DrawSpriteWithTransparency_RawXY_Centred(void* clip_rect, int x, int y, void* src_rect, int surface_id)

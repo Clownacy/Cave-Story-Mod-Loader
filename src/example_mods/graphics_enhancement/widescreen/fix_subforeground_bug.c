@@ -14,10 +14,10 @@ char bad_tile_flag;
 
 static char GetTileID_new(const int tile_x, const int tile_y)
 {
-	if (tile_x >= 0 && tile_y >= 0 && tile_x < (*level_width) && tile_y < (*level_height))
+	if (tile_x >= 0 && tile_y >= 0 && tile_x < CS_level_width && tile_y < CS_level_height)
 	{
 		bad_tile_flag = 0;
-		return byte_49E484[*((unsigned char*)(*level_layout_buffer) + tile_x + (tile_y * (*level_width)))];
+		return CS_byte_49E484[*((unsigned char*)CS_level_layout_buffer + tile_x + (tile_y * CS_level_width))];
 	}
 	else
 	{

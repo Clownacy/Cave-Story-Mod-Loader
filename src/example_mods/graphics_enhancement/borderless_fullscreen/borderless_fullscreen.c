@@ -23,17 +23,17 @@ __stdcall void SetupFullscreenBlitting(const int window_size)
 
 		if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
 		{
-			*window_surface_width = monitor_width;
-			*window_surface_height = (game_height * monitor_width) / game_width;
+			CS_window_surface_width = monitor_width;
+			CS_window_surface_height = (game_height * monitor_width) / game_width;
 		}
 		else
 		{
-			*window_surface_width = (game_width * monitor_height) / game_height;
-			*window_surface_height = monitor_height;
+			CS_window_surface_width = (game_width * monitor_height) / game_height;
+			CS_window_surface_height = monitor_height;
 		}
 
-		*window_padding_w = (monitor_width - *window_surface_width) / 2;
-		*window_padding_h = (monitor_height - *window_surface_height) / 2;
+		CS_window_padding_w = (monitor_width - CS_window_surface_width) / 2;
+		CS_window_padding_h = (monitor_height - CS_window_surface_height) / 2;
 	}
 }
 

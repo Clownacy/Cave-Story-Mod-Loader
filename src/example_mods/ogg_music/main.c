@@ -449,28 +449,28 @@ static bool PlayOggMusic(const int song_id)
 
 static void PlayOrgMusic(const int music_id)
 {
-	*previous_song_last_position = GetOrgMusicPosition();
-	sub_41C7F0();
-	LoadOrgMusic(org_playlist[music_id]);
-	SetOrgVolume(100);
-	SetOrgMusicPosition(0);
-	StartOrgPlayback();
+	CS_previous_song_last_position = CS_GetOrgMusicPosition();
+	CS_sub_41C7F0();
+	CS_LoadOrgMusic(CS_org_playlist[music_id]);
+	CS_SetOrgVolume(100);
+	CS_SetOrgMusicPosition(0);
+	CS_StartOrgPlayback();
 }
 
 static void PlayPreviousOrgMusic(void)
 {
-	sub_41C7F0();
-	LoadOrgMusic(org_playlist[*previous_music]);
-	SetOrgMusicPosition(*previous_song_last_position);
-	SetOrgVolume(100);
-	StartOrgPlayback();
+	CS_sub_41C7F0();
+	CS_LoadOrgMusic(CS_org_playlist[CS_previous_music]);
+	CS_SetOrgMusicPosition(CS_previous_song_last_position);
+	CS_SetOrgVolume(100);
+	CS_StartOrgPlayback();
 }
 
 static void PlayMusic_new(const int music_id)
 {
-	if (music_id == 0 || music_id != *current_music)
+	if (music_id == 0 || music_id != CS_current_music)
 	{
-		*previous_music = *current_music;
+		CS_previous_music = CS_current_music;
 
 		StopSong();
 
@@ -491,7 +491,7 @@ static void PlayMusic_new(const int music_id)
 			song.is_org = true;
 			PlayOrgMusic(music_id);
 		}
-		*current_music = music_id;
+		CS_current_music = music_id;
 
 		fade.volume = 100;
 		fade.active = false;
@@ -516,7 +516,7 @@ static void PlayPreviousMusic_new(void)
 		// Play Org instead
 		PlayPreviousOrgMusic();
 	}
-	*current_music = *previous_music;
+	CS_current_music = CS_previous_music;
 
 	fade.volume = 100;
 	fade.active = false;
@@ -525,18 +525,18 @@ static void PlayPreviousMusic_new(void)
 static void WindowFocusGained_new(void)
 {
 	StartSong();
-	sub_41C7F0();	// The instruction we hijacked to get here
+	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void WindowFocusLost_new(void)
 {
 	StopSong();
-	sub_41C7F0();	// The instruction we hijacked to get here
+	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void FadeMusic_new(void)
 {
-	*music_fade_flag = 1;
+	CS_music_fade_flag = 1;
 	fade.counter = (song.sample_rate * 5) / 100;
 	fade.active = true;
 }
@@ -653,12 +653,12 @@ void InitMod(void)
 		// Setup music system
 		cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
 		// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-		WriteJump(PlayMusic, PlayMusic_new);
-		WriteJump(PlayPreviousMusic, PlayPreviousMusic_new);
+		WriteJump(CS_PlayMusic, PlayMusic_new);
+		WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
 		// We also need to replace the music pausing/resuming when the window focus changes
 		WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
 		WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
 		// Patch fading
-		WriteJump(FadeMusic, FadeMusic_new);
+		WriteJump(CS_FadeMusic, FadeMusic_new);
 	}
 }

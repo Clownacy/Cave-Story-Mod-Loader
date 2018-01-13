@@ -9,7 +9,7 @@
 
 static void DrawHUD_WeaponIcons_hijack(void *clip_rect, int x_pos, int y_pos, void *src_rect, int surface_id)
 {
-	DrawSprite_WithTransparency(clip_rect, x_pos + HUD_X + 56, y_pos, src_rect, surface_id);
+	CS_DrawSprite_WithTransparency(clip_rect, x_pos + HUD_X + 56, y_pos, src_rect, surface_id);
 }
 
 void InitMod(void)

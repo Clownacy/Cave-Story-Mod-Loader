@@ -89,13 +89,13 @@ static void SetInput(const int input_id)
 {
 	++input_totals[input_id];
 
-	*input_bitfield_held |= input_masks[input_id];
+	CS_input_bitfield_held |= input_masks[input_id];
 }
 
 static void ClearInput(const InputID input_id)
 {
 	if (--input_totals[input_id] == 0)
-		*input_bitfield_held &= ~input_masks[input_id];
+		CS_input_bitfield_held &= ~input_masks[input_id];
 }
 
 static void DoButton(const InputID input_id)

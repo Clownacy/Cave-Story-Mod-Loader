@@ -18,10 +18,10 @@ static int sprite_resolution_factor;
 // we need it to tile these at half-size.
 static void LoadBackgroundSprite_hijack(char* filename, int something)
 {
-	LoadBackgroundSprite(filename, something);
+	CS_LoadBackgroundSprite(filename, something);
 
-	*background_tile_width /= sprite_resolution_factor;
-	*background_tile_height /= sprite_resolution_factor;
+	CS_background_tile_width /= sprite_resolution_factor;
+	CS_background_tile_height /= sprite_resolution_factor;
 }
 
 __asm (

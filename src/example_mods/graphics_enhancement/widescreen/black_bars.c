@@ -17,11 +17,11 @@ static bool disable_ironhead_black_bars;
 
 static void DrawBlackBars(int x_pos, int y_pos)
 {
-	DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
+	CS_DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
 
 	if (!(*(int*)0x49E1E8 & 8))	// Detect if credits are running
 	{
-		const bool is_ironhead_arena = !disable_ironhead_black_bars && *current_room == 0x1F;
+		const bool is_ironhead_arena = !disable_ironhead_black_bars && CS_current_room == 0x1F;
 		const int room_width = is_ironhead_arena ? 320 : (current_level_width * 16);
 		const int bar_width = (SCREEN_WIDTH - room_width) / 2;
 
@@ -36,13 +36,13 @@ static void DrawBlackBars(int x_pos, int y_pos)
 			bar_rect.right = bar_width + rumble_delta;
 			bar_rect.bottom = 240;
 
-			DrawColourFill(&bar_rect, 0x00000000);
+			CS_DrawColourFill(&bar_rect, 0x00000000);
 
 			// Draw right black bar
 			bar_rect.left = SCREEN_WIDTH - (bar_width - rumble_delta);
 			bar_rect.right = SCREEN_WIDTH;
 
-			DrawColourFill(&bar_rect, 0x00000000);
+			CS_DrawColourFill(&bar_rect, 0x00000000);
 		}
 	}
 }

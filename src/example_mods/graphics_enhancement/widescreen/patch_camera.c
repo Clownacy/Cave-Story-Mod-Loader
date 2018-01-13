@@ -36,13 +36,13 @@ __stdcall bool UpdateCamera_extra(const unsigned int level_width, const unsigned
 		return false;
 	}
 
-	*camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
+	CS_camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
 	small_room = true;
 
-	if ((*camera_y_pos) < 0)
-		*camera_y_pos = 0;
-	if (*camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
-		*camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
+	if (CS_camera_y_pos < 0)
+		CS_camera_y_pos = 0;
+	if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
+		CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
 
 	return true;
 }
