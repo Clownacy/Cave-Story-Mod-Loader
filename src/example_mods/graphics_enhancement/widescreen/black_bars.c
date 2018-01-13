@@ -39,7 +39,7 @@ static void DrawBlackBars(int x_pos, int y_pos)
 			CS_DrawColourFill(&bar_rect, 0x00000000);
 
 			// Draw right black bar
-			bar_rect.left = SCREEN_WIDTH - (bar_width - rumble_delta);
+			bar_rect.left = SCREEN_WIDTH - (bar_width - rumble_delta) - ((SCREEN_WIDTH - room_width) & 1);
 			bar_rect.right = SCREEN_WIDTH;
 
 			CS_DrawColourFill(&bar_rect, 0x00000000);
