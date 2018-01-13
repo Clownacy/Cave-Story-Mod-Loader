@@ -122,6 +122,6 @@ void ApplyBorderlessFullscreenPatch(void)
 			output_window_height = monitor_height;
 		}
 
-		window_upscale_factor = (output_window_height - (output_window_height % 240)) / 240;
+		window_upscale_factor = (output_window_height + (240 / 2)) / 240;
 	}
 }
