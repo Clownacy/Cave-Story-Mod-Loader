@@ -77,6 +77,7 @@ __declspec(dllexport) const char* const GetSettingString(const char* const setti
 		if (strcasecmp(setting->name, setting_name) == 0)
 		{
 			setting_value = setting->value;
+			break;
 		}
 	}
 
