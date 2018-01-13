@@ -1,2 +1,0 @@
-playlist = Cave Story 3D
-preload_oggs = false

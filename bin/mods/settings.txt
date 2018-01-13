@@ -1,3 +1,0 @@
-debug_console = false
-logging = false
-pollution_map = false

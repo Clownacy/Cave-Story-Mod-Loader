@@ -18,7 +18,8 @@ MOD_LOADER_SOURCES = \
 	$(MOD_LOADER_PATH)/mod_list.c \
 	$(MOD_LOADER_PATH)/patch.c \
 	$(MOD_LOADER_PATH)/redirect_org_files.c \
-	$(MOD_LOADER_PATH)/settings.c
+	$(MOD_LOADER_PATH)/settings.c \
+	$(MOD_LOADER_PATH)/inih/ini.c
 
 GRAPHICS_ENHANCEMENT_PATH = src/example_mods/graphics_enhancement
 GRAPHICS_ENHANCEMENT_FILES = \
@@ -70,7 +71,7 @@ bin/dsound.dll: src/mod_loader_bootstrapper/main.c src/common/sprintfMalloc.c
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 
 bin/mods/60fps/60fps.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/60fps/main.c
 	mkdir -p $(@D)
