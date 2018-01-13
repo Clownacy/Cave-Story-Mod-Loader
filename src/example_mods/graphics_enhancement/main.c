@@ -41,27 +41,27 @@ void LoadWindowRect_NewCode(RECT *rect)
 
 void InitMod(void)
 {
-	borderless_fullscreen = GetSettingBool("borderless_fullscreen");
-	borderless_fullscreen_auto_aspect_ratio = GetSettingBool("borderless_fullscreen_auto_aspect_ratio");
-	borderless_fullscreen_auto_window_upscale = GetSettingBool("borderless_fullscreen_auto_window_upscale");
+	borderless_fullscreen = GetSettingBool("borderless_fullscreen", true);
+	borderless_fullscreen_auto_aspect_ratio = GetSettingBool("borderless_fullscreen_auto_aspect_ratio", true);
+	borderless_fullscreen_auto_window_upscale = GetSettingBool("borderless_fullscreen_auto_window_upscale", true);
 
-	int _aspect_ratio_x = GetSettingInt("aspect_ratio_x");
+	int _aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
 	if (_aspect_ratio_x == 0)
 		_aspect_ratio_x = 16;
 
 	aspect_ratio_x = _aspect_ratio_x;
 
-	int _aspect_ratio_y = GetSettingInt("aspect_ratio_y");
+	int _aspect_ratio_y = GetSettingInt("aspect_ratio_y", 9);
 	if (_aspect_ratio_y == 0)
 		_aspect_ratio_y = 9;
 
 	aspect_ratio_y = _aspect_ratio_y;
 
-	int sprite_resolution_factor = GetSettingInt("sprite_resolution");
+	int sprite_resolution_factor = GetSettingInt("sprite_resolution", 1);
 	if (sprite_resolution_factor == 0)
 		sprite_resolution_factor = 1;
 
-	int _window_upscale_factor = GetSettingInt("window_upscale");
+	int _window_upscale_factor = GetSettingInt("window_upscale", 2);
 	if (_window_upscale_factor == 0)
 		_window_upscale_factor = 1;
 
@@ -82,6 +82,6 @@ void InitMod(void)
 	if (window_upscale_factor != 2)
 		UpscaleWindow();
 
-	if (GetSettingBool("remove_sprite_alignment"))
+	if (GetSettingBool("remove_sprite_alignment", true))
 		RemoveSpriteAlignment();
 }

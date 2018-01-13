@@ -49,10 +49,10 @@ static void DrawBlackBars(int x_pos, int y_pos)
 
 void PatchBlackBars(void)
 {
-	if (GetSettingBool("black_bars"))
+	if (GetSettingBool("black_bars", true))
 	{
 		WriteRelativeAddress((void*)0x4106C3 + 1, DrawBlackBars);
 
-		disable_ironhead_black_bars = GetSettingBool("disable_ironhead_black_bars");
+		disable_ironhead_black_bars = GetSettingBool("disable_ironhead_black_bars", false);
 	}
 }

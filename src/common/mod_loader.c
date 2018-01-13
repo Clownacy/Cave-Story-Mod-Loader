@@ -21,27 +21,27 @@ void (*FixDoorEnterBug)(void);
 void (*PrintError)(const char* const format, ...);
 void (*PrintDebug)(const char* const format, ...);
 
-static char* (*GetSettingString_inner)(const char* const filename, const Setting* const settings);
-static int (*GetSettingInt_inner)(const char* const filename, const Setting* const settings);
-static bool (*GetSettingBool_inner)(const char* const filename, const Setting* const settings);
+static char* (*GetSettingString_inner)(const char* const filename, const char* const default_string, const Setting* const settings);
+static int (*GetSettingInt_inner)(const char* const filename, const int default_int, const Setting* const settings);
+static bool (*GetSettingBool_inner)(const char* const filename, const bool default_bool, const Setting* const settings);
 
 const char *location_path;
 
 static const Setting *settings;
 
-const char* const GetSettingString(const char* const setting_name)
+const char* const GetSettingString(const char* const setting_name, const char* const default_string)
 {
-	return GetSettingString_inner(setting_name, settings);
+	return GetSettingString_inner(setting_name, default_string, settings);
 }
 
-int GetSettingInt(const char* const setting_name)
+int GetSettingInt(const char* const setting_name, const int default_int)
 {
-	return GetSettingInt_inner(setting_name, settings);
+	return GetSettingInt_inner(setting_name, default_int, settings);
 }
 
-bool GetSettingBool(const char* const setting_name)
+bool GetSettingBool(const char* const setting_name, const bool default_bool)
 {
-	return GetSettingBool_inner(setting_name, settings);
+	return GetSettingBool_inner(setting_name, default_bool, settings);
 }
 
 __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Setting* const settings_p, const char* const location_path_p)
@@ -60,9 +60,9 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	WriteNOPs = (void (*)(void* const, const unsigned int))GetProcAddress(mod_loader_hmodule, "WriteNOPs");
 	FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
 
-	GetSettingString_inner = (char* (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");
-	GetSettingInt_inner = (int (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
-	GetSettingBool_inner = (bool (*)(const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
+	GetSettingString_inner = (char* (*)(const char* const, const char* const, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");
+	GetSettingInt_inner = (int (*)(const char* const, const int, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
+	GetSettingBool_inner = (bool (*)(const char* const, const bool, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
 
 	PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
 	PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");

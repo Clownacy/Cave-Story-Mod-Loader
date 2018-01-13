@@ -637,10 +637,10 @@ void LoadPlaylist(const char* const playlist_folder)
 
 void InitMod(void)
 {
-	const char* const playlist_filename = GetSettingString("playlist");
+	const char* const playlist_filename = GetSettingString("playlist", NULL);
 	if (playlist_filename != NULL)
 	{
-		setting_preload = GetSettingBool("preload_oggs");
+		setting_preload = GetSettingBool("preload_oggs", false);
 
 		for (unsigned int i = 0; i < 100; ++i)
 			fade.nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;

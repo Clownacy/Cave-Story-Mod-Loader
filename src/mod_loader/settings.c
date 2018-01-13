@@ -68,9 +68,9 @@ Setting* ReadSettings(const char* const filename)
 	return settings_list_head;
 }
 
-__declspec(dllexport) const char* const GetSettingString(const char* const setting_name, const Setting* const settings_list_head)
+__declspec(dllexport) const char* const GetSettingString(const char* const setting_name, const char* const default_string, const Setting* const settings_list_head)
 {
-	const char *setting_value = "";
+	const char *setting_value = default_string;
 
 	for (const Setting *setting = settings_list_head; setting != NULL; setting = setting->next)
 	{
@@ -84,12 +84,26 @@ __declspec(dllexport) const char* const GetSettingString(const char* const setti
 	return setting_value;
 }
 
-__declspec(dllexport) int GetSettingInt(const char* const setting_name, const Setting* const settings_list_head)
+__declspec(dllexport) int GetSettingInt(const char* const setting_name, const int default_int, const Setting* const settings_list_head)
 {
-	return strtol(GetSettingString(setting_name, settings_list_head), NULL, 0);
+	int setting_int = default_int;
+
+	const char* const setting_string = GetSettingString(setting_name, NULL, settings_list_head);
+
+	if (setting_string)
+		setting_int = strtol(setting_string, NULL, 0);
+
+	return setting_int;
 }
 
-__declspec(dllexport) bool GetSettingBool(const char* const setting_name, const Setting* const settings_list_head)
+__declspec(dllexport) bool GetSettingBool(const char* const setting_name, const bool default_bool, const Setting* const settings_list_head)
 {
-	return (strcasecmp(GetSettingString(setting_name, settings_list_head), "true") == 0);
+	bool setting_bool = default_bool;
+
+	const char* const setting_string = GetSettingString(setting_name, NULL, settings_list_head);
+
+	if (setting_string)
+		setting_bool = strcasecmp(setting_string, "true") == 0;
+
+	return setting_bool;
 }

@@ -26,9 +26,9 @@ void InitLogging(void)
 {
 	logging_initialised = true;
 
-	console_enabled = GetSettingBool("debug_console", mod_loader_settings);
-	logging_enabled = GetSettingBool("logging", mod_loader_settings);
-	pollution_map_enabled = GetSettingBool("pollution_map", mod_loader_settings);
+	console_enabled = GetSettingBool("debug_console", false, mod_loader_settings);
+	logging_enabled = GetSettingBool("logging", false, mod_loader_settings);
+	pollution_map_enabled = GetSettingBool("pollution_map", false, mod_loader_settings);
 
 	remove(ERROR_PATH);
 	if (logging_enabled)
