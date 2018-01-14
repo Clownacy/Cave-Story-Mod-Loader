@@ -28,7 +28,7 @@ void AddToModList(char *mod_path)
 	++mod_count;
 }
 
-const char* const GetModPath(unsigned int mod_num)
+char* GetModPath(unsigned int mod_num)
 {
 	if (mod_list_head == NULL)
 		return NULL;

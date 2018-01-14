@@ -311,7 +311,7 @@ void InitMod(void)
 	free(controller_mappings_path);
 
 	// Grab all controllers that were plugged-in before the game was started
-	for (unsigned int i = 0; i < SDL_NumJoysticks(); ++i)
+	for (int i = 0; i < SDL_NumJoysticks(); ++i)
 		AddController(i);
 
 	// Fix door-opening bug, so I can map both down keys at once

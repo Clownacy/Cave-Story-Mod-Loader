@@ -68,7 +68,7 @@ Setting* ReadSettings(const char* const filename)
 	return settings_list_head;
 }
 
-__declspec(dllexport) const char* const GetSettingString(const char* const setting_name, const char* const default_string, const Setting* const settings_list_head)
+__declspec(dllexport) const char* GetSettingString(const char* const setting_name, const char* const default_string, const Setting* const settings_list_head)
 {
 	const char *setting_value = default_string;
 

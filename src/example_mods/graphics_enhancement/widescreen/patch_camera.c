@@ -26,7 +26,7 @@
 
 static bool small_room;
 
-__stdcall bool UpdateCamera_extra(const unsigned int level_width, const unsigned int level_height)
+__stdcall bool UpdateCamera_extra(const int level_width, const int level_height)
 {
 	current_level_width = level_width;
 

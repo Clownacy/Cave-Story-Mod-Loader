@@ -55,8 +55,6 @@ static Song song_backup;
 
 static cubeb *cubeb_context;
 
-static int current_loop_setting;
-
 static struct
 {
 	bool active;

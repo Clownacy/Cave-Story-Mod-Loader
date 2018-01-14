@@ -30,8 +30,8 @@ extern char LoadWindowRect_ASM;
 
 void LoadWindowRect_NewCode(RECT *rect)
 {
-	const unsigned int window_width = ((240 * aspect_ratio_x) / aspect_ratio_y) * window_upscale_factor;
-	const unsigned int window_height = 240 * window_upscale_factor;
+	const int window_width = ((240 * aspect_ratio_x) / aspect_ratio_y) * window_upscale_factor;
+	const int window_height = 240 * window_upscale_factor;
 
 	if (rect->right - rect->left != window_width)
 		rect->right = rect->left + window_width;

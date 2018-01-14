@@ -1,7 +1,7 @@
 COMMON_PATH = src/common
 
 CC = gcc
-CFLAGS = -O3 -s -static
+CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -Wno-unused-parameter -fomit-frame-pointer
 LIBS = -I$(COMMON_PATH)
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)

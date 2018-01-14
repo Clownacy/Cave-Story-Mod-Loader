@@ -62,11 +62,6 @@ static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT
 	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, 0x1008000, 0);
 }
 
-static void DrawSpriteWithTransparency_RawXY_Centred(void* clip_rect, int x, int y, void* src_rect, int surface_id)
-{
-	DrawSpriteWithTransparency_RawXY(clip_rect, ((SCREEN_WIDTH - 320) / 2) + x, y, src_rect, surface_id);
-}
-
 void RemoveSpriteAlignment(void)
 {
 	// DrawWater

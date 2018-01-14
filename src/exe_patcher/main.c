@@ -39,13 +39,13 @@ void DoPatch(unsigned char *vanilla, unsigned char *patch, unsigned char *exe, s
 		printf("Warning: The code at 0x%X is modified, the mod loader may not work!\n", address);
 	}
 
-	for (int i=0; i < size; ++i)
+	for (unsigned int i = 0; i < size; ++i)
 	{
 		exe[address + i] = patch[i];
 	}
 }
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	if (argc < 2)
 	{
@@ -89,4 +89,5 @@ void main(int argc, char *argv[])
 	}
 	printf("Press enter to close this window...\n");
 	getchar();
+	return 0;
 }
