@@ -1,7 +1,7 @@
 COMMON_PATH = src/common
 
 CC = gcc
-CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -Wno-unused-parameter -fomit-frame-pointer
+CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -Wno-unused-parameter -fomit-frame-pointer -fno-ident
 LIBS = -I$(COMMON_PATH)
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)
@@ -65,7 +65,7 @@ bin/mod_loader_patcher.exe: src/exe_patcher/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-bin/dsound.dll: src/mod_loader_bootstrapper/main.c src/common/sprintfMalloc.c
+bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
 
