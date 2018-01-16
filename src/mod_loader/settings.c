@@ -103,7 +103,12 @@ __declspec(dllexport) bool GetSettingBool(const char* const setting_name, const 
 	const char* const setting_string = GetSettingString(setting_name, NULL, settings_list_head);
 
 	if (setting_string)
-		setting_bool = strcasecmp(setting_string, "true") == 0;
+	{
+		if (strcasecmp(setting_string, "true") == 0)
+			setting_bool = true;
+		else if (strcasecmp(setting_string, "false") == 0)
+			setting_bool = false;
+	}
 
 	return setting_bool;
 }
