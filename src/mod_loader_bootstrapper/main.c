@@ -1,12 +1,8 @@
 // Mod loader bootstrapper for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include <stdlib.h>
-#define DllCanUnloadNow DllCanUnloadNow_thisiswhysuperheadersarebad
-#define DllGetClassObject DllGetClassObject_thisiswhysuperheadersarebad
 #include <windows.h>
-#undef DllCanUnloadNow
-#undef DllGetClassObject
 
 #include "sprintfMalloc.h"
 
@@ -46,8 +42,8 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 	if (nReason == DLL_PROCESS_ATTACH)
 	{
 		char *windir = malloc(MAX_PATH);
-		GetWindowsDirectory(windir, MAX_PATH);
-		char *dsound_path = sprintfMalloc("%s\\System32\\dsound.dll", windir);
+		GetSystemDirectory(windir, MAX_PATH);
+		char *dsound_path = sprintfMalloc("%s\\dsound.dll", windir);
 		free(windir);
 		const HMODULE original_dll = LoadLibrary(dsound_path);
 		free(dsound_path);
@@ -69,6 +65,7 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 		if (mod_loader_hmodule)
 		{
 			void (*WriteCall)(void*,void*) = (void(*)(void*,void*))GetProcAddress(mod_loader_hmodule, "WriteCall");
+
 			if (WriteCall)
 				WriteCall((void*)0x412429, (void*)&ASM_LoadDLLModLoader);
 		}
@@ -78,65 +75,65 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 }
 
 __asm(
-".globl _DirectSoundCreate\n"
-"_DirectSoundCreate:\n"
+".globl _New_DirectSoundCreate\n"
+"_New_DirectSoundCreate:\n"
 "	jmp	*_Original_DirectSoundCreate\n"
 
-".globl _DirectSoundEnumerateA\n"
-"_DirectSoundEnumerateA:\n"
+".globl _New_DirectSoundEnumerateA\n"
+"_New_DirectSoundEnumerateA:\n"
 "	jmp	*_Original_DirectSoundEnumerateA\n"
 
-".globl _DirectSoundEnumerateW\n"
-"_DirectSoundEnumerateW:\n"
+".globl _New_DirectSoundEnumerateW\n"
+"_New_DirectSoundEnumerateW:\n"
 "	jmp	*_Original_DirectSoundEnumerateW\n"
 
-".globl _DllCanUnloadNow\n"
-"_DllCanUnloadNow:\n"
+".globl _New_DllCanUnloadNow\n"
+"_New_DllCanUnloadNow:\n"
 "	jmp	*_Original_DllCanUnloadNow\n"
 
-".globl _DllGetClassObject\n"
-"_DllGetClassObject:\n"
+".globl _New_DllGetClassObject\n"
+"_New_DllGetClassObject:\n"
 "	jmp	*_Original_DllGetClassObject\n"
 
-".globl _DirectSoundCaptureCreate\n"
-"_DirectSoundCaptureCreate:\n"
+".globl _New_DirectSoundCaptureCreate\n"
+"_New_DirectSoundCaptureCreate:\n"
 "	jmp	*_Original_DirectSoundCaptureCreate\n"
 
-".globl _DirectSoundCaptureEnumerateA\n"
-"_DirectSoundCaptureEnumerateA:\n"
+".globl _New_DirectSoundCaptureEnumerateA\n"
+"_New_DirectSoundCaptureEnumerateA:\n"
 "	jmp	*_Original_DirectSoundCaptureEnumerateA\n"
 
-".globl _DirectSoundCaptureEnumerateW\n"
-"_DirectSoundCaptureEnumerateW:\n"
+".globl _New_DirectSoundCaptureEnumerateW\n"
+"_New_DirectSoundCaptureEnumerateW:\n"
 "	jmp	*_Original_DirectSoundCaptureEnumerateW\n"
 
-".globl _GetDeviceID\n"
-"_GetDeviceID:\n"
+".globl _New_GetDeviceID\n"
+"_New_GetDeviceID:\n"
 "	jmp	*_Original_GetDeviceID\n"
 
-".globl _DirectSoundFullDuplexCreate\n"
-"_DirectSoundFullDuplexCreate:\n"
+".globl _New_DirectSoundFullDuplexCreate\n"
+"_New_DirectSoundFullDuplexCreate:\n"
 "	jmp	*_Original_DirectSoundFullDuplexCreate\n"
 
-".globl _DirectSoundCreate8\n"
-"_DirectSoundCreate8:\n"
+".globl _New_DirectSoundCreate8\n"
+"_New_DirectSoundCreate8:\n"
 "	jmp	*_Original_DirectSoundCreate8\n"
 
-".globl _DirectSoundCaptureCreate8\n"
-"_DirectSoundCaptureCreate8:\n"
+".globl _New_DirectSoundCaptureCreate8\n"
+"_New_DirectSoundCaptureCreate8:\n"
 "	jmp	*_Original_DirectSoundCaptureCreate8\n"
 
 ".section .drectve\n"
-".ascii \" -export:\\\"DirectSoundCreate\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundEnumerateA\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundEnumerateW\\\"\"\n"
-".ascii \" -export:\\\"DllCanUnloadNow\\\"\"\n"
-".ascii \" -export:\\\"DllGetClassObject\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundCaptureCreate\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundCaptureEnumerateA\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundCaptureEnumerateW\\\"\"\n"
-".ascii \" -export:\\\"GetDeviceID\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundFullDuplexCreate\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundCreate8\\\"\"\n"
-".ascii \" -export:\\\"DirectSoundCaptureCreate8\\\"\"\n"
+".ascii \" -export:DirectSoundCreate=New_DirectSoundCreate\"\n"
+".ascii \" -export:DirectSoundEnumerateA=New_DirectSoundEnumerateA\"\n"
+".ascii \" -export:DirectSoundEnumerateW=New_DirectSoundEnumerateW\"\n"
+".ascii \" -export:DllCanUnloadNow=New_DllCanUnloadNow\"\n"
+".ascii \" -export:DllGetClassObject=New_DllGetClassObject\"\n"
+".ascii \" -export:DirectSoundCaptureCreate=New_DirectSoundCaptureCreate\"\n"
+".ascii \" -export:DirectSoundCaptureEnumerateA=New_DirectSoundCaptureEnumerateA\"\n"
+".ascii \" -export:DirectSoundCaptureEnumerateW=New_DirectSoundCaptureEnumerateW\"\n"
+".ascii \" -export:GetDeviceID=New_GetDeviceID\"\n"
+".ascii \" -export:DirectSoundFullDuplexCreate=New_DirectSoundFullDuplexCreate\"\n"
+".ascii \" -export:DirectSoundCreate8=New_DirectSoundCreate8\"\n"
+".ascii \" -export:DirectSoundCaptureCreate8=New_DirectSoundCaptureCreate8\"\n"
 );
