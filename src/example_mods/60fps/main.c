@@ -1,13 +1,29 @@
 // 60FPS mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include "mod_loader.h"
 
-#define FPS 60
-#define FPS_TICKS (1000 + (FPS / 2)) / FPS	// Round to nearest whole number, instead of just flooring
+void UpdateTicks(void)
+{
+	const unsigned int delay_ticks[] = {16, 17, 17};
+
+	static unsigned char counter;
+
+	WriteByte((void*)0x40B36F, delay_ticks[counter % 3]);
+	WriteByte((void*)0x40B3A9, delay_ticks[counter % 3]);
+
+	++counter;
+}
+
+__asm(
+"_UpdateTicks_ASM:\n"
+"	call	_UpdateTicks\n"
+"	jmp	*0x48C1B8\n"
+);
+extern char UpdateTicks_ASM;
 
 void InitMod(void)
 {
-	WriteByte((void*)0x40B36F, FPS_TICKS);
-	WriteByte((void*)0x40B3A9, FPS_TICKS);
+	WriteByte((void*)0x40B3B9, 0x90);
+	WriteCall((void*)0x40B3B9 + 1, &UpdateTicks_ASM);
 }
