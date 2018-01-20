@@ -104,9 +104,9 @@ __declspec(dllexport) bool GetSettingBool(const char* const setting_name, const 
 
 	if (setting_string)
 	{
-		if (strcasecmp(setting_string, "true") == 0 || strcasecmp(setting_string, "yes") == 0 || strcasecmp(setting_string, "1") == 0)
+		if (!strcasecmp(setting_string, "true") || !strcasecmp(setting_string, "yes") || !strcasecmp(setting_string, "1"))
 			setting_bool = true;
-		else if (strcasecmp(setting_string, "false") == 0 || strcasecmp(setting_string, "no") == 0 || strcasecmp(setting_string, "0") == 0)
+		else if (!strcasecmp(setting_string, "false") || !strcasecmp(setting_string, "no") || strcasecmp(setting_string, "0"))
 			setting_bool = false;
 	}
 
