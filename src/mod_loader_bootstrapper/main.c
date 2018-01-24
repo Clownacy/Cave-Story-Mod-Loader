@@ -45,6 +45,10 @@ void LoadDLLModLoader(void)
 		if (ModInit)
 			ModInit();
 	}
+	else
+	{
+		MessageBox(NULL, "Could not find 'mods/mod_loader.dll'", "Mod Loader error", 0);
+	}
 }
 
 __asm(
