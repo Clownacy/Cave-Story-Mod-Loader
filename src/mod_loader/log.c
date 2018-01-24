@@ -9,6 +9,7 @@
 #include <windows.h>
 
 #include "settings.h"
+#include "sprintfMalloc.h"
 
 #define VERSION "v1.3+"
 
@@ -56,6 +57,25 @@ static void PrintToFile(const char* const format, va_list args, const char* cons
 
 		fclose(log_file);
 	}
+}
+
+__declspec(dllexport) void PrintMessageBoxError(const char* const format, ...)
+{
+	va_list args;
+	va_start(args, format);
+
+	if (console_enabled)
+		vprintf(format, args);
+
+	PrintToFile(format, args, ERROR_PATH);
+	if (logging_enabled)
+		PrintToFile(format, args, DEBUG_PATH);
+
+	char *message = vsprintfMalloc(format, args);
+	MessageBox(NULL, message, "Mod Loader error", 0);
+	free(message);
+
+	va_end(args);
 }
 
 __declspec(dllexport) void PrintError(const char* const format, ...)

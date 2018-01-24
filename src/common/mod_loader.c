@@ -18,6 +18,7 @@ void (*WriteJump)(void* const address, const void* const new_destination);
 void (*WriteCall)(void* const address, const void* const new_destination);
 void (*WriteNOPs)(void* const address, const unsigned int count);
 void (*FixDoorEnterBug)(void);
+void (*PrintMessageBoxError)(const char* const format, ...);
 void (*PrintError)(const char* const format, ...);
 void (*PrintDebug)(const char* const format, ...);
 
@@ -64,6 +65,7 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	GetSettingInt_inner = (int (*)(const char* const, const int, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
 	GetSettingBool_inner = (bool (*)(const char* const, const bool, const Setting* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
 
+	PrintMessageBoxError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintMessageBoxError");
 	PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
 	PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");
 
@@ -80,11 +82,12 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	GetSettingString_inner == NULL ||
 	GetSettingInt_inner == NULL ||
 	GetSettingBool_inner == NULL ||
+	PrintMessageBoxError == NULL ||
 	PrintError == NULL ||
 	PrintDebug == NULL)
 	{
-		if (PrintError)
-			PrintError("Fatal error: Mod could not find all Mod Loader exports. Are your mods and mod loader up to date?\n");
+		if (PrintMessageBoxError)
+			PrintMessageBoxError("Fatal error: Mod could not find all Mod Loader exports. Are your mods and mod loader up to date?\n");
 	}
 	else
 	{

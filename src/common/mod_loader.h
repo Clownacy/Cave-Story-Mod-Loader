@@ -20,6 +20,7 @@ extern void (*WriteJump)(void* const address, const void* const new_destination)
 extern void (*WriteCall)(void* const address, const void* const new_destination);
 extern void (*WriteNOPs)(void* const address, const unsigned int);
 extern void (*FixDoorEnterBug)(void);
+extern void (*PrintMessageBoxError)(const char* const format, ...);
 extern void (*PrintError)(const char* const format, ...);
 extern void (*PrintDebug)(const char* const format, ...);
 
