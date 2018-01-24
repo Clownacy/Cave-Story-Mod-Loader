@@ -3,14 +3,25 @@
 
 #include "patch.h"
 
+#include <stdbool.h>
+
 #include "log.h"
 
 #include <windows.h>
 
 static void WriteData(void* const address, const void* const value, const unsigned int size)
 {
+	static bool got_handle;
+	static HANDLE handle;
+
+	if (!got_handle)
+	{
+		got_handle = true;
+		handle = GetCurrentProcess();
+	}
+
 	PrintPollution("%d bytes written at %p\n", size, address);
-	WriteProcessMemory(GetCurrentProcess(), address, value, size, NULL);
+	WriteProcessMemory(handle, address, value, size, NULL);
 }
 
 __declspec(dllexport) void WriteRelativeAddress(void* const address, const void* const new_destination)
