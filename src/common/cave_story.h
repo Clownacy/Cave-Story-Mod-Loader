@@ -62,6 +62,7 @@ typedef enum SurfaceID
 #define CS_window_padding_w (*(int*)0x49CDAC)
 #define CS_window_surface_width (*(int*)0x49D374)
 #define CS_window_surface_height (*(int*)0x49D378)
+#define CS_directdraw (*(IDirectDraw7**)0x49D37C)
 #define CS_screen_surface (*(IDirectDrawSurface7** const)0x49D384)
 #define CS_surfaces (*(IDirectDrawSurface7*(*)[40])0x49D388)
 #define CS_camera_x_pos (*(signed int*)0x49E1C8)
