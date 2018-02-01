@@ -47,13 +47,13 @@ void InitMod(void)
 
 	int _aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
 	if (_aspect_ratio_x == 0)
-		_aspect_ratio_x = 16;
+		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_x = 0'?\n\nWell, it's your funeral.");
 
 	aspect_ratio_x = _aspect_ratio_x;
 
 	int _aspect_ratio_y = GetSettingInt("aspect_ratio_y", 9);
 	if (_aspect_ratio_y == 0)
-		_aspect_ratio_y = 9;
+		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_y = 0'?\n\nWell, it's your funeral.");
 
 	aspect_ratio_y = _aspect_ratio_y;
 

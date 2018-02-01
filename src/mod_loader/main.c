@@ -78,7 +78,7 @@ __declspec(dllexport) void init(void)
 
 	if (mod_list == NULL)
 	{
-		PrintError("Could not find mods.txt\n");
+		PrintMessageBoxError("Could not find mods.txt\n");
 		return;
 	}
 
