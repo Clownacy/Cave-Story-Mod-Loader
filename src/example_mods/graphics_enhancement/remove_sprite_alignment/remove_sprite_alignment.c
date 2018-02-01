@@ -3,6 +3,7 @@
 
 #include "remove_sprite_alignment.h"
 
+#include <stdbool.h>
 #include <windows.h>
 
 #include "cave_story.h"
@@ -10,7 +11,7 @@
 
 #include "../common.h"
 
-static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, int surface_id)
+static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id, bool transparency)
 {
 	RECT new_clip_rect;
 	RECT new_src_rect;
@@ -59,7 +60,53 @@ static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT
 	final_dst_rect_1.right = (final_src_rect_1.right + x - final_src_rect_1.left);
 	final_dst_rect_1.bottom = (final_src_rect_1.bottom + y - final_src_rect_1.top);
 
-	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, 0x1008000, 0);
+	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, transparency? 0x1008000 : 0x1000000, 0);
+}
+
+static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id)
+{
+	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, true);
+}
+
+static void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id)
+{
+	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, false);
+}
+
+__asm(
+"_BackgroundType1_Scroll_ASM:\n"
+"	call	_BackgroundType1_Scroll\n"
+"	jmp	0x402805\n"
+);
+extern char BackgroundType1_Scroll_ASM;
+
+void BackgroundType1_Scroll(void)
+{
+	for (int y = -((CS_camera_y_pos / 2) % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	{
+		for (int x = -((CS_camera_x_pos / 2) % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		{
+			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
+		}
+	}
+}
+
+__asm(
+"_BackgroundType2_Scroll_ASM:\n"
+"	call	_BackgroundType2_Scroll\n"
+"	jmp	0x402805\n"
+);
+extern char BackgroundType2_Scroll_ASM;
+
+void BackgroundType2_Scroll(void)
+{
+	for (int y = -(CS_camera_y_pos % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	{
+		for (int x = -(CS_camera_x_pos % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		{
+			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
+		}
+	}
 }
 
 void RemoveSpriteAlignment(void)
@@ -310,4 +357,8 @@ void RemoveSpriteAlignment(void)
 	WriteLong((void*)0x40EEF5, 0x90909090);
 	WriteLong((void*)0x40EEF9, 0x90909090);
 	WriteLong((void*)0x40EEFD, 0x90909090);
+
+	// DrawBackground
+	WriteLong((void*)0x402809 + 4, (unsigned int)&BackgroundType1_Scroll_ASM);
+	WriteLong((void*)0x402809 + 8, (unsigned int)&BackgroundType2_Scroll_ASM);
 }

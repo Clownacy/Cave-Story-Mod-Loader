@@ -6,6 +6,51 @@
 #include <ddraw.h>
 #include <windows.h>
 
+// Enums
+typedef enum SurfaceID
+{
+	SURFACE_ID_TITLE,
+	SURFACE_ID_PIXEL,
+	SURFACE_ID_LEVEL_TILESET,
+	SURFACE_ID_UNKNOWN_3,
+	SURFACE_ID_UNKNOWN_4,
+	SURFACE_ID_UNKNOWN_5,
+	SURFACE_ID_FADE,
+	SURFACE_ID_UNKNOWN_7,
+	SURFACE_ID_ITEM_IMAGE,
+	SURFACE_ID_MAP,
+	SURFACE_ID_SCREEN_GRAB,
+	SURFACE_ID_ARMS,
+	SURFACE_ID_ARMS_IMAGE,
+	SURFACE_ID_ROOM_NAME,
+	SURFACE_ID_STAGE_ITEM,
+	SURFACE_ID_LOADING,
+	SURFACE_ID_MY_CHAR,
+	SURFACE_ID_BULLET,
+	SURFACE_ID_UNKNOWN_12,
+	SURFACE_ID_CARET,
+	SURFACE_ID_NPC_SYM,
+	SURFACE_ID_LEVEL_SPRITESET_1,
+	SURFACE_ID_LEVEL_SPRITESET_2,
+	SURFACE_ID_NPC_REGU,
+	SURFACE_ID_UNKNOWN_18,
+	SURFACE_ID_UNKNOWN_19,
+	SURFACE_ID_TEXT_BOX,
+	SURFACE_ID_FACE,
+	SURFACE_ID_LEVEL_BACKGROUND,
+	SURFACE_ID_UNKNOWN_1D,
+	SURFACE_ID_UNKNOWN_1E,
+	SURFACE_ID_UNKNOWN_1F,
+	SURFACE_ID_UNKNOWN_20,
+	SURFACE_ID_UNKNOWN_21,
+	SURFACE_ID_UNKNOWN_22,
+	SURFACE_ID_UNKNOWN_23,
+	SURFACE_ID_CREDITS_IMAGE,
+	SURFACE_ID_CASTS,
+	SURFACE_ID_UNKNOWN_26,
+	SURFACE_ID_UNKNOWN_27
+} SurfaceID;
+
 // Variables
 #define CS_window_upscale (*(int*)0x48F914)
 #define CS_clip_rect_common (*(RECT*)0x48F91C)
@@ -43,8 +88,8 @@
 // Functions
 static void (* const CS_LoadBackgroundSprite)(char*, int) = (void(*)(char*,int))0x402270;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
-static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,int) = (void(*)(RECT*,int,int,RECT*,int))0x40C3C0;
-static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, int) = (void(*)(RECT*, int, int, RECT*, int))0x40C5B0;
+static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,SurfaceID) = (void(*)(RECT*,int,int,RECT*,SurfaceID))0x40C3C0;
+static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, SurfaceID) = (void(*)(RECT*, int, int, RECT*, SurfaceID))0x40C5B0;
 static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;
 static void (* const CS_DrawNumber)(int x, int y, int, int) = (void(*)(int x, int y, int, int))0x40F380;
 static void (* const CS_DrawHUD_Air)(int x, int y) = (void(*)(int x, int y))0x41A350;
