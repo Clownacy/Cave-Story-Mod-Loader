@@ -11,8 +11,6 @@
 #include "settings.h"
 #include "sprintfMalloc.h"
 
-#define VERSION "v1.3+"
-
 #define ERROR_PATH "mods/error.txt"
 #define DEBUG_PATH "mods/debug.txt"
 #define POLLUTION_PATH "mods/pollution.txt"
@@ -44,7 +42,7 @@ void InitLogging(void)
 		freopen("CONOUT$", "w", stdout);
 	}
 
-	PrintDebug("Logging initialised - Mod Loader version %s\n", VERSION);
+	PrintDebug("Logging initialised - Mod Loader version " MOD_LOADER_VERSION "\n");
 }
 
 static void PrintToFile(const char* const format, va_list args, const char* const file_path)
