@@ -1,5 +1,5 @@
 // Graphics enhancement mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include "upscale_window.h"
 
@@ -13,6 +13,7 @@ void UpscaleWindow(void)
 
 	// Patch window creation
 	WriteLong((void*)0x40B4D1 + 6, window_upscale_factor);
+	WriteLong((void*)0x40B4FE + 6, window_upscale_factor);
 	WriteLong((void*)0x4127D2 + 6, SCREEN_WIDTH * window_upscale_factor);
 	WriteLong((void*)0x4127DC + 6, 240 * window_upscale_factor);
 	// Patch font creation

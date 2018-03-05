@@ -1,5 +1,5 @@
 // Mod loader for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #pragma once
 
@@ -63,6 +63,7 @@ typedef enum SurfaceID
 #define CS_window_surface_width (*(int*)0x49D374)
 #define CS_window_surface_height (*(int*)0x49D378)
 #define CS_directdraw (*(IDirectDraw7**)0x49D37C)
+#define CS_screen_primary_surface (*(IDirectDrawSurface7** const)0x49D380)
 #define CS_screen_surface (*(IDirectDrawSurface7** const)0x49D384)
 #define CS_surfaces (*(IDirectDrawSurface7*(*)[40])0x49D388)
 #define CS_camera_x_pos (*(signed int*)0x49E1C8)
@@ -92,6 +93,7 @@ static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x4
 static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,SurfaceID) = (void(*)(RECT*,int,int,RECT*,SurfaceID))0x40C3C0;
 static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, SurfaceID) = (void(*)(RECT*, int, int, RECT*, SurfaceID))0x40C5B0;
 static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;
+static int (* const CS_RegenerateSurfaces)(void) = (int(*)(void))0x40CB60;
 static void (* const CS_DrawNumber)(int x, int y, int, int) = (void(*)(int x, int y, int, int))0x40F380;
 static void (* const CS_DrawHUD_Air)(int x, int y) = (void(*)(int x, int y))0x41A350;
 static void (* const CS_LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;

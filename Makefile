@@ -26,7 +26,8 @@ GRAPHICS_ENHANCEMENT_PATH = src/example_mods/graphics_enhancement
 GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/common.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/main.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/borderless_fullscreen/borderless_fullscreen.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/60fps/60fps.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/fullscreen/fullscreen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/remove_sprite_alignment/remove_sprite_alignment.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/upscale_window/upscale_window.c \
@@ -56,7 +57,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
 
-all: $(MOD_LOADER_HELPER_OBJECT) bin/mod_loader_patcher.exe bin/dsound.dll bin/mods/mod_loader.dll bin/mods/60fps/60fps.dll bin/mods/ogg_music/ogg_music.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
+all: $(MOD_LOADER_HELPER_OBJECT) bin/mod_loader_patcher.exe bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
@@ -73,10 +74,6 @@ bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.
 bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
-
-bin/mods/60fps/60fps.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/60fps/main.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
 
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)

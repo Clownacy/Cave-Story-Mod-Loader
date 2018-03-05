@@ -1,6 +1,12 @@
 // 60FPS mod for Freeware Cave Story
 // Copyright © 2018 Clownacy
 
+#include "60fps.h"
+
+#include <stddef.h>
+#include <windows.h>
+
+#include "cave_story.h"
 #include "mod_loader.h"
 
 void UpdateTicks(void)
@@ -22,7 +28,7 @@ __asm(
 );
 extern char UpdateTicks_ASM;
 
-void InitMod(void)
+void Apply60FPSPatch(void)
 {
 	WriteByte((void*)0x40B3B9, 0x90);
 	WriteCall((void*)0x40B3B9 + 1, &UpdateTicks_ASM);

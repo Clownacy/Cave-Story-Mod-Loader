@@ -1,13 +1,15 @@
 // Graphics enhancement mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #pragma once
 
 #include <stdbool.h>
 
 extern bool borderless_fullscreen;
-extern bool borderless_fullscreen_auto_aspect_ratio;
-extern bool borderless_fullscreen_auto_window_upscale;
+extern bool fullscreen_auto_aspect_ratio;
+extern bool fullscreen_auto_window_upscale;
+extern bool fullscreen_vsync;
+extern bool sixty_fps;
 extern unsigned int aspect_ratio_x;
 extern unsigned int aspect_ratio_y;
 extern unsigned int window_upscale_factor;

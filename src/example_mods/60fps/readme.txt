@@ -1,1 +1,0 @@
-The original freeware Cave Story ran at 50FPS. The game was intended to run at 60FPS (and does so in later releases). This mod patches that.

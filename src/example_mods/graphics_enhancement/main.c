@@ -1,5 +1,5 @@
 // Graphics enhancement mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -9,7 +9,8 @@
 #include "mod_loader.h"
 
 #include "common.h"
-#include "borderless_fullscreen/borderless_fullscreen.h"
+#include "60fps/60fps.h"
+#include "fullscreen/fullscreen.h"
 #include "remove_sprite_alignment/remove_sprite_alignment.h"
 #include "sprite_resolution/sprite_resolution.h"
 #include "upscale_window/upscale_window.h"
@@ -42,8 +43,10 @@ void LoadWindowRect_NewCode(RECT *rect)
 void InitMod(void)
 {
 	borderless_fullscreen = GetSettingBool("borderless_fullscreen", true);
-	borderless_fullscreen_auto_aspect_ratio = GetSettingBool("borderless_fullscreen_auto_aspect_ratio", true);
-	borderless_fullscreen_auto_window_upscale = GetSettingBool("borderless_fullscreen_auto_window_upscale", true);
+	fullscreen_auto_aspect_ratio = GetSettingBool("fullscreen_auto_aspect_ratio", true);
+	fullscreen_auto_window_upscale = GetSettingBool("fullscreen_auto_window_upscale", true);
+	fullscreen_vsync = GetSettingBool("fullscreen_vsync", true);
+	sixty_fps = GetSettingBool("60fps", true);
 
 	int _aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
 	if (_aspect_ratio_x == 0)
@@ -70,8 +73,10 @@ void InitMod(void)
 	if ((aspect_ratio_x != 4 || aspect_ratio_y != 3) || (window_upscale_factor != 2))
 		WriteRelativeAddress((void*)0x411062 + 1, (void*)&LoadWindowRect_ASM);
 
-	if (borderless_fullscreen)
-		ApplyBorderlessFullscreenPatch();
+	if (sixty_fps)
+		Apply60FPSPatch();
+
+	ApplyFullscreenPatches();
 
 	if (aspect_ratio_x != 4 || aspect_ratio_y != 3)
 		SetWidescreen();
