@@ -1,9 +1,7 @@
 3ds_hud
-60fps
 debug_save
 disable_image_protection
 graphics_enhancement
 ikachan_cursor
 ogg_music
 sdl_controller_input
-wasd_input
