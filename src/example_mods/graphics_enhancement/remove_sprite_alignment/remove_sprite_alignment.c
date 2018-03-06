@@ -75,16 +75,21 @@ static void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *
 
 __asm(
 "_BackgroundType1_Scroll_ASM:\n"
+"	mov	0xC(%ebp), %eax\n"
+"	push	%eax\n"
+"	mov	0x8(%ebp), %eax\n"
+"	push	%eax\n"
 "	call	_BackgroundType1_Scroll\n"
+"	add	$0x8, %esp\n"
 "	jmp	0x402805\n"
 );
 extern char BackgroundType1_Scroll_ASM;
 
-void BackgroundType1_Scroll(void)
+void BackgroundType1_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (int y = -((CS_camera_y_pos / 2) % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	for (int y = -((camera_y_pos / 2) % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
 	{
-		for (int x = -((CS_camera_x_pos / 2) % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		for (int x = -((camera_x_pos / 2) % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
 		}
@@ -93,16 +98,21 @@ void BackgroundType1_Scroll(void)
 
 __asm(
 "_BackgroundType2_Scroll_ASM:\n"
+"	mov	0xC(%ebp), %eax\n"
+"	push	%eax\n"
+"	mov	0x8(%ebp), %eax\n"
+"	push	%eax\n"
 "	call	_BackgroundType2_Scroll\n"
+"	add	$0x8, %esp\n"
 "	jmp	0x402805\n"
 );
 extern char BackgroundType2_Scroll_ASM;
 
-void BackgroundType2_Scroll(void)
+void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (int y = -(CS_camera_y_pos % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	for (int y = -(camera_y_pos % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
 	{
-		for (int x = -(CS_camera_x_pos % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		for (int x = -(camera_x_pos % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
 		}
