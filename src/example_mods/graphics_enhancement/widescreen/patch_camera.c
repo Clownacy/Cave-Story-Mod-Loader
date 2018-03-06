@@ -33,24 +33,28 @@ __stdcall bool UpdateCamera_extra(const int level_width, const int level_height)
 	if (((level_width - 1) * 16) > SCREEN_WIDTH)
 	{
 		small_room = false;
-		return false;
+	}
+	else
+	{
+		CS_camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
+		small_room = true;
+
+		if (CS_camera_y_pos < 0)
+			CS_camera_y_pos = 0;
+		if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
+			CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
 	}
 
-	CS_camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
-	small_room = true;
-
-	if (CS_camera_y_pos < 0)
-		CS_camera_y_pos = 0;
-	if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
-		CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
-
-	return true;
+	return small_room;
 }
+
 
 __asm(
 "_UpdateCamera_extra_asm:\n"
-"	push	-4(%ebp)\n"
-"	push	-8(%ebp)\n"
+"	movswl	-4(%ebp), %eax\n"
+"	push	%eax\n"
+"	movswl	-8(%ebp), %eax\n"
+"	push	%eax\n"
 "	call	_UpdateCamera_extra@8\n"
 "	test	%al, %al\n"
 "	jnz	0x40EF76\n"
