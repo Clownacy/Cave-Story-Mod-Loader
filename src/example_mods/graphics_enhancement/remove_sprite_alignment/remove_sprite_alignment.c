@@ -119,6 +119,21 @@ void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 	}
 }
 
+__asm(
+"_DrawValueViewNewCode_ASM:\n"
+"	addl	%eax, %ecx\n"
+"	subl	$0x200*4, %ecx\n"
+"	ret\n"
+);
+extern char DrawValueViewNewCode_ASM;
+
+__asm(
+"_DrawValueViewNewCode2_ASM:\n"
+"	sal	$8, %eax\n"
+"	ret\n"
+);
+extern char DrawValueViewNewCode2_ASM;
+
 void RemoveSpriteAlignment(void)
 {
 	// DrawWater
@@ -237,11 +252,14 @@ void RemoveSpriteAlignment(void)
 	WriteRelativeAddress((void*)0x40AC7D + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawValueView
+	WriteCall((void*)0x42647D, &DrawValueViewNewCode2_ASM);
+
 	WriteNOPs((void*)0x4264A2, 9);
 	WriteNOPs((void*)0x4264A2 + 11, 3);
-	WriteNOPs((void*)0x4264A2 + 0x1A, 12);
+	WriteNOPs((void*)0x4264A2 + 0x1A, 11);
+	WriteCall((void*)0x4264A2 + 0x1A + 11, &DrawValueViewNewCode_ASM);
 	WriteNOPs((void*)0x4264CF, 12);
-	
+
 	WriteNOPs((void*)0x4264EC, 9);
 	WriteNOPs((void*)0x4264EC + 11, 3);
 	WriteNOPs((void*)0x4264EC + 0x14, 12);
