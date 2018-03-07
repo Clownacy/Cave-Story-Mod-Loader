@@ -3,6 +3,7 @@
 
 #include "fullscreen.h"
 
+#include <stddef.h>
 #include <stdio.h>
 #include <windows.h>
 
@@ -113,85 +114,86 @@ void SetupVSync(void)
 
 void ApplyFullscreenPatches(void)
 {
-	PrintDebug("Applying fullscreen patches\n");
+	unsigned char video_mode = 0;	// If there's no file, Cave Story defaults to fullscreen
 
 	FILE *file = fopen("Config.dat", "rb");
 	if (file != NULL)
 	{
 		fseek(file, 0x6C, SEEK_SET);
-		const unsigned char video_mode = fgetc(file);
+		video_mode = fgetc(file);
 		fclose(file);
+	}
 
-		if (video_mode != 0 && video_mode != 3 && video_mode != 4)
+	if (video_mode != 0 && video_mode != 3 && video_mode != 4)
+	{
+		// Not in fullscreen
+		fullscreen_auto_aspect_ratio = false;
+		fullscreen_auto_window_upscale = false;
+	}
+	else
+	{
+		PrintDebug("Applying fullscreen patches\n");
+
+		// Disable window.rect
+		WriteByte((void*)0x40F705, 0xEB);
+		WriteByte((void*)0x412DC3, 0xEB);
+
+		// Hijack the window_surface_width/window_surface_height setter
+		WriteByte((void*)0x40B5AB, 0x90);
+		WriteCall((void*)0x40B5AB + 1, &CalculateFullscreenDimensionsAndPadding_asm);
+
+		// Force the DirectDraw initialiser into windowed mode
+		// (the window creator is still in fullscreen mode)
+		if (borderless_fullscreen)
+			WriteJump((void*)0x40B4FE, (void*)0x40B4D1);
+
+		if (!borderless_fullscreen && fullscreen_vsync)
+			SetupVSync();
+
+		// Change the window background colour to black instead of grey
+		WriteByte((void*)0x412717 + 1, BLACK_BRUSH);
+
+		if (fullscreen_auto_aspect_ratio)
 		{
-			PrintDebug("Not in fullscreen: no need to patch anything\n");
-			// Not in fullscreen
-			fullscreen_auto_aspect_ratio = false;
-			fullscreen_auto_window_upscale = false;
+			// Compute best aspect ratio to fill the monitor
+			const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
+			const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
+
+			unsigned int gcd_value1 = monitor_width;
+			unsigned int gcd_value2 = monitor_height;
+			while (gcd_value2 != 0)
+			{
+				const unsigned int remainder = gcd_value1 % gcd_value2;
+				gcd_value1 = gcd_value2;
+				gcd_value2 = remainder;
+			}
+
+			const unsigned int greatest_common_divisor = gcd_value1;
+
+			aspect_ratio_x = monitor_width / greatest_common_divisor;
+			aspect_ratio_y = monitor_height / greatest_common_divisor;
 		}
-		else
+
+		if (fullscreen_auto_window_upscale)
 		{
-			// Disable window.rect
-			WriteByte((void*)0x40F705, 0xEB);
-			WriteByte((void*)0x412DC3, 0xEB);
+			// Compute best window upscale factor (for font rendering)
+			const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
+			const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
 
-			// Hijack the window_surface_width/window_surface_height setter
-			WriteByte((void*)0x40B5AB, 0x90);
-			WriteCall((void*)0x40B5AB + 1, &CalculateFullscreenDimensionsAndPadding_asm);
+			const unsigned int game_width = SCREEN_WIDTH;
+			const unsigned int game_height = 240;
 
-			// Force the DirectDraw initialiser into windowed mode
-			// (the window creator is still in fullscreen mode)
-			if (borderless_fullscreen)
-				WriteJump((void*)0x40B4FE, (void*)0x40B4D1);
-
-			if (!borderless_fullscreen && fullscreen_vsync)
-				SetupVSync();
-
-			// Change the window background colour to black instead of grey
-			WriteByte((void*)0x412717 + 1, BLACK_BRUSH);
-
-			if (fullscreen_auto_aspect_ratio)
+			unsigned int output_window_height;
+			if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
 			{
-				// Compute best aspect ratio to fill the monitor
-				const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
-				const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
-
-				unsigned int gcd_value1 = monitor_width;
-				unsigned int gcd_value2 = monitor_height;
-				while (gcd_value2 != 0)
-				{
-					const unsigned int remainder = gcd_value1 % gcd_value2;
-					gcd_value1 = gcd_value2;
-					gcd_value2 = remainder;
-				}
-
-				const unsigned int greatest_common_divisor = gcd_value1;
-
-				aspect_ratio_x = monitor_width / greatest_common_divisor;
-				aspect_ratio_y = monitor_height / greatest_common_divisor;
+				output_window_height = (game_height * monitor_width) / game_width;
+			}
+			else
+			{
+				output_window_height = monitor_height;
 			}
 
-			if (fullscreen_auto_window_upscale)
-			{
-				// Compute best window upscale factor (for font rendering)
-				const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
-				const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
-
-				const unsigned int game_width = SCREEN_WIDTH;
-				const unsigned int game_height = 240;
-
-				unsigned int output_window_height;
-				if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
-				{
-					output_window_height = (game_height * monitor_width) / game_width;
-				}
-				else
-				{
-					output_window_height = monitor_height;
-				}
-
-				window_upscale_factor = (output_window_height + (240 / 2)) / 240;
-			}
+			window_upscale_factor = (output_window_height + (240 / 2)) / 240;
 		}
 	}
 }
