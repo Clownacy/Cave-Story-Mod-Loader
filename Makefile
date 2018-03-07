@@ -1,4 +1,4 @@
-MOD_LOADER_VERSION = v1.3+ prototype
+MOD_LOADER_VERSION = v1.4
 COMMON_PATH = src/common
 
 CC = gcc
