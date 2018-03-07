@@ -249,6 +249,9 @@ void RemoveSpriteAlignment(void)
 	WriteRelativeAddress((void*)0x426514 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawPlayerAndWeapon
+	WriteLong((void*)0x4152FF + 3, -4 * 512);
+	WriteLong((void*)0x41532D + 3, 4 * 512);
+
 	WriteNOPs((void*)0x4153A7, 9);
 	WriteNOPs((void*)0x4153A7 + 11, 3);
 	WriteNOPs((void*)0x4153A7 + 17, 12);
