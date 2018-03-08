@@ -1,4 +1,4 @@
-This mod overhauls the game's control system to use a WASD layout. The controls are as follows:
+This mod changes the game's control scheme to a WASD layout. The controls are as follows:
 
 W - Up
 A - Left

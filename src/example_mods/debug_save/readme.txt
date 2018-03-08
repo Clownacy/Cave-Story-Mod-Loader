@@ -1,1 +1,0 @@
-This mod restores a leftover debugging feature, that allows you to create save files without a Save Disk.

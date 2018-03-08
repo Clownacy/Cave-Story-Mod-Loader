@@ -1,1 +1,0 @@
-This mod restores a leftover Ikachan cursor that's unused in the original game.

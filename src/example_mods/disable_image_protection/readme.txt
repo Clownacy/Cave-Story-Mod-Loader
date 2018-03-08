@@ -1,1 +1,0 @@
-This mods disables an integrity check that causes the game to crash if any of the .pbm (.bmp) files are modified. Each .pbm file actually ends with a small string, reading "(C)Pixel". When an image is modified and saved in an image editor, it will discard this string, causing the error to trigger. That's annoying, so this disables it.

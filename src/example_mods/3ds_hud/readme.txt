@@ -1,1 +1,0 @@
-This mod replicates the 3DS eShop port's rearranged HUD, which gives you more room to look around the screen.
