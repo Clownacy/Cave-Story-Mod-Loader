@@ -10,20 +10,24 @@
 // are drawn. The function returns 0 in the event of an error, but 0 is a valid
 // number for sub-FG, so we use a flag instead.
 
-char bad_tile_flag;
+unsigned char bad_tile_flag;
 
-static char GetTileID_new(const int tile_x, const int tile_y)
+static unsigned char GetTileID_new(const int tile_x, const int tile_y)
 {
+	unsigned char tile_id;
+
 	if (tile_x >= 0 && tile_y >= 0 && tile_x < CS_level_width && tile_y < CS_level_height)
 	{
 		bad_tile_flag = 0;
-		return CS_byte_49E484[*((unsigned char*)CS_level_layout_buffer + tile_x + (tile_y * CS_level_width))];
+		tile_id = CS_pxa_buffer[CS_pxm_buffer[tile_x + (tile_y * CS_level_width)]];
 	}
 	else
 	{
 		bad_tile_flag = 0xFF;
-		return 0;
+		tile_id = 0;
 	}
+
+	return tile_id;
 }
 
 __asm(
