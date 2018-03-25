@@ -59,7 +59,9 @@ void VSyncInitDirectDraw(void)
 __asm(
 "_VSyncInitDirectDraw_asm:\n"
 "	call	_VSyncInitDirectDraw\n"
-"	jmp	0x40B6B4\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40B6B4\n"
 );
 extern char VSyncInitDirectDraw_asm;
 
@@ -74,17 +76,31 @@ __asm(
 "	call	_VSyncDrawScreen\n"
 "	call	_RegenerateVSyncSurface\n"
 "	test	%al,%al\n"
-"	jz	0x40B445\n"
-"	jmp	0x40B436\n"
+"	jz	3f\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40B436\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x40B445\n"
 );
 extern char VSyncDrawScreen_asm;
 
 __asm(
 "_SkipFramerateControl_asm:\n"
-"	call	0x413570\n"
+"	call	*4f\n"
 "	test	%eax,%eax\n"
-"	jz	0x40B355\n"
-"	jmp	0x40B3B0\n"
+"	jz	3f\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40B3B0\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x40B355\n"
+"4:\n"
+"	.long	0x413570\n"
 );
 extern char SkipFramerateControl_asm;
 

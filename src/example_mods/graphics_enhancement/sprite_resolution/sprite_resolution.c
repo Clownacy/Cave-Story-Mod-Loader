@@ -39,7 +39,9 @@ __asm (
 "	popl	%eax\n"
 "	call	*0x18(%eax)\n"
 "	movl	$0, -0x10(%ebp)\n"
-"	jmp	0x40BC35\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40BC35\n"
 );
 extern char LoadBMP_FromFile_SurfaceCreationHijack;
 
@@ -54,7 +56,9 @@ __asm (
 "	cdq\n"
 "	divl	%ecx\n"
 "	movl	%eax, 0x14(%esp)\n"
-"	jmp	*0x48C018\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x48C018\n"
 );
 extern char LoadBMP_FromFile_StretchBlitHijack;
 

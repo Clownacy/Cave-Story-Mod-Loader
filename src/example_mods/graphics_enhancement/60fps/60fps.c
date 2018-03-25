@@ -24,7 +24,8 @@ void UpdateTicks(void)
 __asm(
 "_UpdateTicks_ASM:\n"
 "	call	_UpdateTicks\n"
-"	jmp	*0x48C1B8\n"
+"	pushl	0x48C1B8\n"
+"	ret\n"
 );
 extern char UpdateTicks_ASM;
 

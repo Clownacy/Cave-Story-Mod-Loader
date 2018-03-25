@@ -54,8 +54,14 @@ __asm(
 "_TestOnlyDownKeyIsPressedAndHeld_asm:\n"
 "	call	_TestOnlyDownKeyIsPressedAndHeld\n"
 "	test	%al, %al\n"
-"	jz	0x415826\n"
-"	jmp	0x4157F3\n"
+"	jz	2f\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4157F3\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x415826\n"
 );
 extern char TestOnlyDownKeyIsPressedAndHeld_asm;
 
@@ -63,8 +69,14 @@ __asm(
 "_TestOnlyDownKeyIsHeld_asm:\n"
 "	call	_TestOnlyDownKeyIsHeld\n"
 "	test	%al, %al\n"
-"	jz	0x415835\n"
-"	jmp	0x4158B3\n"
+"	jz	2f\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4158B3\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x415835\n"
 );
 extern char TestOnlyDownKeyIsHeld_asm;
 

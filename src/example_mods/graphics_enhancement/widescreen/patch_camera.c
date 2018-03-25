@@ -57,9 +57,15 @@ __asm(
 "	push	%eax\n"
 "	call	_UpdateCamera_extra@8\n"
 "	test	%al, %al\n"
-"	jnz	0x40EF76\n"
+"	jnz	2f\n"
 "	movl	0x49E1C8, %eax\n"
-"	jmp	0x40EED6\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40EED6\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x40EF76\n"
 );
 extern char UpdateCamera_extra_asm;
 
@@ -82,7 +88,10 @@ __asm(
 "	pushl	%ebp\n"
 "	movl	%esp, %ebp\n"
 "	subl	$0x44, %esp\n"
-"	jmp	0x402836\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x402836\n"
+
 );
 void DrawWater_new(void);
 

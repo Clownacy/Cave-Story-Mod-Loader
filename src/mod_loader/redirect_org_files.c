@@ -70,8 +70,14 @@ __asm(
 "	pushl	8(%ebp)\n"
 "	call	_LoadOrg@4\n"
 "	test	%eax, %eax\n"
-"	jnz	0x41BB20\n"
-"	jmp	0x41C094\n"
+"	jnz	2f\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x41C094\n"
+"2:\n"
+"	jmp	*3f\n"
+"3:\n"
+"	.long	0x41BB20\n"
 );
 extern char sub_41BAD0_new_segment;
 

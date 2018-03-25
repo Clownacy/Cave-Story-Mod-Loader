@@ -87,7 +87,9 @@ __asm(
 "_ScrollClouds_asm:\n"
 "	push	%eax\n"
 "	call	_ScrollClouds@4\n"
-"	jmp	0x402805\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x402805\n"
 );
 extern char ScrollClouds_asm;
 

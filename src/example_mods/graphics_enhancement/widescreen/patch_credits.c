@@ -16,7 +16,9 @@ __asm(
 "_DrawSprite_WithTransparency_nudged:\n"
 "	movl	_screen_nudge, %eax\n"
 "	addl	%eax, 8(%esp)\n"
-"	jmp	0x40C3C0\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40C3C0\n"
 );
 extern char DrawSprite_WithTransparency_nudged;
 

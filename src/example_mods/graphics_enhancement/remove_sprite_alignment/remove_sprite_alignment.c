@@ -81,7 +81,9 @@ __asm(
 "	push	%eax\n"
 "	call	_BackgroundType1_Scroll\n"
 "	add	$0x8, %esp\n"
-"	jmp	0x402805\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x402805\n"
 );
 extern char BackgroundType1_Scroll_ASM;
 
@@ -104,7 +106,9 @@ __asm(
 "	push	%eax\n"
 "	call	_BackgroundType2_Scroll\n"
 "	add	$0x8, %esp\n"
-"	jmp	0x402805\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x402805\n"
 );
 extern char BackgroundType2_Scroll_ASM;
 

@@ -19,13 +19,15 @@
 __asm(
 "_LoadWindowRect_ASM:\n"
 "	push	%ecx\n"
-"	call	0x480E1B\n"
+"	call	*1f\n"
 "	add	$4,%esp\n"
 "	lea	-0x24(%ebp),%eax\n"
 "	push	%eax\n"
 "	call	_LoadWindowRect_NewCode\n"
 "	add	$4,%esp\n"
 "	ret\n"
+"1:\n"
+"	.long	0x480E1B\n"
 );
 extern char LoadWindowRect_ASM;
 

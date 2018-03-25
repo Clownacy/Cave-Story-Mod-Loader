@@ -168,7 +168,9 @@ __asm(
 "_HandleKeyPress_caller:\n"
 "	pushl	0x10(%ebp)\n"
 "	call	_HandleKeyPress@4\n"
-"	jmp	0x41300E\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x41300E\n"
 );
 extern char HandleKeyPress_caller;
 
@@ -176,7 +178,9 @@ __asm(
 "_HandleKeyRelease_caller:\n"
 "	pushl	0x10(%ebp)\n"
 "	call	_HandleKeyRelease@4\n"
-"	jmp	0x4131B6\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4131B6\n"
 );
 extern char HandleKeyRelease_caller;
 
