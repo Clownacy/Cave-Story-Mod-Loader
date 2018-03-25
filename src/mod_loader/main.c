@@ -34,6 +34,8 @@ void LoadMod(const char* const filename)
 	HMODULE hmodule = LoadLibrary(mod_path);
 	free(mod_path);
 
+	PrintDebug("  DLL loaded at 0x%X\n", (void*)hmodule);
+
 	if (hmodule == NULL)
 	{
 		free(mod_folder);
