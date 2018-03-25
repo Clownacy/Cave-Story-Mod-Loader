@@ -56,9 +56,8 @@ __asm (
 "	cdq\n"
 "	divl	%ecx\n"
 "	movl	%eax, 0x14(%esp)\n"
-"	jmp	*1f\n"
-"1:\n"
-"	.long	0x48C018\n"
+"	pushl	0x48C018\n"
+"	ret\n"
 );
 extern char LoadBMP_FromFile_StretchBlitHijack;
 

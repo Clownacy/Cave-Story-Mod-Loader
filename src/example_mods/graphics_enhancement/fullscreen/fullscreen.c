@@ -76,30 +76,30 @@ __asm(
 "	call	_VSyncDrawScreen\n"
 "	call	_RegenerateVSyncSurface\n"
 "	test	%al,%al\n"
-"	jz	3f\n"
+"	jz	2f\n"
 "	jmp	*1f\n"
 "1:\n"
 "	.long	0x40B436\n"
 "2:\n"
-"	jmp	*3f\n"
-"3:\n"
+"	jmp	*1f\n"
+"1:\n"
 "	.long	0x40B445\n"
 );
 extern char VSyncDrawScreen_asm;
 
 __asm(
 "_SkipFramerateControl_asm:\n"
-"	call	*4f\n"
+"	call	*3f\n"
 "	test	%eax,%eax\n"
-"	jz	3f\n"
+"	jz	2f\n"
 "	jmp	*1f\n"
 "1:\n"
 "	.long	0x40B3B0\n"
 "2:\n"
-"	jmp	*3f\n"
-"3:\n"
+"	jmp	*1f\n"
+"1:\n"
 "	.long	0x40B355\n"
-"4:\n"
+"3:\n"
 "	.long	0x413570\n"
 );
 extern char SkipFramerateControl_asm;
