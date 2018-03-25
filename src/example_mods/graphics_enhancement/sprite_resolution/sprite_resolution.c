@@ -11,8 +11,6 @@
 
 #include "../common.h"
 
-static int sprite_resolution_factor;
-
 // LoadBackgroundSprite actually figures out the size of the image
 // and tiles it accordingly. But since we're working with double-res,
 // we need it to tile these at half-size.
@@ -61,11 +59,9 @@ __asm (
 );
 extern char LoadBMP_FromFile_StretchBlitHijack;
 
-void SetSpriteResolution(const int factor)
+void SetSpriteResolution(void)
 {
 	PrintDebug("Applying 'set sprite resolution' patch\n");
-
-	sprite_resolution_factor = factor;
 
 	// Fix background tile sizes
 	WriteRelativeAddress((void*)0x420DAA + 1, LoadBackgroundSprite_hijack);

@@ -3,4 +3,4 @@
 
 #pragma once
 
-extern void SetSpriteResolution(const int factor);
+extern void SetSpriteResolution(void);

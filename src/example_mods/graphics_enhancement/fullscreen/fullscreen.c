@@ -188,6 +188,8 @@ void ApplyFullscreenPatches(void)
 
 			aspect_ratio_x = monitor_width / greatest_common_divisor;
 			aspect_ratio_y = monitor_height / greatest_common_divisor;
+
+			PrintDebug("Auto-detected aspect ratio is %d:%d\n", aspect_ratio_x, aspect_ratio_y);
 		}
 
 		if (fullscreen_auto_window_upscale)
@@ -196,8 +198,8 @@ void ApplyFullscreenPatches(void)
 			const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
 			const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
 
-			const unsigned int game_width = SCREEN_WIDTH;
-			const unsigned int game_height = 240;
+			const unsigned int game_width = SCREEN_WIDTH * sprite_resolution_factor;
+			const unsigned int game_height = 240 * sprite_resolution_factor;
 
 			unsigned int output_window_height;
 			if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
@@ -209,7 +211,9 @@ void ApplyFullscreenPatches(void)
 				output_window_height = monitor_height;
 			}
 
-			window_upscale_factor = (output_window_height + (240 / 2)) / 240;
+			window_upscale_factor = ((output_window_height + (game_height / 2)) / game_height) * sprite_resolution_factor;
+
+			PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
 		}
 	}
 }

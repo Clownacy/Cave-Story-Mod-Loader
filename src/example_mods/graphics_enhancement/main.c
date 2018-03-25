@@ -62,15 +62,13 @@ void InitMod(void)
 
 	aspect_ratio_y = _aspect_ratio_y;
 
-	int sprite_resolution_factor = GetSettingInt("sprite_resolution", 1);
+	sprite_resolution_factor = GetSettingInt("sprite_resolution", 1);
 	if (sprite_resolution_factor == 0)
 		sprite_resolution_factor = 1;
 
-	int _window_upscale_factor = GetSettingInt("window_upscale", 2);
-	if (_window_upscale_factor == 0)
-		_window_upscale_factor = 1;
-
-	window_upscale_factor = _window_upscale_factor;
+	window_upscale_factor = GetSettingInt("window_upscale", 2);
+	if (window_upscale_factor == 0)
+		window_upscale_factor = 1;
 
 	if ((aspect_ratio_x != 4 || aspect_ratio_y != 3) || (window_upscale_factor != 2))
 		WriteRelativeAddress((void*)0x411062 + 1, (void*)&LoadWindowRect_ASM);
@@ -84,7 +82,7 @@ void InitMod(void)
 		SetWidescreen();
 
 	if (sprite_resolution_factor != 1)
-		SetSpriteResolution(sprite_resolution_factor);
+		SetSpriteResolution();
 
 	if (window_upscale_factor != 2)
 		UpscaleWindow();

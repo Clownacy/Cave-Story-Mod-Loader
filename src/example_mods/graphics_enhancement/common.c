@@ -13,6 +13,7 @@ bool sixty_fps;
 unsigned int aspect_ratio_x;
 unsigned int aspect_ratio_y;
 unsigned int window_upscale_factor;
+unsigned int sprite_resolution_factor;
 
 unsigned int ScreenWidthToTiles(const unsigned int tile_size)
 {
