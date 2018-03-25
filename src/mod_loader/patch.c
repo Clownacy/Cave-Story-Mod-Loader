@@ -71,11 +71,20 @@ __declspec(dllexport) void WriteCall(void* const address, const void* const new_
 
 __declspec(dllexport) void WriteNOPs(void* const address, const unsigned int count)
 {
-	unsigned char *nop_buffer = malloc(count);
-	for (unsigned int i = 0; i < count; ++i)
-		nop_buffer[i] = 0x90;
+	void *current_address = address;
 
-	WriteData(address, nop_buffer, count);
+	for (unsigned int i = 0; i < count / 4; ++i)
+	{
+		WriteData(current_address, &(unsigned char[4]){0x90, 0x90, 0x90, 0x90}, 4);
+		current_address += 4;
+	}
 
-	free(nop_buffer);
+	if (count & 2)
+	{
+		WriteData(current_address, &(unsigned char[2]){0x90, 0x90}, 2);
+		current_address += 2;
+	}
+
+	if (count & 1)
+		WriteData(current_address, &(unsigned char){0x90}, 1);
 }

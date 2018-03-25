@@ -90,9 +90,8 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 		{
 			// Write a call to ASM_LoadDLLModLoader to 0x412429
 			const HANDLE handle = GetCurrentProcess();
-			const char call_opcode = 0xE8;
 			const unsigned int relative_address = (unsigned int)&ASM_LoadDLLModLoader - (0x412429 + 5);
-			WriteProcessMemory(handle, (void*)0x412429, &call_opcode, 1, NULL);
+			WriteProcessMemory(handle, (void*)0x412429, &(unsigned char){0xE8}, 1, NULL);
 			WriteProcessMemory(handle, (void*)0x412429 + 1, &relative_address, 4, NULL);
 		}
 	}
