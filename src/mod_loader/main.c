@@ -34,8 +34,6 @@ void LoadMod(const char* const filename)
 	HMODULE hmodule = LoadLibrary(mod_path);
 	free(mod_path);
 
-	PrintDebug("  DLL loaded at 0x%X\n", (void*)hmodule);
-
 	if (hmodule == NULL)
 	{
 		free(mod_folder);
@@ -45,6 +43,8 @@ void LoadMod(const char* const filename)
 		LocalFree(error_message);
 		return;
 	}
+
+	PrintDebug("  DLL loaded at 0x%X\n", (void*)hmodule);
 
 	// Get DLL entry point
 	void (*ModEntry)(HMODULE, Setting*, const char* const) = (void (*)(HMODULE, Setting*, const char* const))GetProcAddress(hmodule, "ModEntry");
