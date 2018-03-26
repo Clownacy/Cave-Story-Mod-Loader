@@ -47,6 +47,7 @@ typedef struct SongEntry
 } SongEntry;
 
 static bool setting_preload;
+static bool setting_fade_in_previous_song;
 
 static const Song song_blank;
 
@@ -55,14 +56,12 @@ static Song song_backup;
 
 static cubeb *cubeb_context;
 
-uint16_t nonlinear_volume_table[100];
-
 static struct
 {
 	bool active;
 	unsigned int counter;
 	unsigned int volume;
-} fade;
+} fade_out, fade_in;
 
 static SongEntry playlist[] = {
 	{"data/Ogg/WANPAKU", true, false, true, NULL, NULL},
@@ -223,34 +222,7 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 		}
 	}
 
-	int16_t *output_buffer_short = (int16_t*)output_buffer;
-	unsigned long samples_done = bytes_done_total / BYTES_PER_SAMPLE;
-
-	if (fade.active)
-	{
-		for (unsigned int i = 0; i < samples_done; ++i)
-		{
-			for (unsigned int j = 0; j < song.channels; ++j)
-			{
-				int16_t sample = (signed int)((*output_buffer_short) * nonlinear_volume_table[fade.volume - 1]) / 100;
-				*output_buffer_short++ = sample;
-			}
-
-			if (fade.counter-- == 0)
-			{
-				if (--fade.volume == 0)
-				{
-					fade.active = false;
-				}
-				else
-				{
-					fade.counter = (song.sample_rate * 5) / 100;
-				}
-			}
-		}
-	}
-
-	return samples_done;
+	return bytes_done_total / BYTES_PER_SAMPLE;
 }
 
 static void state_cb(cubeb_stream * stm, void * user, cubeb_state state)
@@ -492,13 +464,14 @@ static void PlayMusic_new(const int music_id)
 		}
 		CS_current_music = music_id;
 
-		fade.active = false;
+		fade_out.active = false;
+		fade_in.active = false;
 	}
 }
 
 static void PlayPreviousMusic_new(void)
 {
-	fade.active = false;
+	cubeb_stream_set_volume(song.stream, 0.0f);
 
 	if (!song_backup.is_org)
 	{
@@ -517,6 +490,14 @@ static void PlayPreviousMusic_new(void)
 		PlayPreviousOrgMusic();
 	}
 	CS_current_music = CS_previous_music;
+
+	fade_out.active = false;
+	if (setting_fade_in_previous_song)
+	{
+		fade_in.active = true;
+		fade_in.volume = 0;
+		fade_in.counter = 0;
+	}
 }
 
 static void WindowFocusGained_new(void)
@@ -534,9 +515,9 @@ static void WindowFocusLost_new(void)
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
-	fade.volume = 100;
-	fade.counter = (song.sample_rate * 5) / 100;
-	fade.active = true;
+	fade_out.volume = 100;
+	fade_out.counter = 60 * 5;
+	fade_out.active = true;
 }
 
 void LoadPlaylist(const char* const playlist_folder)
@@ -633,15 +614,54 @@ void LoadPlaylist(const char* const playlist_folder)
 	free(playlist_path);
 }
 
+void UpdateMusicFade(void)
+{
+	if (fade_out.active)
+	{
+		if (song.stream)
+		{
+			const float volume_float = fade_out.counter / (60.0f * 5);
+			cubeb_stream_set_volume(song.stream, volume_float * volume_float	);
+		}
+
+		if (fade_out.counter-- == 0)
+		{
+			fade_out.active = false;
+			StopSong();
+		}
+	}
+	else if (fade_in.active)
+	{
+		if (song.stream)
+		{
+			const float volume_float = fade_in.counter / (60.0f * 2);
+			cubeb_stream_set_volume(song.stream, volume_float * volume_float);
+		}
+
+		if (fade_in.counter++ == 60 * 2)
+		{
+			fade_in.active = false;
+		}
+	}
+}
+
+__asm
+(
+"_UpdateMusicFade_asm:\n"
+"	push	%eax\n"
+"	call	_UpdateMusicFade\n"
+"	pop	%eax\n"
+"	ret\n"
+);
+extern char UpdateMusicFade_asm;
+
 void InitMod(void)
 {
 	const char* const playlist_filename = GetSettingString("playlist", NULL);
 	if (playlist_filename != NULL)
 	{
 		setting_preload = GetSettingBool("preload_oggs", false);
-
-		for (unsigned int i = 0; i < 100; ++i)
-			nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;
+		setting_fade_in_previous_song = GetSettingBool("fade_in_previous_song", true);
 
 		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
 		strcpy(playlist_path, location_path);
@@ -658,5 +678,7 @@ void InitMod(void)
 		WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
 		// Patch fading
 		WriteJump(CS_FadeMusic, FadeMusic_new);
+		// Insert hook for per-frame fade updating
+		WriteJump((void*)0x40B44B, &UpdateMusicFade_asm);
 	}
 }
