@@ -55,12 +55,13 @@ static Song song_backup;
 
 static cubeb *cubeb_context;
 
+uint16_t nonlinear_volume_table[100];
+
 static struct
 {
 	bool active;
 	unsigned int counter;
 	unsigned int volume;
-	uint16_t nonlinear_volume_table[100];
 } fade;
 
 static SongEntry playlist[] = {
@@ -225,16 +226,16 @@ static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buf
 	int16_t *output_buffer_short = (int16_t*)output_buffer;
 	unsigned long samples_done = bytes_done_total / BYTES_PER_SAMPLE;
 
-	for (unsigned int i = 0; i < samples_done; ++i)
+	if (fade.active)
 	{
-		for (unsigned int j = 0; j < song.channels; ++j)
+		for (unsigned int i = 0; i < samples_done; ++i)
 		{
-			int16_t sample = (signed int)((*output_buffer_short) * fade.nonlinear_volume_table[fade.volume - 1]) / 100;
-			*output_buffer_short++ = sample;
-		}
+			for (unsigned int j = 0; j < song.channels; ++j)
+			{
+				int16_t sample = (signed int)((*output_buffer_short) * nonlinear_volume_table[fade.volume - 1]) / 100;
+				*output_buffer_short++ = sample;
+			}
 
-		if (fade.active)
-		{
 			if (fade.counter-- == 0)
 			{
 				if (--fade.volume == 0)
@@ -491,13 +492,14 @@ static void PlayMusic_new(const int music_id)
 		}
 		CS_current_music = music_id;
 
-		fade.volume = 100;
 		fade.active = false;
 	}
 }
 
 static void PlayPreviousMusic_new(void)
 {
+	fade.active = false;
+
 	if (!song_backup.is_org)
 	{
 		// Silence any Org music that might be playing
@@ -515,9 +517,6 @@ static void PlayPreviousMusic_new(void)
 		PlayPreviousOrgMusic();
 	}
 	CS_current_music = CS_previous_music;
-
-	fade.volume = 100;
-	fade.active = false;
 }
 
 static void WindowFocusGained_new(void)
@@ -535,6 +534,7 @@ static void WindowFocusLost_new(void)
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
+	fade.volume = 100;
 	fade.counter = (song.sample_rate * 5) / 100;
 	fade.active = true;
 }
@@ -641,7 +641,7 @@ void InitMod(void)
 		setting_preload = GetSettingBool("preload_oggs", false);
 
 		for (unsigned int i = 0; i < 100; ++i)
-			fade.nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;
+			nonlinear_volume_table[i] = ((i + 1) * (i + 1)) / 100;
 
 		char playlist_path[strlen(location_path) + strlen(playlist_filename) + 1];
 		strcpy(playlist_path, location_path);
