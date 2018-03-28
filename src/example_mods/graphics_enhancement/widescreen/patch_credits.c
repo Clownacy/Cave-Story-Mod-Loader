@@ -22,6 +22,18 @@ __asm(
 );
 extern char DrawSprite_WithTransparency_nudged;
 
+static void ResetClipRect(void)
+{
+	CS_clip_rect_common.left = 0;
+	CS_clip_rect_common.right = SCREEN_WIDTH;
+}
+
+static void SetCreditsClipRect(void)
+{
+	CS_clip_rect_common.left = SCREEN_WIDTH / 2;
+	CS_clip_rect_common.right = ((SCREEN_WIDTH - 320) / 2) + 320;
+}
+
 static void DrawCreditsImage_new(void)
 {
 	int credits_picture_x = *(int*)0x49D60C;
@@ -35,7 +47,18 @@ void PatchCredits(void)
 {
 	screen_nudge = (SCREEN_WIDTH - 320) / 2;
 	WriteRelativeAddress((void*)0x410865 + 1, DrawCreditsImage_new);
-	WriteLong((void*)0x40D56F + 6, SCREEN_WIDTH / 2);
 	WriteRelativeAddress((void*)0x40D0A7 + 1, &DrawSprite_WithTransparency_nudged);
 	WriteRelativeAddress((void*)0x40D138 + 1, &DrawSprite_WithTransparency_nudged);
+
+	WriteCall((void*)0x40D56F, SetCreditsClipRect);
+	WriteNOPs((void*)0x40D56F + 5, 5);
+
+	WriteCall((void*)0x40F77D, ResetClipRect);
+	WriteNOPs((void*)0x40F77D + 5, 5);
+
+	WriteCall((void*)0x40FED4, ResetClipRect);
+	WriteNOPs((void*)0x40FED4 + 5, 5);
+
+	WriteCall((void*)0x410427, ResetClipRect);
+	WriteNOPs((void*)0x410427 + 5, 5);
 }
