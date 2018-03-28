@@ -70,6 +70,7 @@ typedef enum SurfaceID
 #define CS_camera_y_pos (*(signed int*)0x49E1CC)
 #define CS_camera_x_destination (*(signed int*)0x49E1D0)
 #define CS_camera_y_destination (*(signed int*)0x49E1D4)
+#define CS_gamemode_flags (*(unsigned int*)0x49E1E8)
 #define CS_input_bitfield_held (*(int*)0x49E210)
 #define CS_input_bitfield_newly_pressed (*(int*)0x49E214)
 #define CS_pxm_buffer (*(unsigned char**)0x49E480)

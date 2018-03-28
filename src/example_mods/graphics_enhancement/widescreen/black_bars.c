@@ -19,7 +19,7 @@ static void DrawBlackBars(int x_pos, int y_pos)
 {
 	CS_DrawWater(x_pos, y_pos);	// We replaced this call while inserting the hook
 
-	if (!(*(int*)0x49E1E8 & 8))	// Detect if credits are running
+	if (!(CS_gamemode_flags & 8))	// Detect if credits are running
 	{
 		const bool is_ironhead_arena = !disable_ironhead_black_bars && CS_current_room == 0x1F;
 		const int room_width = is_ironhead_arena ? 320 : (current_level_width * 16);
