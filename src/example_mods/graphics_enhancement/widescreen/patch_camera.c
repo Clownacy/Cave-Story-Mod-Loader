@@ -26,26 +26,44 @@
 
 static bool small_room;
 
-__stdcall bool UpdateCamera_extra(const int level_width, const int level_height)
+__stdcall void UpdateCamera_extra(const int level_width, const int level_height)
 {
 	current_level_width = level_width;
 
-	if (((level_width - 1) * 16) > SCREEN_WIDTH)
+	int level_width_pixels = (level_width - 1) * 16;
+
+	if (level_width_pixels > SCREEN_WIDTH)
 	{
 		small_room = false;
+
+		if (CS_gamemode_flags & 8)	// If in credits, emulate the original camera boundaries (fixes flying Balrog scene)
+		{
+			if (CS_camera_x_pos < 0)
+				CS_camera_x_pos = 0;
+			if (CS_camera_x_pos > (((level_width - 1) * 16) - 320) * 0x200)
+				CS_camera_x_pos = (((level_width - 1) * 16) - 320) * 0x200;
+
+			CS_camera_x_pos -= ((SCREEN_WIDTH - 320) / 2) * 0x200;
+		}
+		else
+		{
+			if (CS_camera_x_pos < 0)
+				CS_camera_x_pos = 0;
+			if (CS_camera_x_pos > (((level_width - 1) * 16) - SCREEN_WIDTH) * 0x200)
+				CS_camera_x_pos = (((level_width - 1) * 16) - SCREEN_WIDTH) * 0x200;
+		}
 	}
 	else
 	{
-		CS_camera_x_pos = -(((SCREEN_WIDTH - (level_width - 1) * 16) / 2) * 0x200);
 		small_room = true;
 
-		if (CS_camera_y_pos < 0)
-			CS_camera_y_pos = 0;
-		if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
-			CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
+		CS_camera_x_pos = -(((SCREEN_WIDTH - level_width_pixels) / 2) * 0x200);
 	}
 
-	return small_room;
+	if (CS_camera_y_pos < 0)
+		CS_camera_y_pos = 0;
+	if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
+		CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
 }
 
 
@@ -56,15 +74,8 @@ __asm(
 "	movswl	-8(%ebp), %eax\n"
 "	push	%eax\n"
 "	call	_UpdateCamera_extra@8\n"
-"	test	%al, %al\n"
-"	jnz	2f\n"
-"	movl	0x49E1C8, %eax\n"
 "	jmp	*1f\n"
 "1:\n"
-"	.long	0x40EED6\n"
-"2:\n"
-"	jmp	*3f\n"
-"3:\n"
 "	.long	0x40EF76\n"
 );
 extern char UpdateCamera_extra_asm;
