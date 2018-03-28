@@ -50,17 +50,13 @@ void InitMod(void)
 	fullscreen_vsync = GetSettingBool("fullscreen_vsync", true);
 	sixty_fps = GetSettingBool("60fps", true);
 
-	int _aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
-	if (_aspect_ratio_x == 0)
+	aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
+	if (aspect_ratio_x == 0)
 		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_x = 0'?\n\nWell, it's your funeral.");
 
-	aspect_ratio_x = _aspect_ratio_x;
-
-	int _aspect_ratio_y = GetSettingInt("aspect_ratio_y", 9);
-	if (_aspect_ratio_y == 0)
+	aspect_ratio_y = GetSettingInt("aspect_ratio_y", 9);
+	if (aspect_ratio_y == 0)
 		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_y = 0'?\n\nWell, it's your funeral.");
-
-	aspect_ratio_y = _aspect_ratio_y;
 
 	sprite_resolution_factor = GetSettingInt("sprite_resolution", 1);
 	if (sprite_resolution_factor == 0)
