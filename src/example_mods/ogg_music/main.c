@@ -356,6 +356,7 @@ static bool LoadSong(const int song_id)
 	cubeb_stream_params output_params;
 	output_params.format = CUBEB_SAMPLE_S16LE;
 	output_params.rate = song.sample_rate = ov_info(&song.vorbis_file[song.current_file], -1)->rate;
+	output_params.prefs = CUBEB_STREAM_PREF_NONE;
 	if (song.channels == 1)
 	{
 		output_params.channels = 1;
@@ -667,6 +668,8 @@ void InitMod(void)
 		strcpy(playlist_path, location_path);
 		strcat(playlist_path, playlist_filename);
 		LoadPlaylist(playlist_path);
+
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);	// For some reason, Cubeb needs us to do this now
 
 		// Setup music system
 		cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL);
