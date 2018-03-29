@@ -427,11 +427,11 @@ void RemoveSpriteAlignment(void)
 	WriteNOPs((void*)0x40ECA1, 0xC);
 	WriteLong((void*)0x40ECB0 + 3, 240 * 0x200);
 	WriteLong((void*)0x40ECB9 + 3, 240 * 0x200);
-	WriteLong((void*)0x40ED03 + 6, 320 * 0x200);
-	WriteLong((void*)0x40EB95 + 3, 320 * 0x200);
-	WriteLong((void*)0x40EB9E + 3, 320 * 0x200);
+	WriteLong((void*)0x40ED03 + 6, SCREEN_WIDTH * 0x200);
+	WriteLong((void*)0x40EB95 + 3, SCREEN_WIDTH * 0x200);
+	WriteLong((void*)0x40EB9E + 3, SCREEN_WIDTH * 0x200);
 	WriteLong((void*)0x40EBA5 + 3, 240 * 0x200);
 	WriteLong((void*)0x40EBAE + 3, 240 * 0x200);
 	WriteLong((void*)0x40EBD0 + 6, 240 * 0x200); 
-	WriteLong((void*)0x40EBE4 + 6, 320 * 0x200); 
+	WriteLong((void*)0x40EBE4 + 6, SCREEN_WIDTH * 0x200); 
 }
