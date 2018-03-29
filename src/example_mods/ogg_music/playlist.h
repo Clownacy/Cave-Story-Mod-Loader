@@ -2,13 +2,15 @@
 
 #include <stdbool.h>
 
+#include "song_file.h"
+
 typedef struct PlaylistEntry
 {
 	const char *name;
 	bool loops;
 	bool split;
 	bool is_org;
-	void *backend_data;
+	SongFile *file;
 } PlaylistEntry;
 
 PlaylistEntry* GetFirstPlaylistEntry(void);
