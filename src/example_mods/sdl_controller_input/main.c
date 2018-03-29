@@ -317,7 +317,9 @@ void InitMod(void)
 	// Fix door-opening bug, so I can map both down keys at once
 	FixDoorEnterBug();
 	// Skip call to DirectInput init function
-	WriteJump((void*)0x412B18, (void*)0x412B3B);
+	WriteJump((void*)0x412B0F, (void*)0x412B3B);
+	// Ignore 'gamepad enabled' setting
+	WriteNOPs((void*)0x4135C3, 9);
 	// Redirect DirectInput controller update function call to our new one
 	WriteRelativeAddress((void*)0x4135CC + 1, ProcessControllerEvents);
 }
