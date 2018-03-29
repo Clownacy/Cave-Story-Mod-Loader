@@ -4,12 +4,29 @@
 #include "remove_sprite_alignment.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <windows.h>
 
 #include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
+
+static void DrawColourFill_RawXY(RECT *dst_rect, int colour)
+{
+	DDBLTFX ddbltfx;
+	memset(&ddbltfx, 0, sizeof(ddbltfx));
+	ddbltfx.dwSize = sizeof(ddbltfx);
+	ddbltfx.dwFillColor = colour;
+
+	RECT final_dst_rect;
+	final_dst_rect.left = (dst_rect->left * CS_window_upscale) / 0x200;
+	final_dst_rect.top = (dst_rect->top * CS_window_upscale) / 0x200;
+	final_dst_rect.right = (dst_rect->right * CS_window_upscale) / 0x200;
+	final_dst_rect.bottom = (dst_rect->bottom * CS_window_upscale) / 0x200;
+
+	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect, 0, 0, 0x1000400, &ddbltfx);
+}
 
 static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id, bool transparency)
 {
@@ -396,4 +413,25 @@ void RemoveSpriteAlignment(void)
 	// DrawBackground
 	WriteLong((void*)0x402809 + 4, (unsigned int)&BackgroundType1_Scroll_ASM);
 	WriteLong((void*)0x402809 + 8, (unsigned int)&BackgroundType2_Scroll_ASM);
+
+	// DrawFlash
+	WriteRelativeAddress((void*)0x40EE39 + 1, DrawColourFill_RawXY);
+	WriteRelativeAddress((void*)0x40EE4D + 1, DrawColourFill_RawXY);
+
+	// UpdateBossExplosion
+	WriteNOPs((void*)0x40EB15, 0xC);
+	WriteNOPs((void*)0x40EB32, 0xC);
+	WriteNOPs((void*)0x40EB4F, 0xC);
+	WriteNOPs((void*)0x40EB6C, 0xC);
+	WriteNOPs((void*)0x40EC77, 0xC);
+	WriteNOPs((void*)0x40ECA1, 0xC);
+	WriteLong((void*)0x40ECB0 + 3, 240 * 0x200);
+	WriteLong((void*)0x40ECB9 + 3, 240 * 0x200);
+	WriteLong((void*)0x40ED03 + 6, 320 * 0x200);
+	WriteLong((void*)0x40EB95 + 3, 320 * 0x200);
+	WriteLong((void*)0x40EB9E + 3, 320 * 0x200);
+	WriteLong((void*)0x40EBA5 + 3, 240 * 0x200);
+	WriteLong((void*)0x40EBAE + 3, 240 * 0x200);
+	WriteLong((void*)0x40EBD0 + 6, 240 * 0x200); 
+	WriteLong((void*)0x40EBE4 + 6, 320 * 0x200); 
 }
