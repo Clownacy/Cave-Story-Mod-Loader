@@ -36,11 +36,17 @@ static struct
 	unsigned int counter;
 } fade_out, fade_in;
 
+static void LoadSong(PlaylistEntry *playlist_entry)
+{
+	if (!playlist_entry->is_org)
+		playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops);
+}
+
 static void PreloadSongs(void)
 {
 	for (PlaylistEntry *playlist_entry = GetFirstPlaylistEntry(); playlist_entry != NULL; playlist_entry = GetNextPlaylistEntry())
 	{
-		playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops);
+		LoadSong(playlist_entry);
 	}
 }
 
@@ -102,10 +108,10 @@ static bool PlayOggMusic(const int song_id)
 
 	PlaylistEntry *playlist_entry = GetPlaylistEntry(song_id);
 
-	if (playlist_entry && !playlist_entry->is_org)
+	if (playlist_entry)
 	{
 		if (!setting_preload)
-			playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops);
+			LoadSong(playlist_entry);
 
 		SongFile *song = playlist_entry->file;
 
