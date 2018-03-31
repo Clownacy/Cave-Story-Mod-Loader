@@ -1,0 +1,41 @@
+Ogg11/wanpaku, loop
+Ogg11/anzen, loop
+Ogg11/gameover
+Ogg11/gravity, loop
+Ogg11/weed, loop
+Ogg11/mdown2, loop
+Ogg11/fireeye, loop
+Ogg11/vivi, loop
+Ogg11/mura, loop
+Ogg11/fanfale1
+Ogg11/ginsuke, loop
+Ogg11/cemetery, loop
+Ogg11/plant, loop
+Ogg11/kodou, loop
+Ogg11/fanfale3
+Ogg11/fanfale2
+Ogg11/dr, loop
+Ogg11/escape, loop
+Ogg11/jenka, loop
+Ogg11/maze, loop
+Ogg11/access, loop
+Ogg11/ironh, loop
+Ogg11/grand, loop
+Ogg11/curly, loop
+Ogg11/oside, loop
+Ogg11/requiem, loop
+Ogg11/wanpak2, loop
+Ogg11/quiet, loop
+Ogg11/lastcave, loop
+Ogg11/balcony, loop
+Ogg11/lastbtl, loop
+Ogg11/lastbt3, loop
+Ogg11/ending, loop
+Ogg11/zonbie, loop
+Ogg11/bdown, loop
+Ogg11/hell, loop
+Ogg11/jenka2, loop
+Ogg11/marine, loop
+Ogg11/ballos, loop
+Ogg11/toroko
+Ogg11/white, loop
