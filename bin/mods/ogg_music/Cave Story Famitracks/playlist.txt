@@ -1,41 +1,41 @@
-Ogg17/WANPAKU, loop, split
-Ogg17/ANZEN, loop, split
+Ogg17/WANPAKU, loop
+Ogg17/ANZEN, loop
 Ogg17/GAMEOVER
-Ogg17/GRAVITY, loop, split
-Ogg17/WEED, loop, split
+Ogg17/GRAVITY, loop
+Ogg17/WEED, loop
 Ogg17/MDOWN2, loop
-Ogg17/FIREEYE, loop, split
-Ogg17/VIVI, loop, split
+Ogg17/FIREEYE, loop
+Ogg17/VIVI, loop
 Ogg17/MURA, loop
 Ogg17/FANFALE1
 Ogg17/GINSUKE, loop
-Ogg17/CEMETERY, loop, split
-Ogg17/PLANT, loop, split
-Ogg17/KODOU, loop, split
+Ogg17/CEMETERY, loop
+Ogg17/PLANT, loop
+Ogg17/KODOU, loop
 Ogg17/FANFALE3
 Ogg17/FANFALE2
 Ogg17/DR, loop
 Ogg17/ESCAPE, loop
-Ogg17/JENKA, loop, split
+Ogg17/JENKA, loop
 Ogg17/MAZE, loop
 Ogg17/ACCESS, loop
-Ogg17/IRONH, loop, split
-Ogg17/GRAND, loop, split
-Ogg17/Curly, loop, split
-Ogg17/OSIDE, loop, split
-Ogg17/REQUIEM, loop, split
-Ogg17/WANPAK2, loop, split
-Ogg17/QUIET, loop, split
-Ogg17/LASTCAVE, loop, split
-Ogg17/BALCONY, loop, split
+Ogg17/IRONH, loop
+Ogg17/GRAND, loop
+Ogg17/Curly, loop
+Ogg17/OSIDE, loop
+Ogg17/REQUIEM, loop
+Ogg17/WANPAK2, loop
+Ogg17/QUIET, loop
+Ogg17/LASTCAVE, loop
+Ogg17/BALCONY, loop
 Ogg17/LASTBTL, loop
-Ogg17/LASTBT3, loop, split
-Ogg17/ENDING, loop, split
-Ogg17/ZONBIE, loop, split
-Ogg17/BDOWN, loop, split
-Ogg17/HELL, loop, split
+Ogg17/LASTBT3, loop
+Ogg17/ENDING, loop
+Ogg17/ZONBIE, loop
+Ogg17/BDOWN, loop
+Ogg17/HELL, loop
 Ogg17/JENKA2, loop
 Ogg17/MARINE, loop
-Ogg17/BALLOS, loop, split
+Ogg17/BALLOS, loop
 Ogg17/TOROKO
-Ogg17/WHITE, loop, split
+Ogg17/WHITE, loop

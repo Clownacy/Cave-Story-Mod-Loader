@@ -1,41 +1,41 @@
-Ogg11/WANPAKU, loop, split
-Ogg11/ANZEN, loop, split
-Ogg11/GAMEOVER, split
-Ogg11/GRAVITY, loop, split
-Ogg11/WEED, loop, split
-Ogg11/MDOWN2, loop, split
-Ogg11/FIREEYE, loop, split
-Ogg11/VIVI, loop, split
-Ogg11/MURA, loop, split
-Ogg11/FANFALE1, split
-Ogg11/GINSUKE, loop, split
-Ogg11/CEMETERY, loop, split
-Ogg11/PLANT, loop, split
-Ogg11/KODOU, loop, split
-Ogg11/FANFALE3, split
-Ogg11/FANFALE2, split
-Ogg11/DR, loop, split
-Ogg11/ESCAPE, loop, split
-Ogg11/JENKA, loop, split
-Ogg11/MAZE, loop, split
-Ogg11/ACCESS, loop, split
-Ogg11/IRONH, loop, split
-Ogg11/GRAND, loop, split
-Ogg11/Curly, loop, split
-Ogg11/OSIDE, loop, split
-Ogg11/REQUIEM, loop, split
-Ogg11/WANPAK2, loop, split
-Ogg11/QUIET, loop, split
-Ogg11/LASTCAVE, loop, split
-Ogg11/BALCONY, loop, split
+Ogg11/WANPAKU, loop
+Ogg11/ANZEN, loop
+Ogg11/GAMEOVER
+Ogg11/GRAVITY, loop
+Ogg11/WEED, loop
+Ogg11/MDOWN2, loop
+Ogg11/FIREEYE, loop
+Ogg11/VIVI, loop
+Ogg11/MURA, loop
+Ogg11/FANFALE1
+Ogg11/GINSUKE, loop
+Ogg11/CEMETERY, loop
+Ogg11/PLANT, loop
+Ogg11/KODOU, loop
+Ogg11/FANFALE3
+Ogg11/FANFALE2
+Ogg11/DR, loop
+Ogg11/ESCAPE, loop
+Ogg11/JENKA, loop
+Ogg11/MAZE, loop
+Ogg11/ACCESS, loop
+Ogg11/IRONH, loop
+Ogg11/GRAND, loop
+Ogg11/Curly, loop
+Ogg11/OSIDE, loop
+Ogg11/REQUIEM, loop
+Ogg11/WANPAK2, loop
+Ogg11/QUIET, loop
+Ogg11/LASTCAVE, loop
+Ogg11/BALCONY, loop
 Ogg11/LASTBTL, loop
-Ogg11/LASTBT3, loop, split
-Ogg11/ENDING, loop, split
-Ogg11/ZONBIE, loop, split
-Ogg11/BDOWN, loop, split
-Ogg11/HELL, loop, split
-Ogg11/JENKA2, loop, split
-Ogg11/MARINE, loop, split
-Ogg11/BALLOS, loop, split
-Ogg11/TOROKO, split
-Ogg11/WHITE, loop, split
+Ogg11/LASTBT3, loop
+Ogg11/ENDING, loop
+Ogg11/ZONBIE, loop
+Ogg11/BDOWN, loop
+Ogg11/HELL, loop
+Ogg11/JENKA2, loop
+Ogg11/MARINE, loop
+Ogg11/BALLOS, loop
+Ogg11/TOROKO
+Ogg11/WHITE, loop
