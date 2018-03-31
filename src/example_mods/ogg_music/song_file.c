@@ -38,33 +38,30 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 {
 	SongFile *song = malloc(sizeof(SongFile));
 
-	if (split)
-	{
-		// Play split-Ogg music (Cave Story 3D)
-		char *file_path = sprintfMalloc("%s_intro.ogg", path);
-		song->file[0] = MemoryFile_fopen(file_path);
-		free(file_path);
+	// Look for split-Ogg music (Cave Story 3D)
+	char *file_path = sprintfMalloc("%s_intro.ogg", path);
+	song->file[0] = MemoryFile_fopen(file_path);
+	free(file_path);
 
-		file_path = sprintfMalloc("%s_loop.ogg", path);
-		song->file[1] = MemoryFile_fopen(file_path);
-		free(file_path);
-	}
-	else
-	{
-		// Play single-Ogg music (Cave Story WiiWare)
-		char *file_path = sprintfMalloc("%s.ogg", path);
-		song->file[0] = MemoryFile_fopen(file_path);
-		free(file_path);
-
-		song->file[1] = NULL;
-	}
+	file_path = sprintfMalloc("%s_loop.ogg", path);
+	song->file[1] = MemoryFile_fopen(file_path);
+	free(file_path);
 
 	if (song->file[0] == NULL && song->file[1] == NULL)
 	{
-		// Neither file could be opened
-		goto Fail1;
+		// Look for single-Ogg music (Cave Story WiiWare)
+		file_path = sprintfMalloc("%s.ogg", path);
+		song->file[0] = MemoryFile_fopen(file_path);
+		free(file_path);
+
+		if (song->file[0] == NULL)
+		{
+			// Neither file could be opened
+			goto Fail1;
+		}
 	}
-	else if (song->file[0] == NULL || song->file[1] == NULL)
+
+	if (song->file[0] == NULL || song->file[1] == NULL)
 	{
 		// Only one file could be opened
 		song->is_split_song = false;
@@ -72,6 +69,7 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 
 		if (song->file[0] == NULL)
 		{
+			// Swap files, since there has to be one in the first slot
 			song->file[0] = song->file[1];
 			song->file[1] = NULL;
 		}
