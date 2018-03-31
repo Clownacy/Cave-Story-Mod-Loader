@@ -20,17 +20,17 @@ typedef struct SongFile {
 
 	int current_section[2];
 
-	unsigned int channels;
-	bool has_next_part;
+	int channels;
+	int sample_rate;
+	bool is_split_song;
 	bool playing_intro;
 	bool loops;
-	unsigned int sample_rate;
 } SongFile;
 
 static ov_callbacks ov_callback_memory = {
 	(size_t (*)(void *, size_t, size_t, void *))  MemoryFile_fread,
 	(int (*)(void *, long long, int))             MemoryFile_fseek,
-	(int (*)(void *))                             NULL,
+	(int (*)(void *))                             MemoryFile_fclose,
 	(long (*)(void *))                            MemoryFile_ftell
 };
 
@@ -62,12 +62,12 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 	if (song->file[0] == NULL && song->file[1] == NULL)
 	{
 		// Neither file could be opened
-		goto Fail2;
+		goto Fail1;
 	}
 	else if (song->file[0] == NULL || song->file[1] == NULL)
 	{
 		// Only one file could be opened
-		song->has_next_part = false;
+		song->is_split_song = false;
 		song->playing_intro = false;
 
 		if (song->file[0] == NULL)
@@ -79,7 +79,7 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 	else
 	{
 		// Both files opened successfully
-		song->has_next_part = true;
+		song->is_split_song = true;
 		song->playing_intro = true;
 	}
 
@@ -88,37 +88,51 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 
 	if (ov_open_callbacks(song->file[0], &song->vorbis_file[0], NULL, 0, ov_callback_memory) < 0)
 	{
-		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
+		PrintError("ogg_music: Error - '%s' does not appear to be an Ogg bitstream\n", path);
 
-		goto Fail1;
+		goto Fail2;
 	}
 
-	if (song->has_next_part)
+	song->channels = ov_info(&song->vorbis_file[0], -1)->channels;
+
+	song->sample_rate = ov_info(&song->vorbis_file[0], -1)->rate;
+
+	if (song->is_split_song)
 	{
 		if (ov_open_callbacks(song->file[1], &song->vorbis_file[1], NULL, 0, ov_callback_memory) < 0)
 		{
-			PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
+			PrintError("ogg_music: Error - '%s' loop file does not appear to be an Ogg bitstream\n", path);
 
-			goto Fail1;
+			goto Fail2;
+		}
+
+		if (ov_info(&song->vorbis_file[1], -1)->channels != song->channels)
+		{
+			PrintError("ogg_music: Error - The files for '%s' don't have the same channel count\n", path);
+			SongFile_Unload(song);
+			return NULL;
+		}
+
+		if (ov_info(&song->vorbis_file[1], -1)->rate != song->sample_rate)
+		{
+			PrintError("ogg_music: Error - The files for '%s' don't have the same sample rate\n", path);
+			SongFile_Unload(song);
+			return NULL;
 		}
 	}
-
-	song->channels = ov_info(&song->vorbis_file[song->current_file], -1)->channels;
-
-	song->sample_rate = ov_info(&song->vorbis_file[song->current_file], -1)->rate;
 
 	song->loops = loops;
 
 	return song;
 
-	Fail1:
+	Fail2:
 
-	if (song->file[0])
-		MemoryFile_fclose(song->file[0]);
-	if (song->file[1])
+	MemoryFile_fclose(song->file[0]);
+
+	if (song->is_split_song)
 		MemoryFile_fclose(song->file[1]);
 
-	Fail2:
+	Fail1:
 
 	free(song);
 
@@ -128,29 +142,27 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 void SongFile_Unload(SongFile *this)
 {
 	ov_clear(&this->vorbis_file[0]);
-	if (this->has_next_part)
-		ov_clear(&this->vorbis_file[1]);
 
-	if (this->file[0])
-		MemoryFile_fclose(this->file[0]);
-	if (this->file[1])
-		MemoryFile_fclose(this->file[1]);
+	if (this->is_split_song)
+		ov_clear(&this->vorbis_file[1]);
 
 	free(this);
 }
 
 void SongFile_Reset(SongFile *this)
 {
-	this->playing_intro = this->has_next_part;
+	this->playing_intro = this->is_split_song;
 	this->current_file = this->default_current_file;
+
 	ov_time_seek(&this->vorbis_file[0], 0);
-	if (this->has_next_part)
+
+	if (this->is_split_song)
 		ov_time_seek(&this->vorbis_file[1], 0);
 }
 
 size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t samples_to_do)
 {
-	const unsigned int BYTES_PER_SAMPLE = this->channels * 2;	// 2 channels, 16-bit
+	const unsigned int BYTES_PER_SAMPLE = this->channels * 2;	// 16-bit
 	const unsigned long bytes_to_do = samples_to_do * BYTES_PER_SAMPLE;
 
 	unsigned long bytes_done_total = 0;
