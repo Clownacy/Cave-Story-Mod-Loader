@@ -69,19 +69,24 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 		// Only one file could be opened
 		song->has_next_part = false;
 		song->playing_intro = false;
-		song->default_current_file = (song->file[0] == NULL ? 1 : 0);
-		song->current_file = song->default_current_file;
+
+		if (song->file[0] == NULL)
+		{
+			song->file[0] = song->file[1];
+			song->file[1] = NULL;
+		}
 	}
 	else
 	{
 		// Both files opened successfully
 		song->has_next_part = true;
 		song->playing_intro = true;
-		song->default_current_file = 0;
-		song->current_file = song->default_current_file;
 	}
 
-	if (ov_open_callbacks(song->file[song->current_file], &song->vorbis_file[0], NULL, 0, ov_callback_memory) < 0)
+	song->default_current_file = 0;
+	song->current_file = 0;
+
+	if (ov_open_callbacks(song->file[0], &song->vorbis_file[0], NULL, 0, ov_callback_memory) < 0)
 	{
 		PrintError("ogg_music: Input does not appear to be an Ogg bitstream.\n");
 
