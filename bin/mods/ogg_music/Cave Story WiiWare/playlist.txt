@@ -1,41 +1,41 @@
-Ogg/WANPAKU, loop
-Ogg/ANZEN, loop
-Ogg/GAMEOVER
-Ogg/GRAVITY, loop
-Ogg/WEED, loop
-Ogg/MDOWN2, loop
-Ogg/FIREEYE, loop
-Ogg/VIVI, loop
-Ogg/MURA, loop
-Ogg/FANFALE1
-Ogg/GINSUKE, loop
-Ogg/CEMETERY, loop
-Ogg/PLANT, loop
-Ogg/KODOU, loop
-Ogg/FANFALE3
-Ogg/FANFALE2
-Ogg/DR, loop
-Ogg/ESCAPE, loop
-Ogg/JENKA, loop
-Ogg/MAZE, loop
-Ogg/ACCESS, loop
-Ogg/IRONH, loop
-Ogg/GRAND, loop
-Ogg/Curly, loop
-Ogg/OSIDE, loop
-Ogg/REQUIEM, loop
-Ogg/WANPAK2, loop
-Ogg/QUIET, loop
-Ogg/LASTCAVE, loop
-Ogg/BALCONY, loop
-Ogg/LASTBTL, loop
-Ogg/LASTBT3, loop
-Ogg/ENDING, loop
-Ogg/ZONBIE, loop
-Ogg/BDOWN, loop
-Ogg/HELL, loop
-Ogg/JENKA2, loop
-Ogg/MARINE, loop
-Ogg/BALLOS, loop
-Ogg/TOROKO
-Ogg/WHITE, loop
+Ogg/wanpaku, loop
+Ogg/anzen, loop
+Ogg/gameover
+Ogg/gravity, loop
+Ogg/weed, loop
+Ogg/mdown2, loop
+Ogg/fireeye, loop
+Ogg/vivi, loop
+Ogg/mura, loop
+Ogg/fanfale1
+Ogg/ginsuke, loop
+Ogg/cemetery, loop
+Ogg/plant, loop
+Ogg/kodou, loop
+Ogg/fanfale3
+Ogg/fanfale2
+Ogg/dr, loop
+Ogg/escape, loop
+Ogg/jenka, loop
+Ogg/maze, loop
+Ogg/access, loop
+Ogg/ironh, loop
+Ogg/grand, loop
+Ogg/curly, loop
+Ogg/oside, loop
+Ogg/requiem, loop
+Ogg/wanpak2, loop
+Ogg/quiet, loop
+Ogg/lastcave, loop
+Ogg/balcony, loop
+Ogg/lastbtl, loop
+Ogg/lastbt3, loop
+Ogg/ending, loop
+Ogg/zonbie, loop
+Ogg/bdown, loop
+Ogg/hell, loop
+Ogg/jenka2, loop
+Ogg/marine, loop
+Ogg/ballos, loop
+Ogg/toroko
+Ogg/white, loop

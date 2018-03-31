@@ -1,41 +1,41 @@
-Ogg17/WANPAKU, loop
-Ogg17/ANZEN, loop
-Ogg17/GAMEOVER
-Ogg17/GRAVITY, loop
-Ogg17/WEED, loop
-Ogg17/MDOWN2, loop
-Ogg17/FIREEYE, loop
-Ogg17/VIVI, loop
-Ogg17/MURA, loop
-Ogg17/FANFALE1
-Ogg17/GINSUKE, loop
-Ogg17/CEMETERY, loop
-Ogg17/PLANT, loop
-Ogg17/KODOU, loop
-Ogg17/FANFALE3
-Ogg17/FANFALE2
-Ogg17/DR, loop
-Ogg17/ESCAPE, loop
-Ogg17/JENKA, loop
-Ogg17/MAZE, loop
-Ogg17/ACCESS, loop
-Ogg17/IRONH, loop
-Ogg17/GRAND, loop
-Ogg17/Curly, loop
-Ogg17/OSIDE, loop
-Ogg17/REQUIEM, loop
-Ogg17/WANPAK2, loop
-Ogg17/QUIET, loop
-Ogg17/LASTCAVE, loop
-Ogg17/BALCONY, loop
-Ogg17/LASTBTL, loop
-Ogg17/LASTBT3, loop
-Ogg17/ENDING, loop
-Ogg17/ZONBIE, loop
-Ogg17/BDOWN, loop
-Ogg17/HELL, loop
-Ogg17/JENKA2, loop
-Ogg17/MARINE, loop
-Ogg17/BALLOS, loop
-Ogg17/TOROKO
-Ogg17/WHITE, loop
+ogg17/wanpaku, loop
+ogg17/anzen, loop
+ogg17/gameover
+ogg17/gravity, loop
+ogg17/weed, loop
+ogg17/mdown2, loop
+ogg17/fireeye, loop
+ogg17/vivi, loop
+ogg17/mura, loop
+ogg17/fanfale1
+ogg17/ginsuke, loop
+ogg17/cemetery, loop
+ogg17/plant, loop
+ogg17/kodou, loop
+ogg17/fanfale3
+ogg17/fanfale2
+ogg17/dr, loop
+ogg17/escape, loop
+ogg17/jenka, loop
+ogg17/maze, loop
+ogg17/access, loop
+ogg17/ironh, loop
+ogg17/grand, loop
+ogg17/curly, loop
+ogg17/oside, loop
+ogg17/requiem, loop
+ogg17/wanpak2, loop
+ogg17/quiet, loop
+ogg17/lastcave, loop
+ogg17/balcony, loop
+ogg17/lastbtl, loop
+ogg17/lastbt3, loop
+ogg17/ending, loop
+ogg17/zonbie, loop
+ogg17/bdown, loop
+ogg17/hell, loop
+ogg17/jenka2, loop
+ogg17/marine, loop
+ogg17/ballos, loop
+ogg17/toroko
+ogg17/white, loop
