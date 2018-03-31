@@ -30,6 +30,4 @@ relative to the playlist file. Properties after that are flags, which can be any
 
 'loop' - Makes the song loop once it's finished playing.
 
-'split' - Makes the song use the Cave Story 3D format described above.
-
 'org' - This causes the song to be ignored, playing the original Org file instead.

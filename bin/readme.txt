@@ -1,4 +1,4 @@
-Clownacy's mod loader for the original Cave Story - Version 1.4.0.5
+Clownacy's mod loader for the original Cave Story - Version 1.4.0.6
 
 This comes with several examples mods. See their readmes for details.
 
