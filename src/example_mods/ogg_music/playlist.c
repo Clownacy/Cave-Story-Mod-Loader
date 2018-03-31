@@ -113,7 +113,6 @@ bool InitPlaylist(void)
 
 				playlist_list_entry->playlist_data.name = song_path;
 				playlist_list_entry->playlist_data.loops = false;
-				playlist_list_entry->playlist_data.split = false;
 				playlist_list_entry->playlist_data.is_org = false;
 				playlist_list_entry->playlist_data.file = NULL;
 
@@ -129,8 +128,6 @@ bool InitPlaylist(void)
 					{
 						if (!strncmp(line_current_position, "loop", 4))
 							playlist_list_entry->playlist_data.loops = true;
-						else if (!strncmp(line_current_position, "split", 5))
-							playlist_list_entry->playlist_data.split = true;
 						else if (!strncmp(line_current_position, "org", 3))
 							playlist_list_entry->playlist_data.is_org = true;
 

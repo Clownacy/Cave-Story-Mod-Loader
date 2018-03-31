@@ -15,14 +15,13 @@ typedef struct SongFile {
 	MemoryFile *file[2];
 	OggVorbis_File vorbis_file[2];
 
-	unsigned int default_current_file;
 	unsigned int current_file;
 
 	int current_section[2];
 
 	int channels;
 	int sample_rate;
-	bool is_split_song;
+	bool is_split;
 	bool playing_intro;
 	bool loops;
 } SongFile;
@@ -34,7 +33,7 @@ static ov_callbacks ov_callback_memory = {
 	(long (*)(void *))                            MemoryFile_ftell
 };
 
-SongFile* SongFile_Load(const char* const path, bool split, bool loops)
+SongFile* SongFile_Load(const char* const path, bool loops)
 {
 	SongFile *song = malloc(sizeof(SongFile));
 
@@ -64,7 +63,7 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 	if (song->file[0] == NULL || song->file[1] == NULL)
 	{
 		// Only one file could be opened
-		song->is_split_song = false;
+		song->is_split = false;
 		song->playing_intro = false;
 
 		if (song->file[0] == NULL)
@@ -77,11 +76,10 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 	else
 	{
 		// Both files opened successfully
-		song->is_split_song = true;
+		song->is_split = true;
 		song->playing_intro = true;
 	}
 
-	song->default_current_file = 0;
 	song->current_file = 0;
 
 	if (ov_open_callbacks(song->file[0], &song->vorbis_file[0], NULL, 0, ov_callback_memory) < 0)
@@ -95,7 +93,7 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 
 	song->sample_rate = ov_info(&song->vorbis_file[0], -1)->rate;
 
-	if (song->is_split_song)
+	if (song->is_split)
 	{
 		if (ov_open_callbacks(song->file[1], &song->vorbis_file[1], NULL, 0, ov_callback_memory) < 0)
 		{
@@ -127,7 +125,7 @@ SongFile* SongFile_Load(const char* const path, bool split, bool loops)
 
 	MemoryFile_fclose(song->file[0]);
 
-	if (song->is_split_song)
+	if (song->is_split)
 		MemoryFile_fclose(song->file[1]);
 
 	Fail1:
@@ -141,7 +139,7 @@ void SongFile_Unload(SongFile *this)
 {
 	ov_clear(&this->vorbis_file[0]);
 
-	if (this->is_split_song)
+	if (this->is_split)
 		ov_clear(&this->vorbis_file[1]);
 
 	free(this);
@@ -149,12 +147,12 @@ void SongFile_Unload(SongFile *this)
 
 void SongFile_Reset(SongFile *this)
 {
-	this->playing_intro = this->is_split_song;
-	this->current_file = this->default_current_file;
+	this->playing_intro = this->is_split;
+	this->current_file = 0;
 
 	ov_time_seek(&this->vorbis_file[0], 0);
 
-	if (this->is_split_song)
+	if (this->is_split)
 		ov_time_seek(&this->vorbis_file[1], 0);
 }
 

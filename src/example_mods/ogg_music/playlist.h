@@ -8,7 +8,6 @@ typedef struct PlaylistEntry
 {
 	const char *name;
 	bool loops;
-	bool split;
 	bool is_org;
 	SongFile *file;
 } PlaylistEntry;
