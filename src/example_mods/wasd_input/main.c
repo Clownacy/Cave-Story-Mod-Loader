@@ -7,154 +7,89 @@
 #include "controls.h"
 #include "mod_loader.h"
 
-__stdcall void HandleKeyPress(const int key_code)
+int key_is_being_released;
+
+static void DoKey(unsigned int key_mask)
+{
+	if (key_is_being_released)
+		CS_input_bitfield_held &= ~key_mask;
+	else
+		CS_input_bitfield_held |= key_mask;
+}
+
+__stdcall void HandleKeyEvent(const int key_code)
 {
 	switch(key_code)
 	{
 		case VK_ESCAPE:
 		{
-			CS_input_bitfield_held |= INPUT_QUIT;
+			DoKey(INPUT_QUIT);
 			break;
 		}
 		case VK_OEM_6:
 		{
-			CS_input_bitfield_held |= INPUT_MAP;
+			DoKey(INPUT_MAP);
 			break;
 		}
 		case 'A':
 		{
-			CS_input_bitfield_held |= (INPUT_LEFT | INPUT_ALT_LEFT);
+			DoKey(INPUT_LEFT | INPUT_ALT_LEFT);
 			break;
 		}
 		case 'D':
 		{
-			CS_input_bitfield_held |= (INPUT_RIGHT | INPUT_ALT_RIGHT);
+			DoKey(INPUT_RIGHT | INPUT_ALT_RIGHT);
 			break;
 		}
 		case 'W':
 		{
-			CS_input_bitfield_held |= (INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
+			DoKey(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
 			break;
 		}
 		case 'S':
 		{
-			CS_input_bitfield_held |= (INPUT_DOWN | INPUT_ALT_DOWN);
+			DoKey(INPUT_DOWN | INPUT_ALT_DOWN);
 			break;
 		}
 		case 'O':
 		{
-			CS_input_bitfield_held |= INPUT_SHOOT;
+			DoKey(INPUT_SHOOT);
 			break;
 		}
 		case 'P':
 		{
-			CS_input_bitfield_held |= INPUT_JUMP;
+			DoKey(INPUT_JUMP);
 			break;
 		}
 		case '0':
 		{
-			CS_input_bitfield_held |= INPUT_NEXTWEAPON;
+			DoKey(INPUT_NEXTWEAPON);
 			break;
 		}
 		case '9':
 		{
-			CS_input_bitfield_held |= INPUT_PREVIOUSWEAPON;
+			DoKey(INPUT_PREVIOUSWEAPON);
 			break;
 		}
 		case VK_F1:
 		{
-			CS_input_bitfield_held |= INPUT_F1;
+			DoKey(INPUT_F1);
 			break;
 		}
 		case VK_F2:
 		{
-			CS_input_bitfield_held |= INPUT_F2;
+			DoKey(INPUT_F2);
 			break;
 		}
 		case VK_OEM_4:
 		{
-			CS_input_bitfield_held |= INPUT_INVENTORY;
+			DoKey(INPUT_INVENTORY);
 			break;
 		}
 		case VK_F5:
 		{
-			CS_gamepad_enabled = 0;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-}
-
-__stdcall void HandleKeyRelease(const int key_code)
-{
-	switch(key_code)
-	{
-		case VK_ESCAPE:
-		{
-			CS_input_bitfield_held &= ~INPUT_QUIT;
-			break;
-		}
-		case VK_OEM_6:
-		{
-			CS_input_bitfield_held &= ~INPUT_MAP;
-			break;
-		}
-		case 'A':
-		{
-			CS_input_bitfield_held &= ~(INPUT_LEFT | INPUT_ALT_LEFT);
-			break;
-		}
-		case 'D':
-		{
-			CS_input_bitfield_held &= ~(INPUT_RIGHT | INPUT_ALT_RIGHT);
-			break;
-		}
-		case 'W':
-		{
-			CS_input_bitfield_held &= ~(INPUT_UP | INPUT_ALT_UP | INPUT_ALT_UP2);
-			break;
-		}
-		case 'S':
-		{
-			CS_input_bitfield_held &= ~(INPUT_DOWN | INPUT_ALT_DOWN);
-			break;
-		}
-		case 'O':
-		{
-			CS_input_bitfield_held &= ~INPUT_SHOOT;
-			break;
-		}
-		case 'P':
-		{
-			CS_input_bitfield_held &= ~INPUT_JUMP;
-			break;
-		}
-		case '0':
-		{
-			CS_input_bitfield_held &= ~INPUT_NEXTWEAPON;
-			break;
-		}
-		case '9':
-		{
-			CS_input_bitfield_held &= ~INPUT_PREVIOUSWEAPON;
-			break;
-		}
-		case VK_F1:
-		{
-			CS_input_bitfield_held &= ~INPUT_F1;
-			break;
-		}
-		case VK_F2:
-		{
-			CS_input_bitfield_held &= ~INPUT_F2;
-			break;
-		}
-		case VK_OEM_4:
-		{
-			CS_input_bitfield_held &= ~INPUT_INVENTORY;
+			if (!key_is_being_released)
+				CS_gamepad_enabled = 0;
 			break;
 		}
 		default:
@@ -166,8 +101,9 @@ __stdcall void HandleKeyRelease(const int key_code)
 
 __asm(
 "_HandleKeyPress_caller:\n"
+"	movl	$0, _key_is_being_released\n"
 "	pushl	0x10(%ebp)\n"
-"	call	_HandleKeyPress@4\n"
+"	call	_HandleKeyEvent@4\n"
 "	jmp	*1f\n"
 "1:\n"
 "	.long	0x41300E\n"
@@ -176,8 +112,9 @@ extern char HandleKeyPress_caller;
 
 __asm(
 "_HandleKeyRelease_caller:\n"
+"	movl	$-1, _key_is_being_released\n"
 "	pushl	0x10(%ebp)\n"
-"	call	_HandleKeyRelease@4\n"
+"	call	_HandleKeyEvent@4\n"
 "	jmp	*1f\n"
 "1:\n"
 "	.long	0x4131B6\n"
