@@ -25,8 +25,9 @@ static void LoadBackgroundSprite_hijack(char* filename, int something)
 __asm (
 "_LoadBMP_FromFile_SurfaceCreationHijack:\n"
 "	pushl	%eax\n"
+
 "	movl	_sprite_resolution_factor, %ecx\n"
-"	movl	-0x8C(%ebp), %eax\n"	// Divide surface size by 2
+"	movl	-0x8C(%ebp), %eax\n"
 "	cdq\n"
 "	divl	%ecx\n"
 "	movl	%eax, -0x8C(%ebp)\n"
@@ -34,6 +35,7 @@ __asm (
 "	cdq\n"
 "	divl	%ecx\n"
 "	movl	%eax, -0x90(%ebp)\n"
+
 "	popl	%eax\n"
 "	call	*0x18(%eax)\n"
 "	movl	$0, -0x10(%ebp)\n"
@@ -44,7 +46,7 @@ __asm (
 extern char LoadBMP_FromFile_SurfaceCreationHijack;
 
 __asm (
-"_LoadBMP_FromFile_StretchBlitHijack:\n"
+"_LoadBMP_StretchBlitHijack:\n"
 "	movl	_sprite_resolution_factor, %ecx\n"
 "	movl	0x10(%esp), %eax\n"
 "	cdq\n"
@@ -57,7 +59,30 @@ __asm (
 "	pushl	0x48C018\n"
 "	ret\n"
 );
-extern char LoadBMP_FromFile_StretchBlitHijack;
+extern char LoadBMP_StretchBlitHijack;
+
+__asm (
+"_LoadBMP_FromResource_SurfaceCreationHijack:\n"
+"	pushl	%edx\n"
+
+"	movl	_sprite_resolution_factor, %ecx\n"
+"	movl	-0x8C(%ebp), %eax\n"
+"	cdq\n"
+"	divl	%ecx\n"
+"	movl	%eax, -0x8C(%ebp)\n"
+"	movl	-0x90(%ebp), %eax\n"
+"	cdq\n"
+"	divl	%ecx\n"
+"	movl	%eax, -0x90(%ebp)\n"
+
+"	popl	%edx\n"
+"	call	*0x18(%edx)\n"
+"	test	%eax, %eax\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x40B8E6\n"
+);
+extern char LoadBMP_FromResource_SurfaceCreationHijack;
 
 void SetSpriteResolution(void)
 {
@@ -71,4 +96,10 @@ void SetSpriteResolution(void)
 	WriteByte((void*)0x40BD04 + 5, 0x90);
 	WriteCall((void*)0x40C142, &LoadBMP_FromFile_StretchBlitHijack);
 	WriteByte((void*)0x40C142 + 5, 0x90);
+
+	WriteJump((void*)0x40B8E1, &LoadBMP_FromResource_SurfaceCreationHijack);
+	WriteCall((void*)0x40B9C5, &LoadBMP_FromFile_StretchBlitHijack);
+	WriteByte((void*)0x40B9C5 + 5, 0x90);
+	WriteCall((void*)0x40BF0A, &LoadBMP_FromFile_StretchBlitHijack);
+	WriteByte((void*)0x40BF0A + 5, 0x90);
 }
