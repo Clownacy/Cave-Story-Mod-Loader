@@ -46,19 +46,19 @@ static void DrawCreditsImage_new(void)
 void PatchCredits(void)
 {
 	screen_nudge = (SCREEN_WIDTH - 320) / 2;
-	WriteRelativeAddress((void*)0x410865 + 1, DrawCreditsImage_new);
-	WriteRelativeAddress((void*)0x40D0A7 + 1, &DrawSprite_WithTransparency_nudged);
-	WriteRelativeAddress((void*)0x40D138 + 1, &DrawSprite_WithTransparency_nudged);
+	ModLoader_WriteRelativeAddress((void*)0x410865 + 1, DrawCreditsImage_new);
+	ModLoader_WriteRelativeAddress((void*)0x40D0A7 + 1, &DrawSprite_WithTransparency_nudged);
+	ModLoader_WriteRelativeAddress((void*)0x40D138 + 1, &DrawSprite_WithTransparency_nudged);
 
-	WriteCall((void*)0x40D56F, SetCreditsClipRect);
-	WriteNOPs((void*)0x40D56F + 5, 5);
+	ModLoader_WriteCall((void*)0x40D56F, SetCreditsClipRect);
+	ModLoader_WriteNOPs((void*)0x40D56F + 5, 5);
 
-	WriteCall((void*)0x40F77D, ResetClipRect);
-	WriteNOPs((void*)0x40F77D + 5, 5);
+	ModLoader_WriteCall((void*)0x40F77D, ResetClipRect);
+	ModLoader_WriteNOPs((void*)0x40F77D + 5, 5);
 
-	WriteCall((void*)0x40FED4, ResetClipRect);
-	WriteNOPs((void*)0x40FED4 + 5, 5);
+	ModLoader_WriteCall((void*)0x40FED4, ResetClipRect);
+	ModLoader_WriteNOPs((void*)0x40FED4 + 5, 5);
 
-	WriteCall((void*)0x410427, ResetClipRect);
-	WriteNOPs((void*)0x410427 + 5, 5);
+	ModLoader_WriteCall((void*)0x410427, ResetClipRect);
+	ModLoader_WriteNOPs((void*)0x410427 + 5, 5);
 }

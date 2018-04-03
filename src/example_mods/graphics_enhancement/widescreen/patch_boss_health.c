@@ -9,9 +9,9 @@
 
 void PatchBossHealth(void)
 {
-	WriteRelativeAddress((void*)0x47B67A + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x47B694 + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x47B6AE + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x47B6C8 + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x47B6E2 + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x47B67A + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x47B694 + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x47B6AE + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x47B6C8 + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x47B6E2 + 1, DrawSprite1_hijack);
 }

@@ -62,7 +62,7 @@ bool InitPlaylist(void)
 {
 	bool success = true;
 
-	const char* const playlist_filename = GetSettingString("playlist", NULL);
+	const char* const playlist_filename = ModLoader_GetSettingString("playlist", NULL);
 
 	if (playlist_filename == NULL)
 	{
@@ -70,14 +70,14 @@ bool InitPlaylist(void)
 	}
 	else
 	{
-		char *playlist_folder = sprintfMalloc("%s%s", location_path, playlist_filename);
+		char *playlist_folder = sprintfMalloc("%s%s", ModLoader_path_to_dll, playlist_filename);
 
 		char *playlist_path = sprintfMalloc("%s/playlist.txt", playlist_folder);
 		FILE *playlist_file = fopen(playlist_path, "r");
 
 		if (playlist_file == NULL)
 		{
-			PrintError("Could not open playlist.txt at '%s'\n", playlist_path);
+			ModLoader_PrintError("Could not open playlist.txt at '%s'\n", playlist_path);
 			success = false;
 		}
 		else
@@ -99,7 +99,7 @@ bool InitPlaylist(void)
 				strncpy(song_path_rel, line_current_position, path_length);
 				song_path_rel[path_length] = '\0';
 
-				PrintDebug("playlist.txt: song '%s'\n", song_path_rel);
+				ModLoader_PrintDebug("playlist.txt: song '%s'\n", song_path_rel);
 
 				char *song_path = sprintfMalloc("%s/%s", playlist_folder, song_path_rel);
 				free(song_path_rel);

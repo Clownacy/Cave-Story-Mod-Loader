@@ -10,5 +10,5 @@ static int PixelProtection(void)
 
 void InitMod(void)
 {
-	WriteJump((void*)0x4112E0, PixelProtection);
+	ModLoader_WriteJump((void*)0x4112E0, PixelProtection);
 }

@@ -117,15 +117,15 @@ bool RegenerateVSyncSurface(void)
 void SetupVSync(void)
 {
 	// Change surface creation to flip-capable exclusive fullscreen
-	WriteLong((void*)0x40B5C8 + 3, DDSD_CAPS | DDSD_BACKBUFFERCOUNT);
-	WriteLong((void*)0x40B5CF + 3, DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX);
-	WriteLong((void*)0x40B5D6 + 3, 1);
-	WriteLong((void*)0x40B5DF + 1, (unsigned int)&vsync_new_screen_surface);
-	WriteJump((void*)0x40B663, &VSyncInitDirectDraw_asm);
+	ModLoader_WriteLong((void*)0x40B5C8 + 3, DDSD_CAPS | DDSD_BACKBUFFERCOUNT);
+	ModLoader_WriteLong((void*)0x40B5CF + 3, DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX);
+	ModLoader_WriteLong((void*)0x40B5D6 + 3, 1);
+	ModLoader_WriteLong((void*)0x40B5DF + 1, (unsigned int)&vsync_new_screen_surface);
+	ModLoader_WriteJump((void*)0x40B663, &VSyncInitDirectDraw_asm);
 	// Handle flipping during drawing
-	WriteJump((void*)0x40B42A, &VSyncDrawScreen_asm);
+	ModLoader_WriteJump((void*)0x40B42A, &VSyncDrawScreen_asm);
 	// Dummy out the framerate manager
-	WriteJump((void*)0x40B343, &SkipFramerateControl_asm);
+	ModLoader_WriteJump((void*)0x40B343, &SkipFramerateControl_asm);
 }
 
 void ApplyFullscreenPatches(void)
@@ -148,26 +148,26 @@ void ApplyFullscreenPatches(void)
 	}
 	else
 	{
-		PrintDebug("Applying fullscreen patches\n");
+		ModLoader_PrintDebug("Applying fullscreen patches\n");
 
 		// Disable window.rect
-		WriteByte((void*)0x40F705, 0xEB);
-		WriteByte((void*)0x412DC3, 0xEB);
+		ModLoader_WriteByte((void*)0x40F705, 0xEB);
+		ModLoader_WriteByte((void*)0x412DC3, 0xEB);
 
 		// Hijack the window_surface_width/window_surface_height setter
-		WriteByte((void*)0x40B5AB, 0x90);
-		WriteCall((void*)0x40B5AB + 1, &CalculateFullscreenDimensionsAndPadding_asm);
+		ModLoader_WriteByte((void*)0x40B5AB, 0x90);
+		ModLoader_WriteCall((void*)0x40B5AB + 1, &CalculateFullscreenDimensionsAndPadding_asm);
 
 		// Force the DirectDraw initialiser into windowed mode
 		// (the window creator is still in fullscreen mode)
 		if (borderless_fullscreen)
-			WriteJump((void*)0x40B4FE, (void*)0x40B4D1);
+			ModLoader_WriteJump((void*)0x40B4FE, (void*)0x40B4D1);
 
 		if (!borderless_fullscreen && fullscreen_vsync)
 			SetupVSync();
 
 		// Change the window background colour to black instead of grey
-		WriteByte((void*)0x412717 + 1, BLACK_BRUSH);
+		ModLoader_WriteByte((void*)0x412717 + 1, BLACK_BRUSH);
 
 		if (fullscreen_auto_aspect_ratio)
 		{
@@ -189,7 +189,7 @@ void ApplyFullscreenPatches(void)
 			aspect_ratio_x = monitor_width / greatest_common_divisor;
 			aspect_ratio_y = monitor_height / greatest_common_divisor;
 
-			PrintDebug("Auto-detected aspect ratio is %d:%d\n", aspect_ratio_x, aspect_ratio_y);
+			ModLoader_PrintDebug("Auto-detected aspect ratio is %d:%d\n", aspect_ratio_x, aspect_ratio_y);
 		}
 
 		if (fullscreen_auto_window_upscale)
@@ -213,7 +213,7 @@ void ApplyFullscreenPatches(void)
 
 			window_upscale_factor = ((output_window_height + (game_height / 2)) / game_height) * sprite_resolution_factor;
 
-			PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
+			ModLoader_PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
 		}
 	}
 }

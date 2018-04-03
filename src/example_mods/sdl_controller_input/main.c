@@ -304,9 +304,9 @@ void InitMod(void)
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	// Load DInput controller mappings
-	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", location_path);
+	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", ModLoader_path_to_dll);
 	if (SDL_GameControllerAddMappingsFromFile(controller_mappings_path) == -1)
-		PrintError("sdl_controller_input: Could not load 'gamecontrollerdb.txt'. DInput devices will not be supported\n");
+		ModLoader_PrintError("sdl_controller_input: Could not load 'gamecontrollerdb.txt'. DInput devices will not be supported\n");
 
 	free(controller_mappings_path);
 
@@ -315,11 +315,11 @@ void InitMod(void)
 		AddController(i);
 
 	// Fix door-opening bug, so I can map both down keys at once
-	FixDoorEnterBug();
+	ModLoader_FixDoorEnterBug();
 	// Skip call to DirectInput init function
-	WriteJump((void*)0x412B0F, (void*)0x412B3B);
+	ModLoader_WriteJump((void*)0x412B0F, (void*)0x412B3B);
 	// Ignore 'gamepad enabled' setting
-	WriteNOPs((void*)0x4135C3, 9);
+	ModLoader_WriteNOPs((void*)0x4135C3, 9);
 	// Redirect DirectInput controller update function call to our new one
-	WriteRelativeAddress((void*)0x4135CC + 1, ProcessControllerEvents);
+	ModLoader_WriteRelativeAddress((void*)0x4135CC + 1, ProcessControllerEvents);
 }

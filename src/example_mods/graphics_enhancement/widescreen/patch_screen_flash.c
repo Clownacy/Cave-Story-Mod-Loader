@@ -9,5 +9,5 @@
 
 void PatchScreenFlash(void)
 {
-	WriteLong((void*)0x40ED90 + 6, SCREEN_WIDTH);
+	ModLoader_WriteLong((void*)0x40ED90 + 6, SCREEN_WIDTH);
 }

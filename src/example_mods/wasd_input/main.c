@@ -124,8 +124,8 @@ extern char HandleKeyRelease_caller;
 void InitMod(void)
 {
 	// Fix door-opening bug, so I can map both down keys at once
-	FixDoorEnterBug();
+	ModLoader_FixDoorEnterBug();
 	// WASD controls
-	WriteRelativeAddress((void*)0x412CEE + 2, &HandleKeyPress_caller);
-	WriteRelativeAddress((void*)0x412CBC + 2, &HandleKeyRelease_caller);
+	ModLoader_WriteRelativeAddress((void*)0x412CEE + 2, &HandleKeyPress_caller);
+	ModLoader_WriteRelativeAddress((void*)0x412CBC + 2, &HandleKeyRelease_caller);
 }

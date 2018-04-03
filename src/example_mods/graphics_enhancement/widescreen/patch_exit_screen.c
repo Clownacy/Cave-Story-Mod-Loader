@@ -15,5 +15,5 @@ static void DrawSprite1_hijack2(RECT* clip_rect, int x, int y, RECT* src_rect, i
 
 void PatchExitScreen(void)
 {
-	WriteRelativeAddress((void*)0x40DE1D + 1, DrawSprite1_hijack2);
+	ModLoader_WriteRelativeAddress((void*)0x40DE1D + 1, DrawSprite1_hijack2);
 }

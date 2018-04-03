@@ -10,9 +10,9 @@
 
 void PatchIslandCrash(void)
 {
-	WriteLong((void*)0x40DB76 + 3, 0x50 + ((SCREEN_WIDTH - 320) / 2));
-	WriteLong((void*)0x40DB84 + 3, 0xF0 + ((SCREEN_WIDTH - 320) / 2));
-	WriteLong((void*)0x40DBE6 + 3, 0x15000 + (((SCREEN_WIDTH - 320) / 2) * 0x200));
-	WriteRelativeAddress((void*)0x40DCDC + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x40DD2D + 1, DrawSprite1_hijack);
+	ModLoader_WriteLong((void*)0x40DB76 + 3, 0x50 + ((SCREEN_WIDTH - 320) / 2));
+	ModLoader_WriteLong((void*)0x40DB84 + 3, 0xF0 + ((SCREEN_WIDTH - 320) / 2));
+	ModLoader_WriteLong((void*)0x40DBE6 + 3, 0x15000 + (((SCREEN_WIDTH - 320) / 2) * 0x200));
+	ModLoader_WriteRelativeAddress((void*)0x40DCDC + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x40DD2D + 1, DrawSprite1_hijack);
 }

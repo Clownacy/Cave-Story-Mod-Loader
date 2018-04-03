@@ -10,11 +10,11 @@
 void PatchMapMenu(void)
 {
 	// Centre actual map graphic
-	WriteLong((void*)0x414733 + 1, SCREEN_WIDTH / 2);
-	WriteLong((void*)0x414756 + 1, SCREEN_WIDTH / 2);
-	WriteLong((void*)0x414A4B + 1, SCREEN_WIDTH / 2);
-	WriteLong((void*)0x414A6E + 1, SCREEN_WIDTH / 2);
+	ModLoader_WriteLong((void*)0x414733 + 1, SCREEN_WIDTH / 2);
+	ModLoader_WriteLong((void*)0x414756 + 1, SCREEN_WIDTH / 2);
+	ModLoader_WriteLong((void*)0x414A4B + 1, SCREEN_WIDTH / 2);
+	ModLoader_WriteLong((void*)0x414A6E + 1, SCREEN_WIDTH / 2);
 	// Centre bar that level name gets placed over
-	WriteLong((void*)0x414264 + 3, SCREEN_WIDTH / 2);
-	WriteLong((void*)0x41427F + 3, SCREEN_WIDTH);
+	ModLoader_WriteLong((void*)0x414264 + 3, SCREEN_WIDTH / 2);
+	ModLoader_WriteLong((void*)0x41427F + 3, SCREEN_WIDTH);
 }

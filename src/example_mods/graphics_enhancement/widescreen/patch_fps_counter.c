@@ -10,5 +10,5 @@
 
 void PatchFPSCounter(void)
 {
-	WriteLong((void*)0x41238D + 1, SCREEN_WIDTH - 40);
+	ModLoader_WriteLong((void*)0x41238D + 1, SCREEN_WIDTH - 40);
 }

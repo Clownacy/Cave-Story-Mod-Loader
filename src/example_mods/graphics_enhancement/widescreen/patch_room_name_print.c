@@ -9,6 +9,6 @@
 
 void PatchRoomNamePrint(void)
 {
-	WriteRelativeAddress((void*)0x4142B2 + 1, DrawSprite1_hijack);
-	WriteRelativeAddress((void*)0x4142D5 + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x4142B2 + 1, DrawSprite1_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x4142D5 + 1, DrawSprite1_hijack);
 }

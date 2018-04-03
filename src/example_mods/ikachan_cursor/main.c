@@ -7,5 +7,5 @@ static const char* const cursor_filename = "CURSOR_IKA";
 
 void InitMod(void)
 {
-	WriteLong((void*)0x41272B + 1, (int)cursor_filename);
+	ModLoader_WriteLong((void*)0x41272B + 1, (int)cursor_filename);
 }

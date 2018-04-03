@@ -10,7 +10,7 @@
 void PatchLoadingScreen(void)
 {
 	// Clip rectangle
-	WriteLong((void*)0x412A81 + 6, SCREEN_WIDTH);
+	ModLoader_WriteLong((void*)0x412A81 + 6, SCREEN_WIDTH);
 	// x_pos
-	WriteLong((void*)0x412AC6 + 1, (SCREEN_WIDTH - 64) / 2);
+	ModLoader_WriteLong((void*)0x412AC6 + 1, (SCREEN_WIDTH - 64) / 2);
 }

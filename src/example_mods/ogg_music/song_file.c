@@ -84,7 +84,7 @@ SongFile* SongFile_Load(const char* const path, bool loops)
 
 	if (ov_open_callbacks(song->file[0], &song->vorbis_file[0], NULL, 0, ov_callback_memory) < 0)
 	{
-		PrintError("ogg_music: Error - '%s' does not appear to be an Ogg bitstream\n", path);
+		ModLoader_PrintError("ogg_music: Error - '%s' does not appear to be an Ogg bitstream\n", path);
 
 		goto Fail2;
 	}
@@ -97,21 +97,21 @@ SongFile* SongFile_Load(const char* const path, bool loops)
 	{
 		if (ov_open_callbacks(song->file[1], &song->vorbis_file[1], NULL, 0, ov_callback_memory) < 0)
 		{
-			PrintError("ogg_music: Error - '%s' loop file does not appear to be an Ogg bitstream\n", path);
+			ModLoader_PrintError("ogg_music: Error - '%s' loop file does not appear to be an Ogg bitstream\n", path);
 
 			goto Fail2;
 		}
 
 		if (ov_info(&song->vorbis_file[1], -1)->channels != song->channels)
 		{
-			PrintError("ogg_music: Error - The files for '%s' don't have the same channel count\n", path);
+			ModLoader_PrintError("ogg_music: Error - The files for '%s' don't have the same channel count\n", path);
 			SongFile_Unload(song);
 			return NULL;
 		}
 
 		if (ov_info(&song->vorbis_file[1], -1)->rate != song->sample_rate)
 		{
-			PrintError("ogg_music: Error - The files for '%s' don't have the same sample rate\n", path);
+			ModLoader_PrintError("ogg_music: Error - The files for '%s' don't have the same sample rate\n", path);
 			SongFile_Unload(song);
 			return NULL;
 		}

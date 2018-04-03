@@ -15,8 +15,8 @@ void UpdateTicks(void)
 
 	static unsigned char counter;
 
-	WriteByte((void*)0x40B36F, delay_ticks[counter % 3]);
-	WriteByte((void*)0x40B3A9, delay_ticks[counter % 3]);
+	ModLoader_WriteByte((void*)0x40B36F, delay_ticks[counter % 3]);
+	ModLoader_WriteByte((void*)0x40B3A9, delay_ticks[counter % 3]);
 
 	++counter;
 }
@@ -31,6 +31,6 @@ extern char UpdateTicks_ASM;
 
 void Apply60FPSPatch(void)
 {
-	WriteByte((void*)0x40B3B9, 0x90);
-	WriteCall((void*)0x40B3B9 + 1, &UpdateTicks_ASM);
+	ModLoader_WriteByte((void*)0x40B3B9, 0x90);
+	ModLoader_WriteCall((void*)0x40B3B9 + 1, &UpdateTicks_ASM);
 }

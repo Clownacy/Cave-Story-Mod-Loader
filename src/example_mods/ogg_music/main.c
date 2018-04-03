@@ -66,7 +66,7 @@ static void UnloadSong(Song *song)
 	{
 		if (cubeb_stream_stop(song->stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not stop the stream\n");
+			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
 		}
 		else
 		{
@@ -86,7 +86,7 @@ static void PauseSong(void)
 	{
 		if (cubeb_stream_stop(current_song.stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not stop the stream\n");
+			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
 		}
 	}
 }
@@ -97,7 +97,7 @@ static void ResumeSong(void)
 	{
 		if (cubeb_stream_start(current_song.stream) != CUBEB_OK)
 		{
-			PrintError("ogg_music: Could not start the stream\n");
+			ModLoader_PrintError("ogg_music: Could not start the stream\n");
 		}
 	}
 }
@@ -122,7 +122,7 @@ static bool PlayOggMusic(const int song_id)
 			if (channels != 1 && channels != 2)
 			{
 				// Unsupported channel count
-				PrintError("ogg_music: Unsupported channel count\n");
+				ModLoader_PrintError("ogg_music: Unsupported channel count\n");
 
 				if (!setting_preload)
 					SongFile_Unload(song);
@@ -147,7 +147,7 @@ static bool PlayOggMusic(const int song_id)
 
 				if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) != CUBEB_OK)
 				{
-					PrintError("ogg_music: Could not get minimum latency\n");
+					ModLoader_PrintError("ogg_music: Could not get minimum latency\n");
 
 					if (!setting_preload)
 						SongFile_Unload(song);
@@ -156,7 +156,7 @@ static bool PlayOggMusic(const int song_id)
 				{
 					if (cubeb_stream_init(cubeb_context, &current_song.stream, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
 					{
-						PrintError("ogg_music: Could not open the stream\n");
+						ModLoader_PrintError("ogg_music: Could not open the stream\n");
 
 						if (!setting_preload)
 							SongFile_Unload(song);
@@ -335,22 +335,22 @@ static bool InitBackend(void)
 
 void InitMod(void)
 {
-	setting_preload = GetSettingBool("preload_oggs", false);
-	setting_fade_in_previous_song = GetSettingBool("fade_in_previous_song", true);
+	setting_preload = ModLoader_GetSettingBool("preload_oggs", false);
+	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
 
 	if (InitPlaylist() && InitBackend())
 	{
 		if (setting_preload)
 			PreloadSongs();
 		// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-		WriteJump(CS_PlayMusic, PlayMusic_new);
-		WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
+		ModLoader_WriteJump(CS_PlayMusic, PlayMusic_new);
+		ModLoader_WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
 		// We also need to replace the music pausing/resuming when the window focus changes
-		WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
-		WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
+		ModLoader_WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
+		ModLoader_WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
 		// Patch fading
-		WriteJump(CS_FadeMusic, FadeMusic_new);
+		ModLoader_WriteJump(CS_FadeMusic, FadeMusic_new);
 		// Insert hook for per-frame fade updating
-		WriteJump((void*)0x40B44B, &UpdateMusicFade_asm);
+		ModLoader_WriteJump((void*)0x40B44B, &UpdateMusicFade_asm);
 	}
 }

@@ -86,20 +86,20 @@ extern char LoadBMP_FromResource_SurfaceCreationHijack;
 
 void SetSpriteResolution(void)
 {
-	PrintDebug("Applying 'set sprite resolution' patch\n");
+	ModLoader_PrintDebug("Applying 'set sprite resolution' patch\n");
 
 	// Fix background tile sizes
-	WriteRelativeAddress((void*)0x420DAA + 1, LoadBackgroundSprite_hijack);
+	ModLoader_WriteRelativeAddress((void*)0x420DAA + 1, LoadBackgroundSprite_hijack);
 
-	WriteJump((void*)0x40BC2B, &LoadBMP_FromFile_SurfaceCreationHijack);
-	WriteCall((void*)0x40BD04, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte((void*)0x40BD04 + 5, 0x90);
-	WriteCall((void*)0x40C142, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte((void*)0x40C142 + 5, 0x90);
+	ModLoader_WriteJump((void*)0x40BC2B, &LoadBMP_FromFile_SurfaceCreationHijack);
+	ModLoader_WriteCall((void*)0x40BD04, &LoadBMP_StretchBlitHijack);
+	ModLoader_WriteByte((void*)0x40BD04 + 5, 0x90);
+	ModLoader_WriteCall((void*)0x40C142, &LoadBMP_StretchBlitHijack);
+	ModLoader_WriteByte((void*)0x40C142 + 5, 0x90);
 
-	WriteJump((void*)0x40B8E1, &LoadBMP_FromResource_SurfaceCreationHijack);
-	WriteCall((void*)0x40B9C5, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte((void*)0x40B9C5 + 5, 0x90);
-	WriteCall((void*)0x40BF0A, &LoadBMP_FromFile_StretchBlitHijack);
-	WriteByte((void*)0x40BF0A + 5, 0x90);
+	ModLoader_WriteJump((void*)0x40B8E1, &LoadBMP_FromResource_SurfaceCreationHijack);
+	ModLoader_WriteCall((void*)0x40B9C5, &LoadBMP_StretchBlitHijack);
+	ModLoader_WriteByte((void*)0x40B9C5 + 5, 0x90);
+	ModLoader_WriteCall((void*)0x40BF0A, &LoadBMP_StretchBlitHijack);
+	ModLoader_WriteByte((void*)0x40BF0A + 5, 0x90);
 }

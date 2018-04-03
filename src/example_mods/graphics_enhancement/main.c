@@ -44,30 +44,30 @@ void LoadWindowRect_NewCode(RECT *rect)
 
 void InitMod(void)
 {
-	borderless_fullscreen = GetSettingBool("borderless_fullscreen", true);
-	fullscreen_auto_aspect_ratio = GetSettingBool("fullscreen_auto_aspect_ratio", true);
-	fullscreen_auto_window_upscale = GetSettingBool("fullscreen_auto_window_upscale", true);
-	fullscreen_vsync = GetSettingBool("fullscreen_vsync", true);
-	sixty_fps = GetSettingBool("60fps", true);
+	borderless_fullscreen = ModLoader_GetSettingBool("borderless_fullscreen", true);
+	fullscreen_auto_aspect_ratio = ModLoader_GetSettingBool("fullscreen_auto_aspect_ratio", true);
+	fullscreen_auto_window_upscale = ModLoader_GetSettingBool("fullscreen_auto_window_upscale", true);
+	fullscreen_vsync = ModLoader_GetSettingBool("fullscreen_vsync", true);
+	sixty_fps = ModLoader_GetSettingBool("60fps", true);
 
-	aspect_ratio_x = GetSettingInt("aspect_ratio_x", 16);
+	aspect_ratio_x = ModLoader_GetSettingInt("aspect_ratio_x", 16);
 	if (aspect_ratio_x == 0)
-		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_x = 0'?\n\nWell, it's your funeral.");
+		ModLoader_PrintErrorMessageBox("You're joking, right?\n\n'aspect_ratio_x = 0'?\n\nWell, it's your funeral.");
 
-	aspect_ratio_y = GetSettingInt("aspect_ratio_y", 9);
+	aspect_ratio_y = ModLoader_GetSettingInt("aspect_ratio_y", 9);
 	if (aspect_ratio_y == 0)
-		PrintMessageBoxError("You're joking, right?\n\n'aspect_ratio_y = 0'?\n\nWell, it's your funeral.");
+		ModLoader_PrintErrorMessageBox("You're joking, right?\n\n'aspect_ratio_y = 0'?\n\nWell, it's your funeral.");
 
-	sprite_resolution_factor = GetSettingInt("sprite_resolution", 1);
+	sprite_resolution_factor = ModLoader_GetSettingInt("sprite_resolution", 1);
 	if (sprite_resolution_factor == 0)
 		sprite_resolution_factor = 1;
 
-	window_upscale_factor = GetSettingInt("window_upscale", 2);
+	window_upscale_factor = ModLoader_GetSettingInt("window_upscale", 2);
 	if (window_upscale_factor == 0)
 		window_upscale_factor = 1;
 
 	if ((aspect_ratio_x != 4 || aspect_ratio_y != 3) || (window_upscale_factor != 2))
-		WriteRelativeAddress((void*)0x411062 + 1, (void*)&LoadWindowRect_ASM);
+		ModLoader_WriteRelativeAddress((void*)0x411062 + 1, (void*)&LoadWindowRect_ASM);
 
 	if (sixty_fps)
 		Apply60FPSPatch();
@@ -83,6 +83,6 @@ void InitMod(void)
 	if (window_upscale_factor != 2)
 		UpscaleWindow();
 
-	if (GetSettingBool("remove_sprite_alignment", true))
+	if (ModLoader_GetSettingBool("remove_sprite_alignment", true))
 		RemoveSpriteAlignment();
 }
