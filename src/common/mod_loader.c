@@ -71,28 +71,5 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	ModLoader_PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
 	ModLoader_PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");
 
-	if (ModLoader_WriteRelativeAddress == NULL ||
-	ModLoader_WriteByte == NULL ||
-	ModLoader_WriteWord == NULL ||
-	ModLoader_WriteLong == NULL ||
-	ModLoader_WriteWordBE == NULL ||
-	ModLoader_WriteLongBE == NULL ||
-	ModLoader_WriteJump == NULL ||
-	ModLoader_WriteCall == NULL ||
-	ModLoader_WriteNOPs == NULL ||
-	ModLoader_FixDoorEnterBug == NULL ||
-	GetSettingString_inner == NULL ||
-	GetSettingInt_inner == NULL ||
-	GetSettingBool_inner == NULL ||
-	ModLoader_PrintErrorMessageBox == NULL ||
-	ModLoader_PrintError == NULL ||
-	ModLoader_PrintDebug == NULL)
-	{
-		if (ModLoader_PrintErrorMessageBox)
-			ModLoader_PrintErrorMessageBox("Fatal error: Mod could not find all Mod Loader exports. Are your mods and mod loader up to date?\n");
-	}
-	else
-	{
-		InitMod();
-	}
+	InitMod();
 }
