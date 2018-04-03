@@ -1,5 +1,5 @@
 // Mod loader for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include "mod_loader.h"
 
@@ -24,27 +24,27 @@ void (*ModLoader_PrintErrorMessageBox)(const char* const format, ...);
 void (*ModLoader_PrintError)(const char* const format, ...);
 void (*ModLoader_PrintDebug)(const char* const format, ...);
 
-static const char* (*GetSettingString_inner)(const char* const filename, const char* const default_string, const Settings* const settings);
-static int (*GetSettingInt_inner)(const char* const filename, const int default_int, const Settings* const settings);
-static bool (*GetSettingBool_inner)(const char* const filename, const bool default_bool, const Settings* const settings);
-
 const char *ModLoader_path_to_dll;
+
+static const char* (*GetSettingString)(const char* const filename, const char* const default_string, const Settings* const settings);
+static int (*GetSettingInt)(const char* const filename, const int default_int, const Settings* const settings);
+static bool (*GetSettingBool)(const char* const filename, const bool default_bool, const Settings* const settings);
 
 static const Settings *settings;
 
 const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string)
 {
-	return GetSettingString_inner(setting_name, default_string, settings);
+	return GetSettingString(setting_name, default_string, settings);
 }
 
 int ModLoader_GetSettingInt(const char* const setting_name, const int default_int)
 {
-	return GetSettingInt_inner(setting_name, default_int, settings);
+	return GetSettingInt(setting_name, default_int, settings);
 }
 
 bool ModLoader_GetSettingBool(const char* const setting_name, const bool default_bool)
 {
-	return GetSettingBool_inner(setting_name, default_bool, settings);
+	return GetSettingBool(setting_name, default_bool, settings);
 }
 
 __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Settings* const settings_p, const char* const path_to_dll)
@@ -63,9 +63,9 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	ModLoader_WriteNOPs = (void (*)(void* const, const unsigned int))GetProcAddress(mod_loader_hmodule, "WriteNOPs");
 	ModLoader_FixDoorEnterBug = (void (*)(void))GetProcAddress(mod_loader_hmodule, "FixDoorEnterBug");
 
-	GetSettingString_inner = (const char* (*)(const char* const, const char* const, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");
-	GetSettingInt_inner = (int (*)(const char* const, const int, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
-	GetSettingBool_inner = (bool (*)(const char* const, const bool, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
+	GetSettingString = (const char* (*)(const char* const, const char* const, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingString");
+	GetSettingInt = (int (*)(const char* const, const int, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingInt");
+	GetSettingBool = (bool (*)(const char* const, const bool, const Settings* const))GetProcAddress(mod_loader_hmodule, "GetSettingBool");
 
 	ModLoader_PrintErrorMessageBox = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintMessageBoxError");
 	ModLoader_PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");

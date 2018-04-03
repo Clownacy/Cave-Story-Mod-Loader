@@ -1,22 +1,22 @@
 // Mod loader for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #pragma once
 
-#define INPUT_QUIT		0x00008000
-#define INPUT_MAP		0x00000010
 #define INPUT_LEFT		0x00000001
 #define INPUT_RIGHT		0x00000002
 #define INPUT_UP		0x00000004
 #define INPUT_DOWN		0x00000008
+#define INPUT_MAP		0x00000010
 #define INPUT_SHOOT		0x00000020
 #define INPUT_JUMP		0x00000040
 #define INPUT_NEXTWEAPON	0x00000080
 #define INPUT_PREVIOUSWEAPON	0x00000100
-#define INPUT_UNKNOWN		0x00000200
+#define INPUT_UNKNOWN		0x00000200	// Was the shift key in the original game. Unused.
 #define INPUT_F1		0x00000400
 #define INPUT_F2		0x00000800
 #define INPUT_INVENTORY		0x00001000
+#define INPUT_QUIT		0x00008000
 #define INPUT_ALT_LEFT		0x00010000
 #define INPUT_ALT_DOWN		0x00020000
 #define INPUT_ALT_RIGHT		0x00040000
