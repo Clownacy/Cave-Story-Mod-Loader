@@ -1,21 +1,18 @@
 // Ogg music mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <cubeb/cubeb.h>
+#include <stddef.h>
 
 #include "cave_story.h"
 #include "mod_loader.h"
 
+#include "backend.h"
 #include "playlist.h"
 #include "song_file.h"
 
 typedef struct Song {
-	cubeb_stream *stream;
+	BackendStream *stream;
 	SongFile *file;
 	bool is_org;
 } Song;
@@ -27,8 +24,6 @@ static const Song blank_song;
 
 static Song current_song;
 static Song previous_song;
-
-static cubeb *cubeb_context;
 
 static struct
 {
@@ -50,56 +45,31 @@ static void PreloadSongs(void)
 	}
 }
 
-static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
+static long StreamCallback(void *output_buffer, long samples_to_do)
 {
 	return SongFile_GetSamples(current_song.file, output_buffer, samples_to_do);
 }
 
-static void state_cb(cubeb_stream *stream, void *user, cubeb_state state)
-{
-
-}
 
 static void UnloadSong(Song *song)
 {
-	if (song->stream)
+	if (Backend_DestroyStream(song->stream))
 	{
-		if (cubeb_stream_stop(song->stream) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
-		}
+		if (setting_preload)
+			SongFile_Reset(song->file);
 		else
-		{
-			cubeb_stream_destroy(song->stream);
-
-			if (setting_preload)
-				SongFile_Reset(song->file);
-			else
-				SongFile_Unload(song->file);
-		}
+			SongFile_Unload(song->file);
 	}
 }
 
 static void PauseSong(void)
 {
-	if (current_song.stream)
-	{
-		if (cubeb_stream_stop(current_song.stream) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
-		}
-	}
+	Backend_PauseStream(current_song.stream);
 }
 
 static void ResumeSong(void)
 {
-	if (current_song.stream)
-	{
-		if (cubeb_stream_start(current_song.stream) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not start the stream\n");
-		}
-	}
+	Backend_ResumeStream(current_song.stream);
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -129,46 +99,20 @@ static bool PlayOggMusic(const int song_id)
 			}
 			else
 			{
-				cubeb_stream_params output_params;
-				output_params.format = CUBEB_SAMPLE_S16LE;
-				output_params.rate = SongFile_GetRate(song);
-				output_params.prefs = CUBEB_STREAM_PREF_NONE;
-				output_params.channels = channels;
-				if (channels == 1)
-				{
-					output_params.layout = CUBEB_LAYOUT_MONO;
-				}
-				else// if (channels == 2)
-				{
-					output_params.layout = CUBEB_LAYOUT_STEREO;
-				}
+				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song), channels);
 
-				uint32_t latency_frames;
-
-				if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) != CUBEB_OK)
+				if (current_song.stream == NULL)
 				{
-					ModLoader_PrintError("ogg_music: Could not get minimum latency\n");
-
 					if (!setting_preload)
 						SongFile_Unload(song);
 				}
 				else
 				{
-					if (cubeb_stream_init(cubeb_context, &current_song.stream, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
-					{
-						ModLoader_PrintError("ogg_music: Could not open the stream\n");
+					current_song.file = song;
 
-						if (!setting_preload)
-							SongFile_Unload(song);
-					}
-					else
-					{
-						current_song.file = song;
+					ResumeSong();
 
-						ResumeSong();
-
-						success = true;
-					}
+					success = true;
 				}
 			}
 		}
@@ -200,7 +144,7 @@ static void PlayMusic_new(const int music_id)
 {
 	if (music_id == 0 || music_id != CS_current_music)
 	{
-		cubeb_stream_set_volume(current_song.stream, 1.0f);
+		Backend_SetVolume(current_song.stream, 1.0f);
 
 		CS_previous_music = CS_current_music;
 
@@ -235,7 +179,7 @@ static void PlayPreviousMusic_new(void)
 {
 	if (setting_fade_in_previous_song)
 	{
-		cubeb_stream_set_volume(current_song.stream, 0.0f);
+		Backend_SetVolume(current_song.stream, 0.0f);
 		fade_in.active = true;
 		fade_in.counter = 0;
 	}
@@ -284,11 +228,8 @@ void UpdateMusicFade(void)
 {
 	if (fade_out.active)
 	{
-		if (current_song.stream)
-		{
-			const float volume_float = fade_out.counter / (60.0f * 5);
-			cubeb_stream_set_volume(current_song.stream, volume_float * volume_float	);
-		}
+		const float volume_float = fade_out.counter / (60.0f * 5);
+		Backend_SetVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_out.counter-- == 0)
 		{
@@ -298,11 +239,8 @@ void UpdateMusicFade(void)
 	}
 	else if (fade_in.active)
 	{
-		if (current_song.stream)
-		{
-			const float volume_float = fade_in.counter / (60.0f * 2);
-			cubeb_stream_set_volume(current_song.stream, volume_float * volume_float);
-		}
+		const float volume_float = fade_in.counter / (60.0f * 2);
+		Backend_SetVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_in.counter++ == 60 * 2)
 		{
@@ -321,24 +259,12 @@ __asm
 );
 extern char UpdateMusicFade_asm;
 
-static bool InitBackend(void)
-{
-	bool success = true;
-
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);	// Cubeb needs us to init COM
-
-	if (cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL) != CUBEB_OK)
-		success = false;
-
-	return success;
-}
-
 void InitMod(void)
 {
 	setting_preload = ModLoader_GetSettingBool("preload_oggs", false);
 	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
 
-	if (InitPlaylist() && InitBackend())
+	if (InitPlaylist() && Backend_Init(StreamCallback))
 	{
 		if (setting_preload)
 			PreloadSongs();

@@ -192,7 +192,7 @@ unsigned int SongFile_GetChannels(SongFile *this)
 	return this->channels;
 }
 
-unsigned int SongFile_GetRate(SongFile *this)
+unsigned int SongFile_GetSampleRate(SongFile *this)
 {
 	return this->sample_rate;
 }

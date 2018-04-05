@@ -75,7 +75,7 @@ bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 
-bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
+bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 
