@@ -57,7 +57,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
 
-all: $(MOD_LOADER_HELPER_OBJECT) bin/mod_loader_patcher.exe bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
+all: $(MOD_LOADER_HELPER_OBJECT) bin/mod_loader_patcher.exe bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
@@ -78,6 +78,10 @@ bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_sdl2.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS) -lvorbisfile -lvorbis -logg
+
+bin/mods/ogg_music/ogg_music_cubeb.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_cubeb.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
