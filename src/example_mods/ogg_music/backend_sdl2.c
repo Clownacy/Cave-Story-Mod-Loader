@@ -25,9 +25,7 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 {
 	BackendStream *stream = (BackendStream*)user_data;
 
-	const unsigned int bytes_per_sample = stream->channel_count * 2;
-
-	long bytes_done = UserDataCallback(output_buffer, bytes_to_do / bytes_per_sample) * bytes_per_sample;
+	long bytes_done = UserDataCallback(output_buffer, bytes_to_do);
 
 	memset(output_buffer + bytes_done, 0, bytes_to_do - bytes_done);
 
@@ -64,6 +62,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	want.userdata = stream;
 
 	device = SDL_OpenAudioDevice(NULL, 0, &want, NULL, 0);
+
 	if (device)
 	{
 		stream->device = device;

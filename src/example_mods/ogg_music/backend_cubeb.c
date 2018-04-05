@@ -14,6 +14,7 @@
 typedef struct BackendStream
 {
 	cubeb_stream *cubeb_stream_pointer;
+	unsigned int channel_count;
 } BackendStream;
 
 static cubeb *cubeb_context;
@@ -22,7 +23,11 @@ static long int(*UserDataCallback)(void*, long);
 
 static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
-	return UserDataCallback(output_buffer, samples_to_do);
+	BackendStream *backend_stream = (BackendStream*)user_data;
+
+	const unsigned int bytes_per_sample = backend_stream->channel_count * 2;
+
+	return UserDataCallback(output_buffer, samples_to_do * bytes_per_sample) / bytes_per_sample;
 }
 
 static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
@@ -73,16 +78,17 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	}
 	else
 	{
-		cubeb_stream *cubeb_stream_pointer;
+		stream = malloc(sizeof(BackendStream));
 
-		if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, NULL) != CUBEB_OK)
+		if (cubeb_stream_init(cubeb_context, &stream->cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, stream) != CUBEB_OK)
 		{
+			free(stream);
+			stream = NULL;
 			ModLoader_PrintError("ogg_music: Could not open the stream\n");
 		}
 		else
 		{
-			stream = malloc(sizeof(BackendStream));
-			stream->cubeb_stream_pointer = cubeb_stream_pointer;
+			stream->channel_count = channel_count;
 		}
 	}
 

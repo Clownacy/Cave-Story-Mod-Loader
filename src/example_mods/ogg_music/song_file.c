@@ -156,11 +156,8 @@ void SongFile_Reset(SongFile *this)
 		ov_time_seek(&this->vorbis_file[1], 0);
 }
 
-size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t samples_to_do)
+size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t bytes_to_do)
 {
-	const unsigned int BYTES_PER_SAMPLE = this->channels * 2;	// 16-bit
-	const unsigned long bytes_to_do = samples_to_do * BYTES_PER_SAMPLE;
-
 	unsigned long bytes_done_total = 0;
 
 	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
@@ -184,7 +181,7 @@ size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t samples_t
 		}
 	}
 
-	return bytes_done_total / BYTES_PER_SAMPLE;
+	return bytes_done_total;
 }
 
 unsigned int SongFile_GetChannels(SongFile *this)
