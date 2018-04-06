@@ -19,7 +19,7 @@ typedef struct SongFile {
 
 	int current_section[2];
 
-	int channels;
+	int channel_count;
 	int sample_rate;
 	bool is_split;
 	bool playing_intro;
@@ -89,7 +89,7 @@ SongFile* SongFile_Load(const char* const path, bool loops)
 		goto Fail2;
 	}
 
-	song->channels = ov_info(&song->vorbis_file[0], -1)->channels;
+	song->channel_count = ov_info(&song->vorbis_file[0], -1)->channels;
 
 	song->sample_rate = ov_info(&song->vorbis_file[0], -1)->rate;
 
@@ -102,7 +102,7 @@ SongFile* SongFile_Load(const char* const path, bool loops)
 			goto Fail2;
 		}
 
-		if (ov_info(&song->vorbis_file[1], -1)->channels != song->channels)
+		if (ov_info(&song->vorbis_file[1], -1)->channels != song->channel_count)
 		{
 			ModLoader_PrintError("ogg_music: Error - The files for '%s' don't have the same channel count\n", path);
 			SongFile_Unload(song);
@@ -186,7 +186,7 @@ size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t bytes_to_
 
 unsigned int SongFile_GetChannels(SongFile *this)
 {
-	return this->channels;
+	return this->channel_count;
 }
 
 unsigned int SongFile_GetSampleRate(SongFile *this)

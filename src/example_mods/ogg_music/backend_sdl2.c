@@ -16,7 +16,6 @@ typedef struct BackendStream
 {
 	SDL_AudioDeviceID device;
 	unsigned int volume;
-	unsigned int channel_count;
 } BackendStream;
 
 static long int(*UserDataCallback)(void*, long);
@@ -66,7 +65,6 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	if (device)
 	{
 		stream->device = device;
-		stream->channel_count = channel_count;
 		stream->volume = 0x100;
 	}
 	else
@@ -80,22 +78,21 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 
 bool Backend_DestroyStream(BackendStream *stream)
 {
-	bool success = false;
-
 	if (stream)
 	{
 		SDL_CloseAudioDevice(stream->device);
-
-		success = true;
+		free(stream);
 	}
 
-	return success;
+	return true;
 }
 
-void Backend_SetVolume(BackendStream *stream, float volume)
+bool Backend_SetVolume(BackendStream *stream, float volume)
 {
 	if (stream)
 		stream->volume = volume * 0x100;
+
+	return true;
 }
 
 bool Backend_PauseStream(BackendStream *stream)
