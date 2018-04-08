@@ -28,11 +28,14 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 
 	memset(output_buffer + bytes_done, 0, bytes_to_do - bytes_done);
 
-	short *output_buffer_short = (short*)output_buffer;
-	for (int i = 0; i < bytes_to_do / 2; ++i)
+	if (stream->volume != 0x100)
 	{
-		short sample = (*output_buffer_short * stream->volume) / 0x100;
-		*output_buffer_short++ = sample;
+		short *output_buffer_short = (short*)output_buffer;
+		for (int i = 0; i < bytes_to_do / 2; ++i)
+		{
+			short sample = (*output_buffer_short * stream->volume) / 0x100;
+			*output_buffer_short++ = sample;
+		}
 	}
 }
 
