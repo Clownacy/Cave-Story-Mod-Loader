@@ -18,6 +18,7 @@ typedef struct Song {
 } Song;
 
 static bool setting_preload;
+static bool setting_predecode;
 static bool setting_fade_in_previous_song;
 
 static const Song blank_song;
@@ -34,7 +35,7 @@ static struct
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops);
+		playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops, setting_predecode);
 }
 
 static void PreloadSongs(void)
@@ -261,7 +262,8 @@ extern char UpdateMusicFade_asm;
 
 void InitMod(void)
 {
-	setting_preload = ModLoader_GetSettingBool("preload_oggs", false);
+	setting_preload = ModLoader_GetSettingBool("preload_songs", false);
+	setting_predecode = ModLoader_GetSettingBool("predecode_songs", false);
 	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
 
 	if (InitPlaylist() && Backend_Init(StreamCallback))
