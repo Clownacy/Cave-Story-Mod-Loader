@@ -116,16 +116,32 @@ bool RegenerateVSyncSurface(void)
 
 void SetupVSync(void)
 {
-	// Change surface creation to flip-capable exclusive fullscreen
-	ModLoader_WriteLong((void*)0x40B5C8 + 3, DDSD_CAPS | DDSD_BACKBUFFERCOUNT);
-	ModLoader_WriteLong((void*)0x40B5CF + 3, DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX);
-	ModLoader_WriteLong((void*)0x40B5D6 + 3, 1);
-	ModLoader_WriteLong((void*)0x40B5DF + 1, (unsigned int)&vsync_new_screen_surface);
-	ModLoader_WriteJump((void*)0x40B663, &VSyncInitDirectDraw_asm);
-	// Handle flipping during drawing
-	ModLoader_WriteJump((void*)0x40B42A, &VSyncDrawScreen_asm);
-	// Dummy out the framerate manager
-	ModLoader_WriteJump((void*)0x40B343, &SkipFramerateControl_asm);
+	DEVMODE lpDevMode;
+	memset(&lpDevMode, 0, sizeof(DEVMODE));
+	lpDevMode.dmSize = sizeof(DEVMODE);
+	lpDevMode.dmDriverExtra = 0;
+
+	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &lpDevMode))
+	{
+		if (lpDevMode.dmDisplayFrequency == 60)
+		{
+			// Change surface creation to flip-capable exclusive fullscreen
+			ModLoader_WriteLong((void*)0x40B5C8 + 3, DDSD_CAPS | DDSD_BACKBUFFERCOUNT);
+			ModLoader_WriteLong((void*)0x40B5CF + 3, DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX);
+			ModLoader_WriteLong((void*)0x40B5D6 + 3, 1);
+			ModLoader_WriteLong((void*)0x40B5DF + 1, (unsigned int)&vsync_new_screen_surface);
+			ModLoader_WriteJump((void*)0x40B663, &VSyncInitDirectDraw_asm);
+			// Handle flipping during drawing
+			ModLoader_WriteJump((void*)0x40B42A, &VSyncDrawScreen_asm);
+			// Dummy out the framerate manager
+			ModLoader_WriteJump((void*)0x40B343, &SkipFramerateControl_asm);
+		}
+		else
+		{
+			ModLoader_PrintErrorMessageBox("Your monitor is not running at 60Hz. V-Sync has been disabled.");
+		}
+	}
+
 }
 
 void ApplyFullscreenPatches(void)

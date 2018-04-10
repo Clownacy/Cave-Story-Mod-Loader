@@ -47,7 +47,7 @@ void InitMod(void)
 	borderless_fullscreen = ModLoader_GetSettingBool("borderless_fullscreen", false);
 	fullscreen_auto_aspect_ratio = ModLoader_GetSettingBool("fullscreen_auto_aspect_ratio", true);
 	fullscreen_auto_window_upscale = ModLoader_GetSettingBool("fullscreen_auto_window_upscale", true);
-	fullscreen_vsync = ModLoader_GetSettingBool("fullscreen_vsync", false);
+	fullscreen_vsync = ModLoader_GetSettingBool("fullscreen_vsync", true);
 	sixty_fps = ModLoader_GetSettingBool("60fps", true);
 
 	aspect_ratio_x = ModLoader_GetSettingInt("aspect_ratio_x", 16);
