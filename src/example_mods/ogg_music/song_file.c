@@ -180,9 +180,7 @@ SongFile* SongFile_Load(const char* const path, bool loops, bool predecoded)
 	for (unsigned int i = 0; i < (song->is_split ? 2 : 1); ++i)
 		ov_clear(&song->part[i].vorbis_file);
 
-	free(song);
-
-	return NULL;
+	goto Fail1;
 
 	Fail2:
 
@@ -190,6 +188,8 @@ SongFile* SongFile_Load(const char* const path, bool loops, bool predecoded)
 
 	if (song->is_split)
 		MemoryFile_fclose(file[1]);
+
+	//goto Fail1;
 
 	Fail1:
 
