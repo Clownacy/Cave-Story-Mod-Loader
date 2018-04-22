@@ -9,7 +9,7 @@ typedef struct MLHookCPURegisters
 	// Keep in mind the reversed order due to the way push works
 	unsigned int eflags, eip;
 	// Last bunch of stuff is a PUSHAD
-	unsigned int edi, esi, ebp, esp; // ESP not written!
+	unsigned int edi, esi, ebp, esp;
 	unsigned int ebx, edx, ecx, eax; // not out of order
 } MLHookCPURegisters;
 
