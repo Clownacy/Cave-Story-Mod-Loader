@@ -30,30 +30,30 @@ static HookTableEntry * ht_first_entry = 0;
 // NOTE: PLEASE KEEP UP TO DATE WITH mod_loader_hook.h CPU REGISTERS STUFF.
 static char ht_global_hookcore[] = {
  // Critical Offsets
-#define HT_HOOKCORE_PUSHADDR 3
+#define HT_HOOKCORE_PUSHADDR 2
 #define HT_HOOKCORE_NEXUSCALL 8
 #define HT_HOOKCORE_JMP 20
 #define HT_HOOKCORE_SIZE 25
- 0x60, 0x9C,
- 0x68, 0xFF, 0xFF, 0xFF, 0x01,
- 0x9C,
- 0xE8, 0xF2, 0xFF, 0xFF, 0x01,
- 0x9D, 0x58, 0x61, 0x8B, 0x64, 0x24, 0xEC,
- 0xE9, 0x00, 0x00, 0x00, 0x00
+ 0x60, // 1
+ 0x68, 0xFF, 0xFF, 0xFF, 0x01, // 5
+ 0x9C, 0x54, // 2
+ 0xE8, 0xF2, 0xFF, 0xFF, 0x01, // 5
+ 0x9D, 0x58, 0x61, 0x8B, 0x64, 0x24, 0xEC, // 7
+ 0xE9, 0x00, 0x00, 0x00, 0x00 // 5
 /*
 bits 32
 
 pushad
-pushfd
 push dword 0x01FFFFFF ; push hook address as IP
-pushf
+pushfd
+push esp ; points to CPU structure
 call [0x01FFFFFF] ; call nexus offset
 popfd
 pop eax
 popad
 mov esp, [esp-20]
 ; final 5 bytes patched in by the Nexus
-jmp $
+db 0xE9, 0x00, 0x00, 0x00, 0x00
 */
 };
 
@@ -98,6 +98,7 @@ static void __stdcall HookNexus(MLHookCPURegisters * cpuData) {
 			WriteJump(hte->address, hte->hookcore);
 			WriteJump(hte->hookcore + HT_HOOKCORE_JMP, (void *) (cpuData->eip));
 			hte->stage2 = 0;
+			return;
 		}
 	}
 	if (!hte->stage2) {
@@ -112,14 +113,23 @@ static void __stdcall HookNexus(MLHookCPURegisters * cpuData) {
 }
 
 static HookTableEntry * PrependNewStackableHook(void * address, unsigned int length) {
-	char * hookcore = (char *) VirtualAlloc((void *) 0, HT_HOOKCORE_SIZE, 0, SECTION_ALL_ACCESS);
+	PrintPollution("Stackable Hook creation: %p length %d\n", address, length);
+	char * hookcore = malloc(HT_HOOKCORE_SIZE);
+	if (!hookcore)
+		PrintDebug("The murderer was malloc hookcore");
+	DWORD ign;
+	VirtualProtect(hookcore, HT_HOOKCORE_SIZE, SECTION_ALL_ACCESS, &ign);
 	for (unsigned int i = 0; i < HT_HOOKCORE_SIZE; i++)
 		hookcore[i] = ht_global_hookcore[i];
 	WriteLong(hookcore + HT_HOOKCORE_PUSHADDR, (unsigned int) address);
 	WriteCall(hookcore + HT_HOOKCORE_NEXUSCALL, HookNexus);
 	// use a more conventional method for something that isn't madness
 	HookTableEntry * hte = (HookTableEntry *) malloc(sizeof(HookTableEntry));
+	if (!hte)
+		PrintDebug("The murderer was malloc hte");
 	char * hookspace = malloc(length + 5);
+	if (!hookspace)
+		PrintDebug("The murderer was malloc hookspace");
 	for (unsigned int i = 0; i < length + 5; i++)
 		hookspace[i] = ((char *) address)[i];
 	hte->address = address;
@@ -132,6 +142,7 @@ static HookTableEntry * PrependNewStackableHook(void * address, unsigned int len
 	ht_first_entry = hte;
 	// Finally, setup stage1
 	WriteJump(address, (void *) hookcore);
+	PrintPollution("Stackable Hook creation complete\n");
 	return hte;
 }
 

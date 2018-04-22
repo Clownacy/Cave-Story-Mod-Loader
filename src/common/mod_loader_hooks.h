@@ -7,7 +7,7 @@ typedef struct MLHookCPURegisters
 {
 	// NOTE: PLEASE KEEP UP TO DATE WITH hooks.c MACHINECODE BLOB.
 	// Keep in mind the reversed order due to the way push works
-	unsigned int eip, eflags;
+	unsigned int eflags, eip;
 	// Last bunch of stuff is a PUSHAD
 	unsigned int edi, esi, ebp, esp; // ESP not written!
 	unsigned int ebx, edx, ecx, eax; // not out of order
