@@ -73,6 +73,8 @@ typedef enum SurfaceID
 #define CS_gamemode_flags (*(unsigned int*)0x49E1E8)
 #define CS_input_bitfield_held (*(int*)0x49E210)
 #define CS_input_bitfield_newly_pressed (*(int*)0x49E214)
+#define CS_tsc_buffer (*(char**)0x4A5AD8)
+#define CS_tsc_offset (*(unsigned int*)0x4A5AE0)
 #define CS_pxm_buffer (*(unsigned char**)0x49E480)
 #define CS_pxa_buffer ((unsigned char*)0x49E484)
 #define CS_hWnd (*(HWND* const)0x49E458)
@@ -106,3 +108,22 @@ static void (* const CS_sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 static void (* const CS_FadeMusic)(void) = (void(*)(void))0x41C880;
 static void (* const CS_PlayMusic)(int music_id) = (void(*)(int))0x420EE0;
 static void (* const CS_PlayPreviousMusic)(void) = (void(*)(void))0x420F50;
+// Good name for this would be 'ExecuteTSC'
+static void (* const CS_sub_422510)(void) = (void(*)(void))0x422510;
+// Good name for this would be 'UpdateAllNPCs'
+static void (* const CS_sub_46FA00)(void) = (void(*)(void))0x46FA00;
+
+// Hookspaces & Hookjumps
+
+// COMPATIBILITY NOTES:
+// TSC+'s code starts at 4225CB, but the first 2 instructions are identical to Vanilla.
+// On unknown command error, TSC+ jumps to 425244.
+// If you're still using NICE-Lua at this point:
+// Most people using NICE-Lua asked me (20kdc) to do their work, so this shouldn't be an issue, but it operates at
+//  a start of 4225ED, and 6 bytes. (This was incompatible with TSC+, and this mistake is avoided here.)
+// Theoretically, either of these could be used, but CSH_tsc_start allows the user to override an existing command,
+//  and seems to be close enough to the start that it shouldn't get affected.
+#define CSH_tsc_start (void*) 0x4225D5, 12
+#define CSH_tsc_end (void*) 0x425244, 12
+// Aka 4252A7, or "ParserEnd", but minus some indirection.
+#define CSJ_tsc_done 0x4225CB
