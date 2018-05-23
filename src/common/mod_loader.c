@@ -23,6 +23,7 @@ void (*ModLoader_FixDoorEnterBug)(void);
 void (*ModLoader_PrintErrorMessageBox)(const char* const format, ...);
 void (*ModLoader_PrintError)(const char* const format, ...);
 void (*ModLoader_PrintDebug)(const char* const format, ...);
+void (*ModLoader_AddStackableHook)(void * address, unsigned int length, MLHookCallback cb, void * ud);
 
 const char *ModLoader_path_to_dll;
 
@@ -70,6 +71,8 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 	ModLoader_PrintErrorMessageBox = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintMessageBoxError");
 	ModLoader_PrintError = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintError");
 	ModLoader_PrintDebug = (void (*)(const char* const format, ...))GetProcAddress(mod_loader_hmodule, "PrintDebug");
+
+	ModLoader_AddStackableHook = (void (*)(void * address, unsigned int length, MLHookCallback cb, void * ud))GetProcAddress(mod_loader_hmodule, "AddStackableHook");
 
 	InitMod();
 }

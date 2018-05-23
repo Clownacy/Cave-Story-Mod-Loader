@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include "mod_loader_hooks.h"
 
 extern const char *ModLoader_path_to_dll;
 
@@ -25,6 +26,7 @@ extern void (*ModLoader_FixDoorEnterBug)(void);
 extern void (*ModLoader_PrintErrorMessageBox)(const char* const format, ...);
 extern void (*ModLoader_PrintError)(const char* const format, ...);
 extern void (*ModLoader_PrintDebug)(const char* const format, ...);
+extern void (*ModLoader_AddStackableHook)(void * address, unsigned int length, MLHookCallback cb, void * ud);
 
 // Mod loader helper functions
 extern const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string);

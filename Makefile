@@ -18,6 +18,7 @@ MOD_LOADER_SOURCES = \
 	$(MOD_LOADER_PATH)/main.c \
 	$(MOD_LOADER_PATH)/mod_list.c \
 	$(MOD_LOADER_PATH)/patch.c \
+	$(MOD_LOADER_PATH)/hooks.c \
 	$(MOD_LOADER_PATH)/redirect_org_files.c \
 	$(MOD_LOADER_PATH)/settings.c \
 	$(MOD_LOADER_PATH)/inih/ini.c
@@ -57,7 +58,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
 
-all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll
+all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mds/tsc_mbx/tsc_mbx.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
@@ -106,3 +107,14 @@ bin/mods/3ds_hud/3ds_hud.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/3ds_h
 bin/mods/disable_image_protection/disable_image_protection.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/disable_image_protection/main.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+
+bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) 
+src/example_mods/tsc_mbx/main.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+
+bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) 
+src/example_mods/tsc_nonod/main.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+
