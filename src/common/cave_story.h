@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <ddraw.h>
 #include <windows.h>
 
@@ -106,3 +110,7 @@ static void (* const CS_sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
 static void (* const CS_FadeMusic)(void) = (void(*)(void))0x41C880;
 static void (* const CS_PlayMusic)(int music_id) = (void(*)(int))0x420EE0;
 static void (* const CS_PlayPreviousMusic)(void) = (void(*)(void))0x420F50;
+
+#ifdef __cplusplus
+}
+#endif

@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 extern const char *ModLoader_path_to_dll;
@@ -26,3 +30,7 @@ extern void (*ModLoader_PrintDebug)(const char* const format, ...);
 extern const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string);
 extern int ModLoader_GetSettingInt(const char* const setting_name, const int default_int);
 extern bool ModLoader_GetSettingBool(const char* const setting_name, const bool default_bool);
+
+#ifdef __cplusplus
+}
+#endif
