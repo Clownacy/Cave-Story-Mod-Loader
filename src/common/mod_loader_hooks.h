@@ -1,5 +1,5 @@
 // Mod loader for Freeware Cave Story
-// Copyright © 2018 Clownacy, 20kdc
+// Public domain
 
 #pragma once
 

@@ -18,7 +18,7 @@ typedef struct BackendStream
 	unsigned int volume;
 } BackendStream;
 
-static long int(*UserDataCallback)(void*, long);
+static long int (*UserDataCallback)(void*, long);
 
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {

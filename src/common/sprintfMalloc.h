@@ -1,3 +1,6 @@
+// sprintfMalloc (because I'm lazy)
+// Public domain
+
 #pragma once
 
 #ifdef __cplusplus

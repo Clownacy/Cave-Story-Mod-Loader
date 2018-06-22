@@ -1,5 +1,5 @@
 // sprintfMalloc (because I'm lazy)
-// Copyright © 2017 Clownacy
+// Public domain
 
 #include "sprintfMalloc.h"
 
