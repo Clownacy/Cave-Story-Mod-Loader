@@ -23,20 +23,23 @@ static long int(*UserDataCallback)(void*, long);
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
+	short *output_buffer_short = (short*)output_buffer;
 
-	long bytes_done = UserDataCallback(output_buffer, bytes_to_do);
-
-	memset(output_buffer + bytes_done, 0, bytes_to_do - bytes_done);
+	const long bytes_done = UserDataCallback(output_buffer, bytes_to_do);
 
 	if (stream->volume != 0x100)
 	{
-		short *output_buffer_short = (short*)output_buffer;
 		for (int i = 0; i < bytes_to_do / 2; ++i)
 		{
-			short sample = (*output_buffer_short * stream->volume) / 0x100;
+			const short sample = (*output_buffer_short * stream->volume) / 0x100;
 			*output_buffer_short++ = sample;
 		}
 	}
+
+	const long bytes_to_clear = bytes_to_do - bytes_done;
+
+	if (bytes_to_clear)
+		memset(output_buffer_short, 0, bytes_to_clear);
 }
 
 bool Backend_Init(long int(*callback)(void*, long))
@@ -53,8 +56,6 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
 	SDL_AudioSpec want;
-	SDL_AudioDeviceID device;
-
 	memset(&want, 0, sizeof(want));
 	want.freq = sample_rate;
 	want.format = AUDIO_S16;
@@ -63,7 +64,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	want.callback = DataCallbackWrapper;
 	want.userdata = stream;
 
-	device = SDL_OpenAudioDevice(NULL, 0, &want, NULL, 0);
+	SDL_AudioDeviceID device = SDL_OpenAudioDevice(NULL, 0, &want, NULL, 0);
 
 	if (device)
 	{
@@ -101,9 +102,7 @@ bool Backend_SetVolume(BackendStream *stream, float volume)
 bool Backend_PauseStream(BackendStream *stream)
 {
 	if (stream)
-	{
 		SDL_PauseAudioDevice(stream->device, -1);
-	}
 
 	return true;
 }
@@ -111,9 +110,7 @@ bool Backend_PauseStream(BackendStream *stream)
 bool Backend_ResumeStream(BackendStream *stream)
 {
 	if (stream)
-	{
 		SDL_PauseAudioDevice(stream->device, 0);
-	}
 
 	return true;
 }
