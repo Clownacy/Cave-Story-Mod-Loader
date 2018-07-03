@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include <windows.h>
 
 #include <SDL2/SDL.h>
 

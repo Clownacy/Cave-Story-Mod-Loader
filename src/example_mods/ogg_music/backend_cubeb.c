@@ -5,7 +5,9 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #include <cubeb/cubeb.h>
 
@@ -40,7 +42,9 @@ bool Backend_Init(long int (*callback)(void*, long, void*))
 {
 	bool success = false;
 
+#ifdef _WIN32
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);	// Cubeb needs us to init COM
+#endif
 
 	if (cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL) == CUBEB_OK)
 	{
