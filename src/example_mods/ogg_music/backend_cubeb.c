@@ -14,19 +14,21 @@
 typedef struct BackendStream
 {
 	cubeb_stream *cubeb_stream_pointer;
+	unsigned int channel_count;
+	void *user_data;
 } BackendStream;
 
 static cubeb *cubeb_context;
 
-static long int(*UserDataCallback)(void*, long);
+static long (*UserDataCallback)(void*, long, void*);
 
-static long data_cb(cubeb_stream *stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
+static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
-	unsigned int channel_count = (unsigned int)user_data;
+	BackendStream *stream = (BackendStream*)user_data;
 
-	const unsigned int bytes_per_sample = channel_count * 2;
+	const unsigned int bytes_per_sample = stream->channel_count * 2;
 
-	return UserDataCallback(output_buffer, samples_to_do * bytes_per_sample) / bytes_per_sample;
+	return UserDataCallback(output_buffer, samples_to_do * bytes_per_sample, stream->user_data) / bytes_per_sample;
 }
 
 static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
@@ -34,7 +36,7 @@ static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
 
 }
 
-bool Backend_Init(long int(*callback)(void*, long))
+bool Backend_Init(long int (*callback)(void*, long, void*))
 {
 	bool success = false;
 
@@ -50,7 +52,7 @@ bool Backend_Init(long int(*callback)(void*, long))
 	return success;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, void *user_data)
 {
 	BackendStream *stream = NULL;
 
@@ -83,13 +85,20 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 		}
 		else
 		{
+			stream = malloc(sizeof(BackendStream));
 			cubeb_stream *cubeb_stream_pointer;
 
-			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, (void*)channel_count) != CUBEB_OK)
+			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, stream) != CUBEB_OK)
 			{
-				stream = malloc(sizeof(BackendStream));
-				stream->cubeb_stream_pointer = cubeb_stream_pointer;
 				ModLoader_PrintError("ogg_music: Could not open the stream\n");
+				free(stream);
+				stream = NULL;
+			}
+			else
+			{
+				stream->cubeb_stream_pointer = cubeb_stream_pointer;
+				stream->channel_count = channel_count;
+				stream->user_data = user_data;
 			}
 		}
 	}

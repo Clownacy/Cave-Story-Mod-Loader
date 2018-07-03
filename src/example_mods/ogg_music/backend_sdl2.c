@@ -16,16 +16,17 @@ typedef struct BackendStream
 {
 	SDL_AudioDeviceID device;
 	unsigned int volume;
+	void *user_data;
 } BackendStream;
 
-static long int (*UserDataCallback)(void*, long);
+static long (*UserDataCallback)(void*, long, void*);
 
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
 	short *output_buffer_short = (short*)output_buffer;
 
-	const long bytes_done = UserDataCallback(output_buffer, bytes_to_do);
+	const long bytes_done = UserDataCallback(output_buffer, bytes_to_do, stream->user_data);
 
 	if (stream->volume != 0x100)
 	{
@@ -42,7 +43,7 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 		memset(output_buffer_short, 0, bytes_to_clear);
 }
 
-bool Backend_Init(long int(*callback)(void*, long))
+bool Backend_Init(long int (*callback)(void*, long, void*))
 {
 	SDL_Init(SDL_INIT_AUDIO);
 
@@ -51,7 +52,7 @@ bool Backend_Init(long int(*callback)(void*, long))
 	return true;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
@@ -70,9 +71,11 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	{
 		stream->device = device;
 		stream->volume = 0x100;
+		stream->user_data = user_data;
 	}
 	else
 	{
+		ModLoader_PrintError("ogg_music: Could not open the stream\n");
 		free(stream);
 		stream = NULL;
 	}

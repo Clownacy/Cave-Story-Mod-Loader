@@ -46,9 +46,9 @@ static void PreloadSongs(void)
 	}
 }
 
-static long StreamCallback(void *output_buffer, long samples_to_do)
+static long StreamCallback(void *output_buffer, long samples_to_do, void *user_data)
 {
-	return SongFile_GetSamples(current_song.file, output_buffer, samples_to_do);
+	return SongFile_GetSamples((SongFile*)user_data, output_buffer, samples_to_do);
 }
 
 
@@ -100,7 +100,7 @@ static bool PlayOggMusic(const int song_id)
 			}
 			else
 			{
-				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song), channels);
+				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song), channels, song);
 
 				if (current_song.stream == NULL)
 				{
