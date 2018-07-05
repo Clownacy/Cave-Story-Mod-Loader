@@ -24,13 +24,13 @@ static cubeb *cubeb_context;
 
 static long (*UserDataCallback)(void*, void*, long);
 
-static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
+static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long frames_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
 
-	const unsigned int bytes_per_sample = stream->channel_count * 2;
+	const unsigned int bytes_per_frames = stream->channel_count * 2;
 
-	return UserDataCallback(stream->user_data, output_buffer, samples_to_do * bytes_per_sample) / bytes_per_sample;
+	return UserDataCallback(stream->user_data, output_buffer, frames_to_do * bytes_per_frames) / bytes_per_frames;
 }
 
 static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)

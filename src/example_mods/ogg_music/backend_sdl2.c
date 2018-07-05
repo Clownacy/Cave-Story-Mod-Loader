@@ -23,13 +23,13 @@ static long (*UserDataCallback)(void*, void*, long);
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
-	short *output_buffer_short = (short*)output_buffer;
 
 	const long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
 
+	short *output_buffer_short = (short*)output_buffer;
 	if (stream->volume != 0x100)
 	{
-		for (int i = 0; i < bytes_to_do / 2; ++i)
+		for (int i = 0; i < bytes_done / 2; ++i)
 		{
 			const short sample = (*output_buffer_short * stream->volume) / 0x100;
 			*output_buffer_short++ = sample;
