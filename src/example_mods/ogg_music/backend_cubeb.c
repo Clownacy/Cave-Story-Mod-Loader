@@ -22,7 +22,7 @@ typedef struct BackendStream
 
 static cubeb *cubeb_context;
 
-static long (*UserDataCallback)(void*, long, void*);
+static long (*UserDataCallback)(void*, void*, long);
 
 static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long samples_to_do)
 {
@@ -30,7 +30,7 @@ static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_b
 
 	const unsigned int bytes_per_sample = stream->channel_count * 2;
 
-	return UserDataCallback(output_buffer, samples_to_do * bytes_per_sample, stream->user_data) / bytes_per_sample;
+	return UserDataCallback(stream->user_data, output_buffer, samples_to_do * bytes_per_sample) / bytes_per_sample;
 }
 
 static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
@@ -38,7 +38,7 @@ static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
 
 }
 
-bool Backend_Init(long int (*callback)(void*, long, void*))
+bool Backend_Init(long int (*callback)(void*, void*, long))
 {
 	bool success = false;
 

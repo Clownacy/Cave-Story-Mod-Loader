@@ -32,6 +32,12 @@ static struct
 	unsigned int counter;
 } fade_out, fade_in;
 
+// Just here so we can implcitly cast the user_data parameter without a warning
+static long StreamCallback(void *user_data, void *output_buffer, long samples_to_do)
+{
+	return SongFile_GetSamples(user_data, output_buffer, samples_to_do);
+}
+
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
@@ -45,12 +51,6 @@ static void PreloadSongs(void)
 		LoadSong(playlist_entry);
 	}
 }
-
-static long StreamCallback(void *output_buffer, long samples_to_do, void *user_data)
-{
-	return SongFile_GetSamples((SongFile*)user_data, output_buffer, samples_to_do);
-}
-
 
 static void UnloadSong(Song *song)
 {
