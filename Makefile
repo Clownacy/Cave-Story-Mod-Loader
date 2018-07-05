@@ -58,7 +58,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
 
-all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
+all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/ogg_music/ogg_music_sdl2.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
@@ -72,7 +72,11 @@ bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 
-bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_sdl2.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
+bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_mini_al.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lvorbisfile -lvorbis -logg
+
+bin/mods/ogg_music/ogg_music_sdl2.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_sdl2.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS) -lvorbisfile -lvorbis -logg
 
