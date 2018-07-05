@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include <windows.h>
 
 #define MINI_AL_IMPLEMENTATION
 /*
@@ -106,16 +105,20 @@ bool Backend_SetVolume(BackendStream *stream, float volume)
 
 bool Backend_PauseStream(BackendStream *stream)
 {
-	if (stream)
-		mal_device_stop(&stream->device);
+	bool success = false;
 
-	return true;
+	if (stream)
+		success = mal_device_stop(&stream->device) == MAL_SUCCESS;
+
+	return success;
 }
 
 bool Backend_ResumeStream(BackendStream *stream)
 {
-	if (stream)
-		mal_device_start(&stream->device);
+	bool success = false;
 
-	return true;
+	if (stream)
+		success = mal_device_start(&stream->device) == MAL_SUCCESS;
+
+	return success;
 }
