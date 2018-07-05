@@ -5,8 +5,9 @@
 
 typedef struct MemoryFile MemoryFile;
 
-MemoryFile* MemoryFile_fopen(char *file_path);
+MemoryFile* MemoryFile_fopen(const char* const file_path);
+int MemoryFile_fclose(MemoryFile *file);
+
 size_t MemoryFile_fread(void *output, size_t size, size_t count, MemoryFile *file);
 int MemoryFile_fseek(MemoryFile *file, long long offset, int origin);
-int MemoryFile_fclose(MemoryFile *file);
 long MemoryFile_ftell(MemoryFile *file);

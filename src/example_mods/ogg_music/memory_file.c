@@ -13,7 +13,7 @@ typedef struct MemoryFile
 	long current_offset;
 } MemoryFile;
 
-MemoryFile* MemoryFile_fopen(char *file_path)
+MemoryFile* MemoryFile_fopen(const char* const file_path)
 {
 	MemoryFile *memory_file = NULL;
 
@@ -36,6 +36,14 @@ MemoryFile* MemoryFile_fopen(char *file_path)
 	}
 
 	return memory_file;
+}
+
+int MemoryFile_fclose(MemoryFile *file)
+{
+	free(file->data);
+	free(file);
+
+	return 0;
 }
 
 size_t MemoryFile_fread(void *output, size_t size, size_t count, MemoryFile *file)
@@ -76,14 +84,6 @@ int MemoryFile_fseek(MemoryFile *file, long long offset, int origin)
 			return -1;
 		}
 	}
-
-	return 0;
-}
-
-int MemoryFile_fclose(MemoryFile *file)
-{
-	free(file->data);
-	free(file);
 
 	return 0;
 }
