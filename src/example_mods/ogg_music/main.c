@@ -33,7 +33,7 @@ static struct
 } fade_out, fade_in;
 
 // Just here so we can implcitly cast the user_data parameter without a warning
-static long StreamCallback(void *user_data, void *output_buffer, long samples_to_do)
+static unsigned long StreamCallback(void *user_data, void *output_buffer, unsigned long samples_to_do)
 {
 	return SongFile_GetSamples(user_data, output_buffer, samples_to_do);
 }

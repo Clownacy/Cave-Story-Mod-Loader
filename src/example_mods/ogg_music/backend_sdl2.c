@@ -18,13 +18,13 @@ typedef struct BackendStream
 	void *user_data;
 } BackendStream;
 
-static long (*UserDataCallback)(void*, void*, long);
+static unsigned long (*UserDataCallback)(void*, void*, unsigned long);
 
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
 
-	const long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
+	const unsigned long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
 
 	// Handle volume in software, since SDL2's API doesn't have volume control
 	short *output_buffer_short = (short*)output_buffer;
@@ -37,13 +37,13 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 		}
 	}
 
-	const long bytes_to_clear = bytes_to_do - bytes_done;
+	const unsigned long bytes_to_clear = bytes_to_do - bytes_done;
 
 	if (bytes_to_clear)
 		memset(output_buffer_short, 0, bytes_to_clear);
 }
 
-bool Backend_Init(long int (*callback)(void*, void*, long))
+bool Backend_Init(unsigned long (*callback)(void*, void*, unsigned long))
 {
 	SDL_Init(SDL_INIT_AUDIO);
 

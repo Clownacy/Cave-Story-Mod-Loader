@@ -231,7 +231,7 @@ void SongFile_Reset(SongFile *this)
 	}
 }
 
-size_t SongFile_GetSamples(SongFile *this, void *output_buffer, size_t bytes_to_do)
+unsigned long SongFile_GetSamples(SongFile *this, void *output_buffer, unsigned long bytes_to_do)
 {
 	unsigned long bytes_done_total = 0;
 

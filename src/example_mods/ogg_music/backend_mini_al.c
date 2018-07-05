@@ -32,14 +32,14 @@ typedef struct BackendStream
 	void *user_data;
 } BackendStream;
 
-static long int (*UserDataCallback)(void*, void*, long);
+static unsigned long (*UserDataCallback)(void*, void*, unsigned long);
 
 static mal_uint32 DataCallbackWrapper(mal_device *device, mal_uint32 frames_to_do, void *output_buffer)
 {
 	BackendStream *stream = (BackendStream*)device->pUserData;
 	const unsigned int bytes_to_do = frames_to_do * stream->bytes_per_frame;
 
-	const long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
+	const unsigned long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
 
 	// Handle volume in software, since mini_al's API doesn't have volume control
 	short *output_buffer_short = output_buffer;
@@ -55,7 +55,7 @@ static mal_uint32 DataCallbackWrapper(mal_device *device, mal_uint32 frames_to_d
 	return bytes_done / stream->bytes_per_frame;
 }
 
-bool Backend_Init(long int (*callback)(void*, void*, long))
+bool Backend_Init(unsigned long (*callback)(void*, void*, unsigned long))
 {
 	UserDataCallback = callback;
 
