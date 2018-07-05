@@ -14,46 +14,42 @@
 
 typedef struct BackendStream
 {
+	unsigned long (*callback)(void*, void*, unsigned long);
+	void *user_data;
+
 	cubeb_stream *cubeb_stream_pointer;
 	unsigned int bytes_per_frame;
-	void *user_data;
 } BackendStream;
 
 static cubeb *cubeb_context;
 
-static unsigned long (*UserDataCallback)(void*, void*, unsigned long);
-
-static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long frames_to_do)
+static long data_callback(cubeb_stream *c_stream, void *user_data, void const *input_buffer, void *output_buffer, long frames_to_do)
 {
+	(void)c_stream;
+	(void)input_buffer;
+
 	BackendStream *stream = (BackendStream*)user_data;
 
-	return UserDataCallback(stream->user_data, output_buffer, frames_to_do * stream->bytes_per_frame) / stream->bytes_per_frame;
+	return stream->callback(stream->user_data, output_buffer, frames_to_do * stream->bytes_per_frame) / stream->bytes_per_frame;
 }
 
-static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
+static void state_callback(cubeb_stream *stream, void *user_data, cubeb_state state)
 {
-
+	(void)stream;
+	(void)user_data;
+	(void)state;
 }
 
-bool Backend_Init(unsigned long (*callback)(void*, void*, unsigned long))
+bool Backend_Init(void)
 {
-	bool success = false;
-
 #ifdef _WIN32
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);	// Cubeb needs us to init COM
 #endif
 
-	if (cubeb_init(&cubeb_context, "Ogg player for Cave Story", NULL) == CUBEB_OK)
-	{
-		UserDataCallback = callback;
-
-		success = true;
-	}
-
-	return success;
+	return cubeb_init(&cubeb_context, NULL, NULL) == CUBEB_OK;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, void *user_data)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, unsigned long (*callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = NULL;
 
@@ -81,11 +77,13 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 			stream = malloc(sizeof(BackendStream));
 			cubeb_stream *cubeb_stream_pointer;
 
-			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, stream) == CUBEB_OK)
+			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, NULL, NULL, NULL, NULL, &output_params, latency_frames, data_callback, state_callback, stream) == CUBEB_OK)
 			{
+				stream->callback = callback;
+				stream->user_data = user_data;
+
 				stream->cubeb_stream_pointer = cubeb_stream_pointer;
 				stream->bytes_per_frame = channel_count * sizeof(short);
-				stream->user_data = user_data;
 			}
 			else
 			{
@@ -104,14 +102,14 @@ bool Backend_DestroyStream(BackendStream *stream)
 
 	if (stream)
 	{
-		if (cubeb_stream_stop(stream->cubeb_stream_pointer) != CUBEB_OK)
-		{
-			success = false;
-		}
-		else
+		if (cubeb_stream_stop(stream->cubeb_stream_pointer) == CUBEB_OK)
 		{
 			cubeb_stream_destroy(stream->cubeb_stream_pointer);
 			free(stream);
+		}
+		else
+		{
+			success = false;
 		}
 	}
 
@@ -133,7 +131,7 @@ bool Backend_PauseStream(BackendStream *stream)
 	bool success = true;
 
 	if (stream)
-		success = (cubeb_stream_stop(stream->cubeb_stream_pointer) == CUBEB_OK);
+		success = cubeb_stream_stop(stream->cubeb_stream_pointer) == CUBEB_OK;
 
 	return success;
 }
@@ -143,7 +141,7 @@ bool Backend_ResumeStream(BackendStream *stream)
 	bool success = true;
 
 	if (stream)
-		success = (cubeb_stream_start(stream->cubeb_stream_pointer) == CUBEB_OK);
+		success = cubeb_stream_start(stream->cubeb_stream_pointer) == CUBEB_OK;
 
 	return success;
 }

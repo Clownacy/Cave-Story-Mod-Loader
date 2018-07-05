@@ -11,18 +11,18 @@
 
 typedef struct BackendStream
 {
+	unsigned long (*callback)(void*, void*, unsigned long);
+	void *user_data;
+
 	SDL_AudioDeviceID device;
 	unsigned int volume;
-	void *user_data;
 } BackendStream;
-
-static unsigned long (*UserDataCallback)(void*, void*, unsigned long);
 
 static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, int bytes_to_do)
 {
 	BackendStream *stream = (BackendStream*)user_data;
 
-	const unsigned long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
+	const unsigned long bytes_done = stream->callback(stream->user_data, output_buffer, bytes_to_do);
 
 	// Handle volume in software, since SDL2's API doesn't have volume control
 	short *output_buffer_short = (short*)output_buffer;
@@ -41,16 +41,14 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 		memset(output_buffer_short, 0, bytes_to_clear);
 }
 
-bool Backend_Init(unsigned long (*callback)(void*, void*, unsigned long))
+bool Backend_Init(void)
 {
 	SDL_Init(SDL_INIT_AUDIO);
-
-	UserDataCallback = callback;
 
 	return true;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, void *user_data)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, unsigned long (*callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
@@ -67,9 +65,11 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 
 	if (device)
 	{
+		stream->callback = callback;
+		stream->user_data = user_data;
+
 		stream->device = device;
 		stream->volume = 0x100;
-		stream->user_data = user_data;
 	}
 	else
 	{

@@ -112,7 +112,7 @@ static bool PlayOggMusic(const int song_id)
 			}
 			else
 			{
-				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song), channels, song);
+				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song), channels, StreamCallback, song);
 
 				if (current_song.stream == NULL)
 				{
@@ -282,7 +282,7 @@ void InitMod(void)
 
 	if (InitPlaylist())
 	{
-		if (Backend_Init(StreamCallback))
+		if (Backend_Init())
 		{
 			if (setting_preload)
 				PreloadSongs();
