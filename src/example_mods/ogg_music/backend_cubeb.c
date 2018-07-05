@@ -5,13 +5,12 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdlib.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
 #include <cubeb/cubeb.h>
-
-#include "mod_loader.h"
 
 typedef struct BackendStream
 {
@@ -64,11 +63,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	output_params.prefs = CUBEB_STREAM_PREF_NONE;
 	output_params.channels = channel_count;
 
-	if (channel_count < 1 || channel_count > 2)
-	{
-		ModLoader_PrintError("ogg_music: Invalid channel count (must be 1 or 2)\n");
-	}
-	else
+	if (channel_count == 1 || channel_count == 2)
 	{
 		if (channel_count == 1)
 		{
@@ -81,26 +76,21 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 
 		uint32_t latency_frames;
 
-		if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not get minimum latency\n");
-		}
-		else
+		if (cubeb_get_min_latency(cubeb_context, &output_params, &latency_frames) == CUBEB_OK)
 		{
 			stream = malloc(sizeof(BackendStream));
 			cubeb_stream *cubeb_stream_pointer;
 
-			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, stream) != CUBEB_OK)
-			{
-				ModLoader_PrintError("ogg_music: Could not open the stream\n");
-				free(stream);
-				stream = NULL;
-			}
-			else
+			if (cubeb_stream_init(cubeb_context, &cubeb_stream_pointer, "Main Stream", NULL, NULL, NULL, &output_params, latency_frames, data_cb, state_cb, stream) == CUBEB_OK)
 			{
 				stream->cubeb_stream_pointer = cubeb_stream_pointer;
 				stream->bytes_per_frame = channel_count * sizeof(short);
 				stream->user_data = user_data;
+			}
+			else
+			{
+				free(stream);
+				stream = NULL;
 			}
 		}
 	}
@@ -116,7 +106,6 @@ bool Backend_DestroyStream(BackendStream *stream)
 	{
 		if (cubeb_stream_stop(stream->cubeb_stream_pointer) != CUBEB_OK)
 		{
-			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
 			success = false;
 		}
 		else
@@ -134,13 +123,7 @@ bool Backend_SetVolume(BackendStream *stream, float volume)
 	bool success = true;
 
 	if (stream)
-	{
-		if (cubeb_stream_set_volume(stream->cubeb_stream_pointer, volume) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not set the stream's volume\n");
-			success = false;
-		}
-	}
+		success = cubeb_stream_set_volume(stream->cubeb_stream_pointer, volume) == CUBEB_OK;
 
 	return success;
 }
@@ -150,13 +133,7 @@ bool Backend_PauseStream(BackendStream *stream)
 	bool success = true;
 
 	if (stream)
-	{
-		if (cubeb_stream_stop(stream->cubeb_stream_pointer) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not stop the stream\n");
-			success = false;
-		}
-	}
+		success = (cubeb_stream_stop(stream->cubeb_stream_pointer) == CUBEB_OK);
 
 	return success;
 }
@@ -166,13 +143,7 @@ bool Backend_ResumeStream(BackendStream *stream)
 	bool success = true;
 
 	if (stream)
-	{
-		if (cubeb_stream_start(stream->cubeb_stream_pointer) != CUBEB_OK)
-		{
-			ModLoader_PrintError("ogg_music: Could not start the stream\n");
-			success = false;
-		}
-	}
+		success = (cubeb_stream_start(stream->cubeb_stream_pointer) == CUBEB_OK);
 
 	return success;
 }

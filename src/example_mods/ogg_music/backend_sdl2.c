@@ -9,8 +9,6 @@
 
 #include <SDL2/SDL.h>
 
-#include "mod_loader.h"
-
 typedef struct BackendStream
 {
 	SDL_AudioDeviceID device;
@@ -75,7 +73,6 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 	}
 	else
 	{
-		ModLoader_PrintError("ogg_music: Could not open the stream\n");
 		free(stream);
 		stream = NULL;
 	}

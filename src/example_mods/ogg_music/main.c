@@ -38,6 +38,12 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 	return SongFile_GetSamples(user_data, output_buffer, samples_to_do);
 }
 
+static void SetBackendVolume(BackendStream *stream, float volume)
+{
+	if (!Backend_SetVolume(stream, volume))
+		ModLoader_PrintError("ogg_music: Could not set the stream's volume\n");
+}
+
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
@@ -61,16 +67,22 @@ static void UnloadSong(Song *song)
 		else
 			SongFile_Unload(song->file);
 	}
+	else
+	{
+		ModLoader_PrintError("ogg_music: Could not destroy the stream\n");
+	}
 }
 
 static void PauseSong(void)
 {
-	Backend_PauseStream(current_song.stream);
+	if (!Backend_PauseStream(current_song.stream))
+		ModLoader_PrintError("ogg_music: Could not pause the stream\n");
 }
 
 static void ResumeSong(void)
 {
-	Backend_ResumeStream(current_song.stream);
+	if (!Backend_ResumeStream(current_song.stream))
+		ModLoader_PrintError("ogg_music: Could not resume the stream\n");
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -104,6 +116,8 @@ static bool PlayOggMusic(const int song_id)
 
 				if (current_song.stream == NULL)
 				{
+					ModLoader_PrintError("ogg_music: Could not create the stream\n");
+
 					if (!setting_preload)
 						SongFile_Unload(song);
 				}
@@ -145,7 +159,7 @@ static void PlayMusic_new(const int music_id)
 {
 	if (music_id == 0 || music_id != CS_current_music)
 	{
-		Backend_SetVolume(current_song.stream, 1.0f);
+		SetBackendVolume(current_song.stream, 1.0f);
 
 		CS_previous_music = CS_current_music;
 
@@ -180,7 +194,7 @@ static void PlayPreviousMusic_new(void)
 {
 	if (setting_fade_in_previous_song)
 	{
-		Backend_SetVolume(current_song.stream, 0.0f);
+		SetBackendVolume(current_song.stream, 0.0f);
 		fade_in.active = true;
 		fade_in.counter = 0;
 	}
@@ -230,7 +244,7 @@ void UpdateMusicFade(void)
 	if (fade_out.active)
 	{
 		const float volume_float = fade_out.counter / (60.0f * 5);
-		Backend_SetVolume(current_song.stream, volume_float * volume_float);
+		SetBackendVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_out.counter-- == 0)
 		{
@@ -241,7 +255,7 @@ void UpdateMusicFade(void)
 	else if (fade_in.active)
 	{
 		const float volume_float = fade_in.counter / (60.0f * 2);
-		Backend_SetVolume(current_song.stream, volume_float * volume_float);
+		SetBackendVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_in.counter++ == 60 * 2)
 		{
@@ -266,19 +280,26 @@ void InitMod(void)
 	setting_predecode = ModLoader_GetSettingBool("predecode_songs", false);
 	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
 
-	if (InitPlaylist() && Backend_Init(StreamCallback))
+	if (InitPlaylist())
 	{
-		if (setting_preload)
-			PreloadSongs();
-		// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
-		ModLoader_WriteJump(CS_PlayMusic, PlayMusic_new);
-		ModLoader_WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
-		// We also need to replace the music pausing/resuming when the window focus changes
-		ModLoader_WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
-		ModLoader_WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
-		// Patch fading
-		ModLoader_WriteJump(CS_FadeMusic, FadeMusic_new);
-		// Insert hook for per-frame fade updating
-		ModLoader_WriteJump((void*)0x40B44B, &UpdateMusicFade_asm);
+		if (Backend_Init(StreamCallback))
+		{
+			if (setting_preload)
+				PreloadSongs();
+			// Replace PlayMusic and PlayPreviousMusic with our custom Ogg ones
+			ModLoader_WriteJump(CS_PlayMusic, PlayMusic_new);
+			ModLoader_WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
+			// We also need to replace the music pausing/resuming when the window focus changes
+			ModLoader_WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
+			ModLoader_WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
+			// Patch fading
+			ModLoader_WriteJump(CS_FadeMusic, FadeMusic_new);
+			// Insert hook for per-frame fade updating
+			ModLoader_WriteJump((void*)0x40B44B, &UpdateMusicFade_asm);
+		}
+		else
+		{
+			ModLoader_PrintError("ogg_music: Could not initialise backend\n");
+		}
 	}
 }
