@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-#include <string.h>
+#include <stdlib.h>
 
 #include <SDL2/SDL.h>
 
