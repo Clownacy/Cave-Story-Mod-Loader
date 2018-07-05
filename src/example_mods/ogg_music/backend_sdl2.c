@@ -26,10 +26,11 @@ static void DataCallbackWrapper(void *user_data, unsigned char *output_buffer, i
 
 	const long bytes_done = UserDataCallback(stream->user_data, output_buffer, bytes_to_do);
 
+	// Handle volume in software, since SDL2's API doesn't have volume control
 	short *output_buffer_short = (short*)output_buffer;
 	if (stream->volume != 0x100)
 	{
-		for (int i = 0; i < bytes_done / 2; ++i)
+		for (unsigned int i = 0; i < bytes_done / sizeof(short); ++i)
 		{
 			const short sample = (*output_buffer_short * stream->volume) / 0x100;
 			*output_buffer_short++ = sample;

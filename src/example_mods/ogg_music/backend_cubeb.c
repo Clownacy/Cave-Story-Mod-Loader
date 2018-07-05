@@ -16,7 +16,7 @@
 typedef struct BackendStream
 {
 	cubeb_stream *cubeb_stream_pointer;
-	unsigned int channel_count;
+	unsigned int bytes_per_frame;
 	void *user_data;
 } BackendStream;
 
@@ -28,9 +28,7 @@ static long data_cb(cubeb_stream *c_stream, void *user_data, void const *input_b
 {
 	BackendStream *stream = (BackendStream*)user_data;
 
-	const unsigned int bytes_per_frames = stream->channel_count * 2;
-
-	return UserDataCallback(stream->user_data, output_buffer, frames_to_do * bytes_per_frames) / bytes_per_frames;
+	return UserDataCallback(stream->user_data, output_buffer, frames_to_do * stream->bytes_per_frame) / stream->bytes_per_frame;
 }
 
 static void state_cb(cubeb_stream *stream, void *user_data, cubeb_state state)
@@ -101,7 +99,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 			else
 			{
 				stream->cubeb_stream_pointer = cubeb_stream_pointer;
-				stream->channel_count = channel_count;
+				stream->bytes_per_frame = channel_count * sizeof(short);
 				stream->user_data = user_data;
 			}
 		}
