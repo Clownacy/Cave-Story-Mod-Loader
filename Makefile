@@ -2,7 +2,7 @@ MOD_LOADER_VERSION = v1.4
 COMMON_PATH = src/common
 
 CC = gcc
-CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -Wno-unused-parameter -fomit-frame-pointer -fno-ident -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
+CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -fomit-frame-pointer -fno-ident -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
 LIBS = -I$(COMMON_PATH)
 
 SDL_CFLAGS := $(shell sdl2-config --cflags)
