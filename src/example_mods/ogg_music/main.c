@@ -164,7 +164,6 @@ static void PlayMusic_new(const int music_id)
 		CS_previous_music = CS_current_music;
 
 		PauseSong();
-
 		UnloadSong(&previous_song);
 		previous_song = current_song;
 		current_song = blank_song;
@@ -192,13 +191,6 @@ static void PlayMusic_new(const int music_id)
 
 static void PlayPreviousMusic_new(void)
 {
-	if (setting_fade_in_previous_song)
-	{
-		SetBackendVolume(current_song.stream, 0.0f);
-		fade_in.active = true;
-		fade_in.counter = 0;
-	}
-
 	if (!previous_song.is_org)
 	{
 		// Silence any Org music that might be playing
@@ -207,6 +199,13 @@ static void PlayPreviousMusic_new(void)
 		UnloadSong(&current_song);
 		current_song = previous_song;
 		previous_song = blank_song;
+
+		if (setting_fade_in_previous_song)
+		{
+			SetBackendVolume(current_song.stream, 0.0f);
+			fade_in.active = true;
+			fade_in.counter = 0;
+		}
 
 		ResumeSong();
 	}
