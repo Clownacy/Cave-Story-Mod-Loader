@@ -18,7 +18,6 @@ typedef struct Song {
 
 	bool fade_in_active;
 	bool fade_out_active;
-	float fade_counter_max;
 	unsigned int fade_counter;
 } Song;
 
@@ -30,6 +29,53 @@ static const Song blank_song;
 
 static Song current_song;
 static Song previous_song;
+
+static unsigned long StreamCallback(void *user_data, void *output_buffer, unsigned long bytes_to_do)
+{
+	Song *song = user_data;
+
+	unsigned long bytes_done = SongFile_GetSamples(song->file, output_buffer, bytes_to_do);
+
+	if (song->fade_out_active)
+	{
+		const unsigned int channels = SongFile_GetChannels(song->file);
+		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 5;
+
+		short *output_buffer_short = output_buffer;
+		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
+		{
+			const float volume_float = song->fade_counter / (float)fade_counter_max;
+
+			for (unsigned int i = 0; i < channels; ++i)
+				*output_buffer_short++ *= volume_float * volume_float;
+
+			if (song->fade_counter)
+				--song->fade_counter;
+		}
+	}
+	else if (song->fade_in_active)
+	{
+		const unsigned int channels = SongFile_GetChannels(song->file);
+		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 2;
+
+		short *output_buffer_short = output_buffer;
+		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
+		{
+			const float volume_float = song->fade_counter / (float)fade_counter_max;
+
+			for (unsigned int i = 0; i < channels; ++i)
+				*output_buffer_short++ *= volume_float * volume_float;
+
+			if (++song->fade_counter == fade_counter_max)
+			{
+				song->fade_in_active = false;
+				break;
+			}
+		}
+	}
+
+	return bytes_done;
+}
 
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
@@ -70,51 +116,6 @@ static void ResumeSong(BackendStream *stream)
 {
 	if (!Backend_ResumeStream(stream))
 		ModLoader_PrintError("ogg_music: Could not resume the stream\n");
-}
-
-static unsigned long StreamCallback(void *user_data, void *output_buffer, unsigned long bytes_to_do)
-{
-	Song *song = user_data;
-
-	unsigned long bytes_done = SongFile_GetSamples(song->file, output_buffer, bytes_to_do);
-
-	if (song->fade_out_active)
-	{
-		const unsigned int channels = SongFile_GetChannels(song->file);
-
-		short *output_buffer_short = (short*)output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
-		{
-			const float volume_float = song->fade_counter / song->fade_counter_max;
-
-			for (unsigned int i = 0; i < channels; ++i)
-				*output_buffer_short++ *= volume_float * volume_float;
-
-			if (song->fade_counter)
-				--song->fade_counter;
-		}
-	}
-	else if (song->fade_in_active)
-	{
-		const unsigned int channels = SongFile_GetChannels(song->file);
-
-		short *output_buffer_short = (short*)output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
-		{
-			const float volume_float = song->fade_counter / song->fade_counter_max;
-
-			for (unsigned int i = 0; i < channels; ++i)
-				*output_buffer_short++ *= volume_float * volume_float;
-
-			if (song->fade_counter++ == song->fade_counter_max)
-			{
-				song->fade_in_active = false;
-				break;
-			}
-		}
-	}
-
-	return bytes_done;
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -232,7 +233,6 @@ static void PlayPreviousMusic_new(void)
 
 		if (setting_fade_in_previous_song)
 		{
-			current_song.fade_counter_max = SongFile_GetSampleRate(current_song.file) * 2;
 			current_song.fade_counter = 0;
 			current_song.fade_in_active = true;
 		}
@@ -264,8 +264,7 @@ static void WindowFocusLost_new(void)
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
-	current_song.fade_counter_max = SongFile_GetSampleRate(current_song.file) * 5;
-	current_song.fade_counter = current_song.fade_counter_max;
+	current_song.fade_counter = (SongFile_GetSampleRate(current_song.file) * 5) - 1;
 	current_song.fade_out_active = true;
 }
 
