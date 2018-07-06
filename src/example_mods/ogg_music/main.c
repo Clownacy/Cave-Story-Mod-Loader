@@ -38,7 +38,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 
 	if (song->fade_out_active)
 	{
-		const unsigned int channels = SongFile_GetChannels(song->file);
+		const unsigned int channels = SongFile_GetChannelCount(song->file);
 		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 5;
 
 		short *output_buffer_short = output_buffer;
@@ -55,7 +55,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 	}
 	else if (song->fade_in_active)
 	{
-		const unsigned int channels = SongFile_GetChannels(song->file);
+		const unsigned int channels = SongFile_GetChannelCount(song->file);
 		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 2;
 
 		short *output_buffer_short = output_buffer;
@@ -133,7 +133,7 @@ static bool PlayOggMusic(const int song_id)
 
 		if (song_file)
 		{
-			unsigned int channels = SongFile_GetChannels(song_file);
+			unsigned int channels = SongFile_GetChannelCount(song_file);
 
 			if (channels != 1 && channels != 2)
 			{

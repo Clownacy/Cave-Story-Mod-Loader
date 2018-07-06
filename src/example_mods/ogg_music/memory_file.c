@@ -13,6 +13,17 @@ typedef struct MemoryFile
 	long current_offset;
 } MemoryFile;
 
+MemoryFile* MemoryFile_fopen_from(unsigned char *data, size_t size)
+{
+	MemoryFile *memory_file = malloc(sizeof(MemoryFile));
+
+	memory_file->data = data;
+	memory_file->size = size;
+	memory_file->current_offset = 0;
+
+	return memory_file;
+}
+
 MemoryFile* MemoryFile_fopen(const char* const file_path)
 {
 	MemoryFile *memory_file = NULL;
@@ -20,19 +31,18 @@ MemoryFile* MemoryFile_fopen(const char* const file_path)
 	FILE *file = fopen(file_path, "rb");
 	if (file != NULL)
 	{
-		memory_file = malloc(sizeof(MemoryFile));
 
 		fseek(file, 0, SEEK_END);
-		memory_file->size = ftell(file);
+		const size_t size = ftell(file);
 		rewind(file);
 
-		memory_file->data = malloc(memory_file->size);
+		unsigned char *data = malloc(size);
 
-		fread(memory_file->data, 1, memory_file->size, file);
+		fread(data, 1, size, file);
 
 		fclose(file);
 
-		memory_file->current_offset = 0;
+		memory_file = MemoryFile_fopen_from(data, size);
 	}
 
 	return memory_file;
@@ -60,7 +70,7 @@ size_t MemoryFile_fread(void *output, size_t size, size_t count, MemoryFile *fil
 	return count;
 }
 
-int MemoryFile_fseek(MemoryFile *file, long long offset, int origin)
+int MemoryFile_fseek(MemoryFile *file, long offset, int origin)
 {
 	switch (origin)
 	{
