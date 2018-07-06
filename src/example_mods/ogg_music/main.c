@@ -80,29 +80,31 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 
 	if (song->fade_out_active)
 	{
+		const unsigned int channels = SongFile_GetChannels(song->file);
+
 		short *output_buffer_short = (short*)output_buffer;
-		for (unsigned int i = 0; i < bytes_done / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / song->fade_counter_max;
 
-			*output_buffer_short++ *= volume_float * volume_float;
+			for (unsigned int i = 0; i < channels; ++i)
+				*output_buffer_short++ *= volume_float * volume_float;
 
-			if (song->fade_counter-- == 0)
-			{
-				song->fade_out_active = false;
-				PauseSong(song->stream);
-				break;
-			}
+			if (song->fade_counter)
+				--song->fade_counter;
 		}
 	}
 	else if (song->fade_in_active)
 	{
+		const unsigned int channels = SongFile_GetChannels(song->file);
+
 		short *output_buffer_short = (short*)output_buffer;
-		for (unsigned int i = 0; i < bytes_done / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / song->fade_counter_max;
 
-			*output_buffer_short++ *= volume_float * volume_float;
+			for (unsigned int i = 0; i < channels; ++i)
+				*output_buffer_short++ *= volume_float * volume_float;
 
 			if (song->fade_counter++ == song->fade_counter_max)
 			{
@@ -196,7 +198,7 @@ static void PlayMusic_new(const int music_id)
 		previous_song = current_song;
 		current_song = blank_song;
 
-		if (music_id == 0 || PlayOggMusic(music_id - 1))
+		if (music_id != 0 && PlayOggMusic(music_id - 1))
 		{
 			// Ogg music played successfully,
 			// silence any org music that might be playing
@@ -219,14 +221,14 @@ static void PlayMusic_new(const int music_id)
 
 static void PlayPreviousMusic_new(void)
 {
-	if (!previous_song.is_org)
+	UnloadSong(&current_song);
+	current_song = previous_song;
+	previous_song = blank_song;
+
+	if (!current_song.is_org)
 	{
 		// Silence any Org music that might be playing
 		PlayOrgMusic(0);
-
-		UnloadSong(&current_song);
-		current_song = previous_song;
-		previous_song = blank_song;
 
 		if (setting_fade_in_previous_song)
 		{
