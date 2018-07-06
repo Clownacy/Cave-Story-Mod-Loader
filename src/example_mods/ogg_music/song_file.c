@@ -184,10 +184,8 @@ SongFile* SongFile_Load(const char* const path, bool loops, bool predecoded)
 
 	Fail2:
 
-	MemoryFile_fclose(file[0]);
-
-	if (song->is_split)
-		MemoryFile_fclose(file[1]);
+	for (unsigned int i = 0; i < (song->is_split ? 2 : 1); ++i)
+		MemoryFile_fclose(file[i]);
 
 	//goto Fail1;
 
@@ -287,7 +285,7 @@ unsigned long SongFile_GetSamples(SongFile *this, void *output_buffer, unsigned 
 
 unsigned int SongFile_GetChannels(SongFile *this)
 {
-	return this ? this->channel_count : 9;
+	return this ? this->channel_count : 0;
 }
 
 unsigned int SongFile_GetSampleRate(SongFile *this)
