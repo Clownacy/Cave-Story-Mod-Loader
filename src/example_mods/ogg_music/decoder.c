@@ -4,8 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <vorbis/vorbisfile.h>
-
+#include "decoder_ogg.h"
 #include "memory_file.h"
 
 typedef struct Decoder
@@ -14,82 +13,64 @@ typedef struct Decoder
 	unsigned int channel_count;
 	unsigned int sample_rate;
 
-	MemoryFile *file;
-	MemoryFile *decoded_file;
-	OggVorbis_File vorbis_file;
+	void (*close)(void *this);
+	void (*rewind)(void *this);
+	long (*get_samples)(void *this, void *output_buffer, unsigned long bytes_to_do);
+
+	void *backend;
 } Decoder;
 
-int MemoryFile_fseek_wrapper(MemoryFile *file, long long offset, int origin)
+static void Decode_Predecode_Close(MemoryFile *this)
 {
-	return MemoryFile_fseek(file, offset, origin);
+	MemoryFile_fclose(this);
 }
 
-static const ov_callbacks ov_callback_memory = {
-	(size_t (*)(void*, size_t, size_t, void*))  MemoryFile_fread,
-	(int (*)(void*, long long, int))            MemoryFile_fseek_wrapper,
-	(int (*)(void*))                            NULL,
-	(long (*)(void*))                           MemoryFile_ftell
-};
-
-static unsigned long ReadOggToBuffer(Decoder *this, void *buffer, unsigned long bytes_to_do)
+static void Decode_Predecoded_Rewind(MemoryFile *this)
 {
-	unsigned long bytes_done_total = 0;
-
-	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
-	{
-		bytes_done = ov_read(&this->vorbis_file, buffer + bytes_done_total, bytes_to_do - bytes_done_total, 0, 2, 1, NULL);
-
-		if (bytes_done == 0)
-			break;
-	}
-
-	return bytes_done_total;
+	MemoryFile_fseek(this, 0, SEEK_SET);
 }
 
-static unsigned long ReadPCMToBuffer(Decoder *this, char *buffer, unsigned long bytes_to_do)
+static unsigned long Decode_Predecoded_ReadSamples(MemoryFile *this, char *buffer, unsigned long bytes_to_do)
 {
-	return MemoryFile_fread(buffer, 1, bytes_to_do, this->decoded_file);
+	return MemoryFile_fread(buffer, 1, bytes_to_do, this);
 }
 
 Decoder* Decoder_Open(const char* const file_path, bool predecode)
 {
-	Decoder *this = malloc(sizeof(Decoder));
+	Decoder *this = NULL;
 
-	this->file = MemoryFile_fopen(file_path);
+	unsigned int channel_count, sample_rate;
+	void *decode_ogg = Decode_Ogg_Load(file_path, &channel_count, &sample_rate);
 
-	if (this->file)
+	if (decode_ogg)
 	{
-		if (ov_open_callbacks(this->file, &this->vorbis_file, NULL, 0, ov_callback_memory) == 0)
+		this = malloc(sizeof(Decoder));
+
+		this->predecoded = predecode;
+		this->channel_count = channel_count;
+		this->sample_rate = sample_rate;
+
+		if (predecode)
 		{
-			this->predecoded = predecode;
+			const size_t size = Decode_Ogg_GetSize(decode_ogg);
+			unsigned char *data = malloc(size);
 
-			vorbis_info *info = ov_info(&this->vorbis_file, -1);
-			this->channel_count = info->channels;
-			this->sample_rate = info->rate;
+			Decode_Ogg_ReadSamples(decode_ogg, data, size);
 
-			if (predecode)
-			{
-				size_t size = ov_pcm_total(&this->vorbis_file, -1) * sizeof(short) * ov_info(&this->vorbis_file, -1)->channels;
-				unsigned char *data = malloc(size);
+			Decode_Ogg_Close(decode_ogg);
 
-				ReadOggToBuffer(this, data, size);
-
-				ov_clear(&this->vorbis_file);
-				MemoryFile_fclose(this->file);
-
-				this->decoded_file = MemoryFile_fopen_from(data, size);
-			}
+			this->close = (void (*)(void*))Decode_Predecode_Close;
+			this->rewind = (void (*)(void*))Decode_Predecoded_Rewind;
+			this->get_samples = (long (*)(void*, void*, unsigned long))Decode_Predecoded_ReadSamples;
+			this->backend = MemoryFile_fopen_from(data, size);
 		}
 		else
 		{
-			free(this);
-			this = NULL;
+			this->close = (void (*)(void*))Decode_Ogg_Close;
+			this->rewind = (void (*)(void*))Decode_Ogg_Rewind;
+			this->get_samples = (long (*)(void*, void*, unsigned long))Decode_Ogg_ReadSamples;
+			this->backend = decode_ogg;
 		}
-	}
-	else
-	{
-		free(this);
-		this = NULL;
 	}
 
 	return this;
@@ -98,40 +79,18 @@ Decoder* Decoder_Open(const char* const file_path, bool predecode)
 void Decoder_Close(Decoder *this)
 {
 	if (this)
-	{
-		if (this->predecoded)
-		{
-			MemoryFile_fclose(this->decoded_file);
-		}
-		else
-		{
-			ov_clear(&this->vorbis_file);
-			MemoryFile_fclose(this->file);
-		}
-	}
+		this->close(this->backend);
 }
 
 void Decoder_Rewind(Decoder *this)
 {
 	if (this)
-	{
-		if (this->predecoded)
-			MemoryFile_fseek(this->decoded_file, 0, SEEK_SET);
-		else
-			ov_time_seek(&this->vorbis_file, 0);
-	}
+		this->rewind(this->backend);
 }
 
 unsigned long Decoder_GetSamples(Decoder *this, void *output_buffer, unsigned long bytes_to_do)
 {
-	unsigned long bytes_done;
-
-	if (this->predecoded)
-		bytes_done = ReadPCMToBuffer(this, output_buffer, bytes_to_do);
-	else
-		bytes_done = ReadOggToBuffer(this, output_buffer, bytes_to_do);
-
-	return bytes_done;
+	return this->get_samples(this->backend, output_buffer, bytes_to_do);
 }
 
 unsigned int Decoder_GetChannelCount(Decoder *this)
