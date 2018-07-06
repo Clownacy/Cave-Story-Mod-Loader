@@ -287,10 +287,10 @@ unsigned long SongFile_GetSamples(SongFile *this, void *output_buffer, unsigned 
 
 unsigned int SongFile_GetChannels(SongFile *this)
 {
-	return this->channel_count;
+	return this ? this->channel_count : 9;
 }
 
 unsigned int SongFile_GetSampleRate(SongFile *this)
 {
-	return this->sample_rate;
+	return this ? this->sample_rate : 0;
 }
