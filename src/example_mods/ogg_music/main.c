@@ -38,7 +38,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 	return SongFile_GetSamples(user_data, output_buffer, samples_to_do);
 }
 
-static void SetBackendVolume(BackendStream *stream, float volume)
+static void SetVolume(BackendStream *stream, float volume)
 {
 	if (!Backend_SetVolume(stream, volume))
 		ModLoader_PrintError("ogg_music: Could not set the stream's volume\n");
@@ -159,7 +159,7 @@ static void PlayMusic_new(const int music_id)
 {
 	if (music_id == 0 || music_id != CS_current_music)
 	{
-		SetBackendVolume(current_song.stream, 1.0f);
+		SetVolume(current_song.stream, 1.0f);
 
 		CS_previous_music = CS_current_music;
 
@@ -202,7 +202,7 @@ static void PlayPreviousMusic_new(void)
 
 		if (setting_fade_in_previous_song)
 		{
-			SetBackendVolume(current_song.stream, 0.0f);
+			SetVolume(current_song.stream, 0.0f);
 			fade_in.active = true;
 			fade_in.counter = 0;
 		}
@@ -243,7 +243,7 @@ void UpdateMusicFade(void)
 	if (fade_out.active)
 	{
 		const float volume_float = fade_out.counter / (60.0f * 5);
-		SetBackendVolume(current_song.stream, volume_float * volume_float);
+		SetVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_out.counter-- == 0)
 		{
@@ -254,7 +254,7 @@ void UpdateMusicFade(void)
 	else if (fade_in.active)
 	{
 		const float volume_float = fade_in.counter / (60.0f * 2);
-		SetBackendVolume(current_song.stream, volume_float * volume_float);
+		SetVolume(current_song.stream, volume_float * volume_float);
 
 		if (fade_in.counter++ == 60 * 2)
 		{
