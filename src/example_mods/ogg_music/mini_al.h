@@ -1,5 +1,5 @@
 // Audio playback and capture library. Public domain. See "unlicense" statement at the end of this file.
-// mini_al - v0.8 - 2018-07-05
+// mini_al - v0.x-dev - 2018-xx-xx
 //
 // David Reid - davidreidsoftware@gmail.com
 
@@ -14079,7 +14079,7 @@ mal_result mal_device_init__coreaudio(mal_context* pContext, mal_device_type dev
     
     
     // Audio unit.
-    OSStatus status = ((mal_AudioComponentInstanceNew_proc)pContext->coreaudio.AudioComponentInstanceNew)(pDevice->coreaudio.component, (AudioUnit*)&pDevice->coreaudio.audioUnit);
+    OSStatus status = ((mal_AudioComponentInstanceNew_proc)pContext->coreaudio.AudioComponentInstanceNew)((AudioComponent)pDevice->coreaudio.component, (AudioUnit*)&pDevice->coreaudio.audioUnit);
     if (status != noErr) {
         return mal_result_from_OSStatus(status);
     }
@@ -15075,7 +15075,7 @@ mal_result mal_context_enumerate_devices__opensl(mal_context* pContext, mal_enum
     goto return_default_device;
 #endif
 
-return_default_device:
+return_default_device:;
     mal_bool32 cbResult = MAL_TRUE;
 
     // Playback.
@@ -23041,7 +23041,6 @@ static MAL_INLINE float mal_src_sinc__get_input_sample_from_window(const mal_src
     mal_assert(sampleIndex <   (mal_int32)pSRC->config.sinc.windowWidth);
 
     // The window should always be contained within the input cache.
-    mal_assert(windowPosInSamples >= 0);
     mal_assert(windowPosInSamples <  mal_countof(pSRC->sinc.input[0]) - pSRC->config.sinc.windowWidth);
     
     return pSRC->sinc.input[channel][windowPosInSamples + pSRC->config.sinc.windowWidth + sampleIndex];
@@ -25821,6 +25820,10 @@ mal_uint64 mal_sine_wave_read(mal_sine_wave* pSineWave, mal_uint64 count, float*
 
 // REVISION HISTORY
 // ================
+//
+// v0.x-dev - 2018-xx-xx
+//   - Fix a compilation errors.
+//   - Fix warnings.
 //
 // v0.8 - 2018-07-05
 //   - Changed MAL_IMPLEMENTATION to MINI_AL_IMPLEMENTATION for consistency with other libraries. The old
