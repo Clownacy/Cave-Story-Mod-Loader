@@ -23,7 +23,9 @@ MOD_LOADER_SOURCES = \
 	$(MOD_LOADER_PATH)/settings.c \
 	$(MOD_LOADER_PATH)/inih/ini.c
 
-GRAPHICS_ENHANCEMENT_PATH = src/example_mods/graphics_enhancement
+MODS_PATH = src/example_mods
+
+GRAPHICS_ENHANCEMENT_PATH = $(MODS_PATH)/graphics_enhancement
 GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/common.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/main.c \
@@ -58,6 +60,16 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
 
+OGG_MUSIC_PATH = $(MODS_PATH)/ogg_music
+OGG_MUSIC_SOURCES = \
+	$(COMMON_PATH)/sprintfMalloc.c \
+	$(OGG_MUSIC_PATH)/decoder.c \
+	$(OGG_MUSIC_PATH)/decoder_vorbisfile.c \
+	$(OGG_MUSIC_PATH)/main.c \
+	$(OGG_MUSIC_PATH)/memory_file.c \
+	$(OGG_MUSIC_PATH)/playlist.c \
+	$(OGG_MUSIC_PATH)/song_file.c
+
 all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/ogg_music/ogg_music_sdl2.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
@@ -72,15 +84,15 @@ bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 
-bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_mini_al.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c src/example_mods/ogg_music/decoder.c src/example_mods/ogg_music/decoder_ogg.c $(COMMON_PATH)/sprintfMalloc.c
+bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_mini_al.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lvorbisfile -lvorbis -logg
 
-bin/mods/ogg_music/ogg_music_cubeb.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_cubeb.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c src/example_mods/ogg_music/decoder.c src/example_mods/ogg_music/decoder_ogg.c $(COMMON_PATH)/sprintfMalloc.c
+bin/mods/ogg_music/ogg_music_cubeb.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_cubeb.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
 
-bin/mods/ogg_music/ogg_music_sdl2.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ogg_music/main.c src/example_mods/ogg_music/backend_sdl2.c src/example_mods/ogg_music/playlist.c src/example_mods/ogg_music/memory_file.c src/example_mods/ogg_music/song_file.c src/example_mods/ogg_music/decoder.c src/example_mods/ogg_music/decoder_ogg.c $(COMMON_PATH)/sprintfMalloc.c
+bin/mods/ogg_music/ogg_music_sdl2.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_sdl2.c
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS) -lvorbisfile -lvorbis -logg
 

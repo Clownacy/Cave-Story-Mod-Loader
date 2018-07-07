@@ -1,4 +1,4 @@
-#include "decoder_ogg.h"
+#include "decoder_vorbisfile.h"
 
 #include <stddef.h>
 #include <stdlib.h>

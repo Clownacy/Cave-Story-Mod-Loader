@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "decoder_ogg.h"
+#include "decoder_vorbisfile.h"
 #include "memory_file.h"
 
 typedef struct Decoder
