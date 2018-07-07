@@ -4,7 +4,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#ifdef USE_SNDFILE
+#include "decoder_sndfile.h"
+#else
 #include "decoder_vorbisfile.h"
+#endif
 #include "memory_file.h"
 
 typedef struct Decoder
@@ -46,6 +50,16 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 	long (*get_samples)(void*, void*, unsigned long);
 	int (*get_size)(void*);
 
+#ifdef USE_SNDFILE
+	if (type == DECODER_OGG || type == DECODER_FLAC)
+	{
+		close = (void (*)(void*))Decoder_Sndfile_Close;
+		rewind = (void (*)(void*))Decoder_Sndfile_Rewind;
+		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Sndfile_GetSamples;
+		get_size = (int (*)(void*))Decoder_Sndfile_GetSize;
+		backend = Decoder_Sndfile_Load(file_path, &channel_count, &sample_rate);
+	}
+#else
 	if (type == DECODER_OGG)
 	{
 		close = (void (*)(void*))Decoder_Vorbisfile_Close;
@@ -54,6 +68,7 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		get_size = (int (*)(void*))Decoder_Vorbisfile_GetSize;
 		backend = Decoder_Vorbisfile_Load(file_path, &channel_count, &sample_rate);
 	}
+#endif
 	else
 	{
 		backend = NULL;

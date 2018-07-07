@@ -31,7 +31,6 @@ MemoryFile* MemoryFile_fopen(const char* const file_path)
 	FILE *file = fopen(file_path, "rb");
 	if (file != NULL)
 	{
-
 		fseek(file, 0, SEEK_END);
 		const size_t size = ftell(file);
 		rewind(file);

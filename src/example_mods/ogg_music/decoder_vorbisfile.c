@@ -44,6 +44,7 @@ DecoderVorbisfile* Decoder_Vorbisfile_Load(const char* const file_path, unsigned
 		}
 		else
 		{
+			MemoryFile_fclose(file);
 			free(this);
 			this = NULL;
 		}
@@ -60,6 +61,7 @@ DecoderVorbisfile* Decoder_Vorbisfile_Load(const char* const file_path, unsigned
 void Decoder_Vorbisfile_Close(DecoderVorbisfile *this)
 {
 	ov_clear(&this->vorbis_file);
+	free(this);
 }
 
 void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this)

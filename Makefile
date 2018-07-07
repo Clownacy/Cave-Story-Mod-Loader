@@ -1,12 +1,12 @@
 MOD_LOADER_VERSION = v1.4
 COMMON_PATH = src/common
 
-CC = gcc
-CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -fomit-frame-pointer -fno-ident -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
-LIBS = -I$(COMMON_PATH)
+OGG_MUSIC_USE_SNDFILE = false
+# Can be 'mini_al', 'SDL2', or 'Cubeb'
+OGG_MUSIC_BACKEND = mini_al
 
-SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LDFLAGS := $(shell sdl2-config --static-libs)
+CC = gcc
+CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -fomit-frame-pointer -fno-ident -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
 
 MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
@@ -64,71 +64,82 @@ OGG_MUSIC_PATH = $(MODS_PATH)/ogg_music
 OGG_MUSIC_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc.c \
 	$(OGG_MUSIC_PATH)/decoder.c \
-	$(OGG_MUSIC_PATH)/decoder_vorbisfile.c \
 	$(OGG_MUSIC_PATH)/main.c \
 	$(OGG_MUSIC_PATH)/memory_file.c \
 	$(OGG_MUSIC_PATH)/playlist.c \
 	$(OGG_MUSIC_PATH)/song_file.c
 
-all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/ogg_music/ogg_music_cubeb.dll bin/mods/ogg_music/ogg_music_sdl2.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
+ifeq ($(OGG_MUSIC_USE_SNDFILE), true)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_sndfile.c
+OGG_MUSIC_LIBS += -lsndfile -lspeex -lflac -lvorbisenc -lvorbis -logg
+OGG_MUSIC_CFLAGS += -DUSE_SNDFILE
+else
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
+OGG_MUSIC_LIBS += -lvorbisfile -lvorbis -logg
+endif
+
+ifeq ($(OGG_MUSIC_BACKEND), mini_al)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_mini_al.c
+else ifeq ($(OGG_MUSIC_BACKEND), SDL2)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_SDL2.c
+OGG_MUSIC_CFLAGS += `sdl2-config --cflags`
+OGG_MUSIC_LIBS += `sdl2-config --static-libs`
+else ifeq ($(OGG_MUSIC_BACKEND), Cubeb)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_cubeb.c
+OGG_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
+endif
+
+all: $(MOD_LOADER_HELPER_OBJECT) bin/dsound.dll bin/mods/mod_loader.dll bin/mods/ogg_music/ogg_music.dll bin/mods/sdl_controller_input/sdl_controller_input.dll bin/mods/wasd_input/wasd_input.dll bin/mods/ikachan_cursor/ikachan_cursor.dll bin/mods/debug_save/debug_save.dll bin/mods/graphics_enhancement/graphics_enhancement.dll bin/mods/3ds_hud/3ds_hud.dll bin/mods/disable_image_protection/disable_image_protection.dll bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $^ $(LIBS)
+	$(CC) $(CFLAGS) -c -o $@ $^
 
 bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
+	$(CC) $(CFLAGS) -o $@ $^ -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 
-bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_mini_al.c
+bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lvorbisfile -lvorbis -logg
-
-bin/mods/ogg_music/ogg_music_cubeb.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_cubeb.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++ -lvorbisfile -lvorbis -logg
-
-bin/mods/ogg_music/ogg_music_sdl2.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES) src/example_mods/ogg_music/backend_sdl2.c
-	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS) -lvorbisfile -lvorbis -logg
+	$(CC) $(CFLAGS) $(OGG_MUSIC_CFLAGS) -o $@ $^ $(OGG_MUSIC_LIBS) -shared
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared $(SDL_CFLAGS) $(SDL_LDFLAGS)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -o $@ $^ -shared $(SDL_LDFLAGS)
 
 bin/mods/wasd_input/wasd_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/wasd_input/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/ikachan_cursor/ikachan_cursor.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ikachan_cursor/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/debug_save/debug_save.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/debug_save/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/graphics_enhancement/graphics_enhancement.dll: $(MOD_LOADER_HELPER_OBJECT) $(GRAPHICS_ENHANCEMENT_FILES)
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/3ds_hud/3ds_hud.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/3ds_hud/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/disable_image_protection/disable_image_protection.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/disable_image_protection/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_mbx/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
 bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_nonod/main.c
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) -shared
+	$(CC) $(CFLAGS) -o $@ $^ -shared
 
