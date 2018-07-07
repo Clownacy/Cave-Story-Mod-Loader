@@ -9,6 +9,9 @@ CC = gcc
 CFLAGS = -O3 -s -static -Wall -Wextra -std=c11 -fomit-frame-pointer -fno-ident
 ALL_CFLAGS = $(CFLAGS) -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
 
+SDL_CFLAGS = $(shell sdl2-config --cflags)
+SDL_LDFLAGS = $(shell sdl2-config --static-libs)
+
 MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
 MOD_LOADER_PATH = src/mod_loader
@@ -83,8 +86,8 @@ ifeq ($(OGG_MUSIC_BACKEND), mini_al)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_mini_al.c
 else ifeq ($(OGG_MUSIC_BACKEND), SDL2)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_SDL2.c
-OGG_MUSIC_CFLAGS += `sdl2-config --cflags`
-OGG_MUSIC_LIBS += `sdl2-config --static-libs`
+OGG_MUSIC_CFLAGS += $(SDL_CFLAGS)
+OGG_MUSIC_LIBS += $(SDL_LIBS)
 else ifeq ($(OGG_MUSIC_BACKEND), Cubeb)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_cubeb.c
 OGG_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
