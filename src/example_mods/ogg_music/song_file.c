@@ -20,51 +20,87 @@ typedef struct SongFile
 	Decoder *decoder[2];
 } SongFile;
 
-SongFile* SongFile_Load(const char* const path, bool loops, bool predecode)
+static int LoadFile(const char* const base_path, DecoderType decoder_type, bool predecode, Decoder **decoder1, Decoder **decoder2)
 {
-	SongFile *song = malloc(sizeof(SongFile));
+	int result;
 
-	// Look for split-Ogg music (Cave Story 3D)
-	char *file_path = sprintfMalloc("%s_intro.ogg", path);
-	song->decoder[0] = Decoder_Open(file_path, predecode);
+	const char *extension;
+
+	if (decoder_type == DECODER_OGG)
+		extension = "ogg";
+	else //if (decoder_type == DECODER_FLAC)
+		extension = "flac";
+
+	Decoder *decoder[2];
+
+	// Look for split-file music (Cave Story 3D)
+	char *file_path = sprintfMalloc("%s_intro.%s", base_path, extension);
+	decoder[0] = Decoder_Open(file_path, decoder_type, predecode);
 	free(file_path);
 
-	file_path = sprintfMalloc("%s_loop.ogg", path);
-	song->decoder[1] = Decoder_Open(file_path, predecode);
+	file_path = sprintfMalloc("%s_loop.%s", base_path, extension);
+	decoder[1] = Decoder_Open(file_path, decoder_type, predecode);
 	free(file_path);
 
-	if (song->decoder[0] == NULL && song->decoder[1] == NULL)
+	if (decoder[0] == NULL || decoder[1] == NULL)
 	{
-		// Look for single-Ogg music (Cave Story WiiWare)
-		file_path = sprintfMalloc("%s.ogg", path);
-		song->decoder[0] = Decoder_Open(file_path, predecode);
-		free(file_path);
+		result = 0;
 
-		if (song->decoder[0] == NULL)
+		if (decoder[0] == NULL && decoder[1] == NULL)
 		{
-			// Neither file could be opened
-			goto Fail;
+			// Look for single-file music (Cave Story WiiWare)
+			file_path = sprintfMalloc("%s.%s", base_path, extension);
+			decoder[0] = Decoder_Open(file_path, decoder_type, predecode);
+			free(file_path);
+
+			if (decoder[0] == NULL)
+			{
+				// Neither file could be opened
+				result = -1;
+			}
 		}
-	}
-
-	if (song->decoder[0] == NULL || song->decoder[1] == NULL)
-	{
-		// Only one file could be opened
-		song->is_split = false;
-		song->playing_intro = false;
-
-		if (song->decoder[0] == NULL)
+		else
 		{
-			// Swap files, since there has to be one in the first slot
-			song->decoder[0] = song->decoder[1];
-			song->decoder[1] = NULL;
+			// Only one file could be opened
+			if (decoder[0] == NULL)
+			{
+				// Swap files, since there has to be one in the first slot
+				decoder[0] = decoder[1];
+				decoder[1] = NULL;
+			}
 		}
 	}
 	else
 	{
 		// Both files opened successfully
+		result = 1;
+	}
+
+	*decoder1 = decoder[0];
+	*decoder2 = decoder[1];
+
+	return result;
+}
+
+SongFile* SongFile_Load(const char* const path, bool loops, bool predecode)
+{
+	SongFile *song = malloc(sizeof(SongFile));
+
+	const int format = LoadFile(path, DECODER_OGG, predecode, &song->decoder[0], &song->decoder[1]);
+
+	if (format == 0)
+	{
+		song->is_split = false;
+		song->playing_intro = false;
+	}
+	else if (format == 1)
+	{
 		song->is_split = true;
 		song->playing_intro = true;
+	}
+	else
+	{
+		goto Fail;
 	}
 
 	if (song->is_split && (Decoder_GetChannelCount(song->decoder[0]) != Decoder_GetChannelCount(song->decoder[1]) || Decoder_GetSampleRate(song->decoder[0]) != Decoder_GetSampleRate(song->decoder[1])))
