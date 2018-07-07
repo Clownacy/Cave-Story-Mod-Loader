@@ -19,14 +19,14 @@ static const ov_callbacks ov_callback_memory = {
 	(long (*)(void*))                           MemoryFile_ftell
 };
 
-typedef struct DecoderOgg
+typedef struct DecoderVorbisfile
 {
 	OggVorbis_File vorbis_file;
-} DecoderOgg;
+} DecoderVorbisfile;
 
-DecoderOgg* Decode_Ogg_Load(const char* const file_path, unsigned int *channel_count, unsigned int *sample_rate)
+DecoderVorbisfile* Decoder_Vorbisfile_Load(const char* const file_path, unsigned int *channel_count, unsigned int *sample_rate)
 {
-	DecoderOgg *this = malloc(sizeof(DecoderOgg));
+	DecoderVorbisfile *this = malloc(sizeof(DecoderVorbisfile));
 
 	MemoryFile *file = MemoryFile_fopen(file_path);
 
@@ -57,17 +57,17 @@ DecoderOgg* Decode_Ogg_Load(const char* const file_path, unsigned int *channel_c
 	return this;
 }
 
-void Decode_Ogg_Close(DecoderOgg *this)
+void Decoder_Vorbisfile_Close(DecoderVorbisfile *this)
 {
 	ov_clear(&this->vorbis_file);
 }
 
-void Decode_Ogg_Rewind(DecoderOgg *this)
+void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this)
 {
 	ov_time_seek(&this->vorbis_file, 0);
 }
 
-unsigned long Decode_Ogg_GetSamples(DecoderOgg *this, void *buffer, unsigned long bytes_to_do)
+unsigned long Decoder_Vorbisfile_GetSamples(DecoderVorbisfile *this, void *buffer, unsigned long bytes_to_do)
 {
 	unsigned long bytes_done_total = 0;
 
@@ -82,7 +82,7 @@ unsigned long Decode_Ogg_GetSamples(DecoderOgg *this, void *buffer, unsigned lon
 	return bytes_done_total;
 }
 
-unsigned int Decode_Ogg_GetSize(DecoderOgg *this)
+unsigned int Decoder_Vorbisfile_GetSize(DecoderVorbisfile *this)
 {
 	return ov_pcm_total(&this->vorbis_file, -1) * sizeof(short) * ov_info(&this->vorbis_file, -1)->channels;
 }

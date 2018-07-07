@@ -48,11 +48,11 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 
 	if (type == DECODER_OGG)
 	{
-		close = (void (*)(void*))Decode_Ogg_Close;
-		rewind = (void (*)(void*))Decode_Ogg_Rewind;
-		get_samples = (long (*)(void*, void*, unsigned long))Decode_Ogg_GetSamples;
-		get_size = (int (*)(void*))Decode_Ogg_GetSize;
-		backend = Decode_Ogg_Load(file_path, &channel_count, &sample_rate);
+		close = (void (*)(void*))Decoder_Vorbisfile_Close;
+		rewind = (void (*)(void*))Decoder_Vorbisfile_Rewind;
+		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Vorbisfile_GetSamples;
+		get_size = (int (*)(void*))Decoder_Vorbisfile_GetSize;
+		backend = Decoder_Vorbisfile_Load(file_path, &channel_count, &sample_rate);
 	}
 	else
 	{

@@ -1,9 +1,9 @@
 #pragma once
 
-typedef struct DecoderOgg DecoderOgg;
+typedef struct DecoderVorbisfile DecoderVorbisfile;
 
-DecoderOgg* Decode_Ogg_Load(const char* const file_path, unsigned int *channel_count, unsigned int *sample_rate);
-void Decode_Ogg_Close(DecoderOgg *this);
-void Decode_Ogg_Rewind(DecoderOgg *this);
-unsigned long Decode_Ogg_GetSamples(DecoderOgg *this, void *buffer, unsigned long bytes_to_do);
-unsigned int Decode_Ogg_GetSize(DecoderOgg *this);
+DecoderVorbisfile* Decoder_Vorbisfile_Load(const char* const file_path, unsigned int *channel_count, unsigned int *sample_rate);
+void Decoder_Vorbisfile_Close(DecoderVorbisfile *this);
+void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this);
+unsigned long Decoder_Vorbisfile_GetSamples(DecoderVorbisfile *this, void *buffer, unsigned long bytes_to_do);
+unsigned int Decoder_Vorbisfile_GetSize(DecoderVorbisfile *this);
