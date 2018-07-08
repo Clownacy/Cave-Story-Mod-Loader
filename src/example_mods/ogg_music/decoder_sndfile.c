@@ -65,6 +65,9 @@ DecoderSndfile* Decoder_Sndfile_Load(const char* const file_path, unsigned int *
 
 		if (this->sndfile)
 		{
+			// Set scaling to prevent weird clipping
+			sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
+
 			this->size = sf_info.frames * sf_info.channels * sizeof(short);
 
 			if (channel_count)
