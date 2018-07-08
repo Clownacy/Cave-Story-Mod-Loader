@@ -87,7 +87,7 @@ OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_mini_al.c
 else ifeq ($(OGG_MUSIC_BACKEND), SDL2)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_SDL2.c
 OGG_MUSIC_CFLAGS += $(SDL_CFLAGS)
-OGG_MUSIC_LIBS += $(SDL_LIBS)
+OGG_MUSIC_LIBS += $(SDL_LDFLAGS)
 else ifeq ($(OGG_MUSIC_BACKEND), Cubeb)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_cubeb.c
 OGG_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
