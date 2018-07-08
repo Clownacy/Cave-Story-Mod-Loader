@@ -7,14 +7,14 @@
 
 #include "memory_file.h"
 
-static int MemoryFile_fseek_wrapper(MemoryFile *file, long long offset, int origin)
+static int MemoryFile_fseek_wrapper(MemoryFile *file, ogg_int64_t offset, int origin)
 {
 	return MemoryFile_fseek(file, offset, origin);
 }
 
 static const ov_callbacks ov_callback_memory = {
 	(size_t (*)(void*, size_t, size_t, void*))  MemoryFile_fread,
-	(int (*)(void*, long long, int))            MemoryFile_fseek_wrapper,
+	(int (*)(void*, ogg_int64_t, int))          MemoryFile_fseek_wrapper,
 	(int (*)(void*))                            MemoryFile_fclose,
 	(long (*)(void*))                           MemoryFile_ftell
 };
