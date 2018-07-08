@@ -107,7 +107,7 @@ bool Backend_PauseStream(BackendStream *stream)
 {
 	bool success = true;
 
-	if (stream)
+	if (stream && mal_device_is_started(&stream->device))
 		success = mal_device_stop(&stream->device) == MAL_SUCCESS;
 
 	return success;
