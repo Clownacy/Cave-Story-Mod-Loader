@@ -12,7 +12,6 @@
 #include "song_file.h"
 
 typedef struct Song {
-	BackendStream *stream;
 	SongFile *file;
 	bool is_org;
 
@@ -20,6 +19,10 @@ typedef struct Song {
 	bool fade_out_active;
 	unsigned int fade_counter;
 } Song;
+
+static BackendStream *stream;
+static unsigned int stream_sample_rate;
+static unsigned int stream_channel_count;
 
 static bool setting_preload;
 static bool setting_predecode;
@@ -93,29 +96,52 @@ static void PreloadSongs(void)
 
 static void UnloadSong(Song *song)
 {
-	if (Backend_DestroyStream(song->stream))
-	{
-		if (setting_preload)
-			SongFile_Reset(song->file);
-		else
-			SongFile_Unload(song->file);
-	}
+	if (setting_preload)
+		SongFile_Reset(song->file);
 	else
-	{
-		ModLoader_PrintError("ogg_music: Could not destroy the stream\n");
-	}
+		SongFile_Unload(song->file);
 }
 
-static void PauseSong(BackendStream *stream)
+static void PauseSong(void)
 {
 	if (!Backend_PauseStream(stream))
 		ModLoader_PrintError("ogg_music: Could not pause the stream\n");
 }
 
-static void ResumeSong(BackendStream *stream)
+static void ResumeSong(void)
 {
 	if (!Backend_ResumeStream(stream))
 		ModLoader_PrintError("ogg_music: Could not resume the stream\n");
+}
+
+static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count)
+{
+	bool success = true;
+
+	if (stream_sample_rate != sample_rate || stream_channel_count != channel_count)
+	{
+		stream_sample_rate = sample_rate;
+		stream_channel_count = channel_count;
+
+		if (stream && !Backend_DestroyStream(stream))
+		{
+			ModLoader_PrintError("ogg_music: Could not destroy the stream\n");
+			success = false;
+		}
+		else
+		{
+			ModLoader_PrintDebug("New stream created\n");
+			stream = Backend_CreateStream(sample_rate, channel_count, StreamCallback, &current_song);
+
+			if (stream == NULL)
+			{
+				ModLoader_PrintError("ogg_music: Could not create the stream\n");
+				success = false;
+			}
+		}
+	}
+
+	return success;
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -133,9 +159,10 @@ static bool PlayOggMusic(const int song_id)
 
 		if (song_file)
 		{
-			unsigned int channels = SongFile_GetChannelCount(song_file);
+			const unsigned int sample_rate = SongFile_GetSampleRate(song_file);
+			const unsigned int channel_count = SongFile_GetChannelCount(song_file);
 
-			if (channels != 1 && channels != 2)
+			if (channel_count != 1 && channel_count != 2)
 			{
 				// Unsupported channel count
 				ModLoader_PrintError("ogg_music: Unsupported channel count\n");
@@ -145,12 +172,8 @@ static bool PlayOggMusic(const int song_id)
 			}
 			else
 			{
-				current_song.stream = Backend_CreateStream(SongFile_GetSampleRate(song_file), channels, StreamCallback, &current_song);
-
-				if (current_song.stream == NULL)
+				if (!RefreshStream(sample_rate, channel_count))
 				{
-					ModLoader_PrintError("ogg_music: Could not create the stream\n");
-
 					if (!setting_preload)
 						SongFile_Unload(song_file);
 				}
@@ -158,7 +181,7 @@ static bool PlayOggMusic(const int song_id)
 				{
 					current_song.file = song_file;
 
-					ResumeSong(current_song.stream);
+					ResumeSong();
 
 					success = true;
 				}
@@ -194,7 +217,7 @@ static void PlayMusic_new(const int music_id)
 	{
 		CS_previous_music = CS_current_music;
 
-		PauseSong(current_song.stream);
+		PauseSong();
 		UnloadSong(&previous_song);
 		previous_song = current_song;
 		current_song = blank_song;
@@ -222,6 +245,7 @@ static void PlayMusic_new(const int music_id)
 
 static void PlayPreviousMusic_new(void)
 {
+	PauseSong();
 	UnloadSong(&current_song);
 	current_song = previous_song;
 	previous_song = blank_song;
@@ -237,7 +261,9 @@ static void PlayPreviousMusic_new(void)
 			current_song.fade_in_active = true;
 		}
 
-		ResumeSong(current_song.stream);
+		RefreshStream(SongFile_GetSampleRate(current_song.file), SongFile_GetChannelCount(current_song.file));
+
+		ResumeSong();
 	}
 	else
 	{
@@ -251,13 +277,13 @@ static void PlayPreviousMusic_new(void)
 
 static void WindowFocusGained_new(void)
 {
-	ResumeSong(current_song.stream);
+	ResumeSong();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void WindowFocusLost_new(void)
 {
-	PauseSong(current_song.stream);
+	PauseSong();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
