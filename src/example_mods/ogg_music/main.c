@@ -8,11 +8,13 @@
 #include "mod_loader.h"
 
 #include "backend.h"
+#include "dual_decoder.h"
 #include "playlist.h"
-#include "song_file.h"
 
-typedef struct Song {
-	SongFile *file;
+typedef struct Song
+{
+	DualDecoder *dual_decoder;
+	DecoderInfo decoder_info;
 	bool is_org;
 
 	bool fade_in_active;
@@ -37,19 +39,19 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 {
 	Song *song = user_data;
 
-	unsigned long bytes_done = SongFile_GetSamples(song->file, output_buffer, bytes_to_do);
+	const unsigned long bytes_done = DualDecoder_GetSamples(song->dual_decoder, output_buffer, bytes_to_do);
 
 	if (song->fade_out_active)
 	{
-		const unsigned int channels = SongFile_GetChannelCount(song->file);
-		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 5;
+		const unsigned int channel_count = song->decoder_info.channel_count;
+		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 5;
 
 		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / (float)fade_counter_max;
 
-			for (unsigned int i = 0; i < channels; ++i)
+			for (unsigned int i = 0; i < channel_count; ++i)
 				*output_buffer_short++ *= volume_float * volume_float;
 
 			if (song->fade_counter)
@@ -58,15 +60,15 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 	}
 	else if (song->fade_in_active)
 	{
-		const unsigned int channels = SongFile_GetChannelCount(song->file);
-		const unsigned int fade_counter_max = SongFile_GetSampleRate(song->file) * 2;
+		const unsigned int channel_count = song->decoder_info.channel_count;
+		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 2;
 
 		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channels / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / (float)fade_counter_max;
 
-			for (unsigned int i = 0; i < channels; ++i)
+			for (unsigned int i = 0; i < channel_count; ++i)
 				*output_buffer_short++ *= volume_float * volume_float;
 
 			if (++song->fade_counter == fade_counter_max)
@@ -83,7 +85,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->file = SongFile_Load(playlist_entry->name, playlist_entry->loops, setting_predecode);
+		playlist_entry->dual_decoder = DualDecoder_Open(playlist_entry->name, playlist_entry->loops, setting_predecode, &playlist_entry->decoder_info);
 }
 
 static void PreloadSongs(void)
@@ -97,9 +99,9 @@ static void PreloadSongs(void)
 static void UnloadSong(Song *song)
 {
 	if (setting_preload)
-		SongFile_Reset(song->file);
+		DualDecoder_Rewind(song->dual_decoder);
 	else
-		SongFile_Unload(song->file);
+		DualDecoder_Close(song->dual_decoder);
 }
 
 static void PauseSong(void)
@@ -130,7 +132,6 @@ static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count)
 		}
 		else
 		{
-			ModLoader_PrintDebug("New stream created\n");
 			stream = Backend_CreateStream(sample_rate, channel_count, StreamCallback, &current_song);
 
 			if (stream == NULL)
@@ -155,12 +156,12 @@ static bool PlayOggMusic(const int song_id)
 		if (!setting_preload)
 			LoadSong(playlist_entry);
 
-		SongFile *song_file = playlist_entry->file;
+		DualDecoder *dual_decoder = playlist_entry->dual_decoder;
 
-		if (song_file)
+		if (dual_decoder)
 		{
-			const unsigned int sample_rate = SongFile_GetSampleRate(song_file);
-			const unsigned int channel_count = SongFile_GetChannelCount(song_file);
+			const unsigned int sample_rate = playlist_entry->decoder_info.sample_rate;
+			const unsigned int channel_count = playlist_entry->decoder_info.channel_count;
 
 			if (channel_count != 1 && channel_count != 2)
 			{
@@ -168,18 +169,19 @@ static bool PlayOggMusic(const int song_id)
 				ModLoader_PrintError("ogg_music: Unsupported channel count\n");
 
 				if (!setting_preload)
-					SongFile_Unload(song_file);
+					DualDecoder_Close(dual_decoder);
 			}
 			else
 			{
 				if (!RefreshStream(sample_rate, channel_count))
 				{
 					if (!setting_preload)
-						SongFile_Unload(song_file);
+						DualDecoder_Close(dual_decoder);
 				}
 				else
 				{
-					current_song.file = song_file;
+					current_song.dual_decoder = dual_decoder;
+					current_song.decoder_info = playlist_entry->decoder_info;
 
 					ResumeSong();
 
@@ -261,7 +263,7 @@ static void PlayPreviousMusic_new(void)
 			current_song.fade_in_active = true;
 		}
 
-		RefreshStream(SongFile_GetSampleRate(current_song.file), SongFile_GetChannelCount(current_song.file));
+		RefreshStream(current_song.decoder_info.sample_rate, current_song.decoder_info.channel_count);
 
 		ResumeSong();
 	}
@@ -290,7 +292,7 @@ static void WindowFocusLost_new(void)
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
-	current_song.fade_counter = (SongFile_GetSampleRate(current_song.file) * 5) - 1;
+	current_song.fade_counter = (current_song.decoder_info.sample_rate * 5) - 1;
 	current_song.fade_out_active = true;
 }
 

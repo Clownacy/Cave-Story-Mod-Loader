@@ -114,7 +114,7 @@ bool InitPlaylist(void)
 				playlist_list_entry->playlist_data.name = song_path;
 				playlist_list_entry->playlist_data.loops = false;
 				playlist_list_entry->playlist_data.is_org = false;
-				playlist_list_entry->playlist_data.file = NULL;
+				playlist_list_entry->playlist_data.dual_decoder = NULL;
 
 				line_current_position += path_length;
 				line_current_position += strspn(line_current_position, ", ");

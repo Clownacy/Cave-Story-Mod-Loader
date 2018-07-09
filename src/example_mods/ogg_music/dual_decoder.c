@@ -1,4 +1,4 @@
-#include "song_file.h"
+#include "dual_decoder.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -8,19 +8,19 @@
 #include "sprintfMalloc.h"
 
 #include "decoder.h"
+#include "decoder_common.h"
 
-typedef struct SongFile
+typedef struct DualDecoder
 {
 	unsigned int current_file;
 
 	bool is_split;
 	bool playing_intro;
-	bool loops;
 
 	Decoder *decoder[2];
-} SongFile;
+} DualDecoder;
 
-static int LoadFile(const char* const base_path, DecoderType decoder_type, bool predecode, Decoder **decoder1, Decoder **decoder2)
+static int LoadFiles(const char* const base_path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *out_info, Decoder **decoder1, Decoder **decoder2)
 {
 	int result;
 
@@ -32,14 +32,15 @@ static int LoadFile(const char* const base_path, DecoderType decoder_type, bool 
 		extension = "flac";
 
 	Decoder *decoder[2];
+	DecoderInfo info[2];
 
 	// Look for split-file music (Cave Story 3D)
 	char *file_path = sprintfMalloc("%s_intro.%s", base_path, extension);
-	decoder[0] = Decoder_Open(file_path, decoder_type, predecode);
+	decoder[0] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[0]);
 	free(file_path);
 
 	file_path = sprintfMalloc("%s_loop.%s", base_path, extension);
-	decoder[1] = Decoder_Open(file_path, decoder_type, predecode);
+	decoder[1] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[1]);
 	free(file_path);
 
 	if (decoder[0] == NULL || decoder[1] == NULL)
@@ -50,7 +51,7 @@ static int LoadFile(const char* const base_path, DecoderType decoder_type, bool 
 		{
 			// Look for single-file music (Cave Story WiiWare)
 			file_path = sprintfMalloc("%s.%s", base_path, extension);
-			decoder[0] = Decoder_Open(file_path, decoder_type, predecode);
+			decoder[0] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[0]);
 			free(file_path);
 
 			if (decoder[0] == NULL)
@@ -76,49 +77,56 @@ static int LoadFile(const char* const base_path, DecoderType decoder_type, bool 
 		result = 1;
 	}
 
+	if (result == 1 && (info[0].channel_count != info[1].channel_count || info[0].sample_rate != info[1].sample_rate))
+	{
+		Decoder_Close(decoder[0]);
+		Decoder_Close(decoder[1]);
+
+		result = -1;
+	}
+
+	*out_info = info[0];
+
+	if (result == 1)
+		out_info->decoded_size += info[1].decoded_size;
+
 	*decoder1 = decoder[0];
 	*decoder2 = decoder[1];
 
 	return result;
 }
 
-SongFile* SongFile_Load(const char* const path, bool loops, bool predecode)
+DualDecoder* DualDecoder_Open(const char* const path, bool loop, bool predecode, DecoderInfo *info)
 {
-	SongFile *song = malloc(sizeof(SongFile));
+	DualDecoder *song = NULL;
 
-	const int format = LoadFile(path, DECODER_OGG, predecode, &song->decoder[0], &song->decoder[1]);
+	Decoder *decoder[2];
+	const int format = LoadFiles(path, DECODER_OGG, loop, predecode, info, &decoder[0], &decoder[1]);
 
-	if (format == 0)
+	if (format != -1)
 	{
-		song->is_split = false;
-		song->playing_intro = false;
-	}
-	else if (format == 1)
-	{
-		song->is_split = true;
-		song->playing_intro = true;
-	}
-	else
-	{
-		goto Fail;
-	}
+		song = malloc(sizeof(DualDecoder));
 
-	if (song->is_split && (Decoder_GetChannelCount(song->decoder[0]) != Decoder_GetChannelCount(song->decoder[1]) || Decoder_GetSampleRate(song->decoder[0]) != Decoder_GetSampleRate(song->decoder[1])))
-		goto Fail;
+		if (format == 0)
+		{
+			song->is_split = false;
+			song->playing_intro = false;
+		}
+		else //if (format == 1)
+		{
+			song->is_split = true;
+			song->playing_intro = true;
+		}
 
-	song->current_file = 0;
-	song->loops = loops;
+		song->decoder[0] = decoder[0];
+		song->decoder[1] = decoder[1];
+		song->current_file = 0;
+	}
 
 	return song;
-
-	Fail:
-
-	free(song);
-
-	return NULL;
 }
 
-void SongFile_Unload(SongFile *this)
+void DualDecoder_Close(DualDecoder *this)
 {
 	if (this)
 	{
@@ -129,7 +137,7 @@ void SongFile_Unload(SongFile *this)
 	}
 }
 
-void SongFile_Reset(SongFile *this)
+void DualDecoder_Rewind(DualDecoder *this)
 {
 	if (this)
 	{
@@ -141,7 +149,7 @@ void SongFile_Reset(SongFile *this)
 	}
 }
 
-unsigned long SongFile_GetSamples(SongFile *this, void *output_buffer, unsigned long bytes_to_do)
+unsigned long DualDecoder_GetSamples(DualDecoder *this, void *output_buffer, unsigned long bytes_to_do)
 {
 	unsigned long bytes_done_total = 0;
 
@@ -158,23 +166,10 @@ unsigned long SongFile_GetSamples(SongFile *this, void *output_buffer, unsigned 
 			}
 			else
 			{
-				if (this->loops)
-					Decoder_Rewind(this->decoder[this->current_file]);
-				else
-					break;
+				break;
 			}
 		}
 	}
 
 	return bytes_done_total;
-}
-
-unsigned int SongFile_GetChannelCount(SongFile *this)
-{
-	return Decoder_GetChannelCount(this->decoder[0]);
-}
-
-unsigned int SongFile_GetSampleRate(SongFile *this)
-{
-	return Decoder_GetSampleRate(this->decoder[0]);
 }

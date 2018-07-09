@@ -1,18 +1,20 @@
 #include "decoder_sndfile.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <sndfile.h>
 
+#include "decoder_common.h"
 #include "memory_file.h"
 
 typedef struct DecoderSndfile
 {
 	MemoryFile *file;
 	SNDFILE *sndfile;
-	unsigned long size;
+	bool loop;
 } DecoderSndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
@@ -50,7 +52,7 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderSndfile* Decoder_Sndfile_Load(const char* const file_path, unsigned int *channel_count, unsigned int *sample_rate)
+DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, bool loop, DecoderInfo *info)
 {
 	DecoderSndfile *this = malloc(sizeof(DecoderSndfile));
 
@@ -65,16 +67,17 @@ DecoderSndfile* Decoder_Sndfile_Load(const char* const file_path, unsigned int *
 
 		if (this->sndfile)
 		{
+			this->loop = loop;
+
 			// Set scaling to prevent weird clipping
 			sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
 
-			this->size = sf_info.frames * sf_info.channels * sizeof(short);
-
-			if (channel_count)
-				*channel_count = sf_info.channels;
-
-			if (sample_rate)
-				*sample_rate = sf_info.samplerate;
+			if (info)
+			{
+				info->sample_rate = sf_info.samplerate;
+				info->channel_count = sf_info.channels;
+				info->decoded_size = sf_info.frames * sf_info.channels * sizeof(short);
+			}
 		}
 		else
 		{
@@ -106,10 +109,20 @@ void Decoder_Sndfile_Rewind(DecoderSndfile *this)
 
 unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, unsigned long bytes_to_do)
 {
-	return sf_read_short(this->sndfile, buffer, bytes_to_do / sizeof(short)) * sizeof(short);
-}
+	unsigned long bytes_done_total = 0;
 
-unsigned int Decoder_Sndfile_GetSize(DecoderSndfile *this)
-{
-	return this->size;
+	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
+	{
+		bytes_done = sf_read_short(this->sndfile, buffer + bytes_done_total, (bytes_to_do - bytes_done_total) / sizeof(short)) * sizeof(short);
+
+		if (bytes_done < bytes_to_do - bytes_done_total)
+		{
+			if (this->loop)
+				Decoder_Sndfile_Rewind(this);
+			else
+				break;
+		}
+	}
+
+	return bytes_done_total;
 }

@@ -68,10 +68,10 @@ OGG_MUSIC_PATH = $(MODS_PATH)/ogg_music
 OGG_MUSIC_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc.c \
 	$(OGG_MUSIC_PATH)/decoder.c \
+	$(OGG_MUSIC_PATH)/dual_decoder.c \
 	$(OGG_MUSIC_PATH)/main.c \
 	$(OGG_MUSIC_PATH)/memory_file.c \
-	$(OGG_MUSIC_PATH)/playlist.c \
-	$(OGG_MUSIC_PATH)/song_file.c
+	$(OGG_MUSIC_PATH)/playlist.c
 
 ifeq ($(OGG_MUSIC_USE_SNDFILE), true)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_sndfile.c

@@ -2,14 +2,15 @@
 
 #include <stdbool.h>
 
-#include "song_file.h"
+#include "dual_decoder.h"
 
 typedef struct PlaylistEntry
 {
 	const char *name;
 	bool loops;
 	bool is_org;
-	SongFile *file;
+	DualDecoder *dual_decoder;
+	DecoderInfo decoder_info;
 } PlaylistEntry;
 
 PlaylistEntry* GetFirstPlaylistEntry(void);
