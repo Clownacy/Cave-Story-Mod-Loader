@@ -18,14 +18,14 @@ MOD_LOADER_PATH = src/mod_loader
 MOD_LOADER_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc.c \
 	$(MOD_LOADER_PATH)/fix_door_bug.c \
+	$(MOD_LOADER_PATH)/hooks.c \
+	$(MOD_LOADER_PATH)/inih/ini.c \
 	$(MOD_LOADER_PATH)/log.c \
 	$(MOD_LOADER_PATH)/main.c \
 	$(MOD_LOADER_PATH)/mod_list.c \
 	$(MOD_LOADER_PATH)/patch.c \
-	$(MOD_LOADER_PATH)/hooks.c \
 	$(MOD_LOADER_PATH)/redirect_org_files.c \
-	$(MOD_LOADER_PATH)/settings.c \
-	$(MOD_LOADER_PATH)/inih/ini.c
+	$(MOD_LOADER_PATH)/settings.c
 
 MODS_PATH = src/example_mods
 
