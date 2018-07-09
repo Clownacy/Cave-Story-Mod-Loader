@@ -1,6 +1,5 @@
 #include "decoder_vorbisfile.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -24,10 +23,9 @@ static const ov_callbacks ov_callback_memory = {
 typedef struct DecoderVorbisfile
 {
 	OggVorbis_File vorbis_file;
-	bool loop;
 } DecoderVorbisfile;
 
-DecoderVorbisfile* Decoder_Vorbisfile_Open(const char* const file_path, bool loop, DecoderInfo *info)
+DecoderVorbisfile* Decoder_Vorbisfile_Open(const char* const file_path, DecoderInfo *info)
 {
 	DecoderVorbisfile *this = malloc(sizeof(DecoderVorbisfile));
 
@@ -37,8 +35,6 @@ DecoderVorbisfile* Decoder_Vorbisfile_Open(const char* const file_path, bool loo
 	{
 		if (ov_open_callbacks(file, &this->vorbis_file, NULL, 0, ov_callback_memory) == 0)
 		{
-			this->loop = loop;
-
 			vorbis_info *v_info = ov_info(&this->vorbis_file, -1);
 
 			if (info)
@@ -66,13 +62,23 @@ DecoderVorbisfile* Decoder_Vorbisfile_Open(const char* const file_path, bool loo
 
 void Decoder_Vorbisfile_Close(DecoderVorbisfile *this)
 {
-	ov_clear(&this->vorbis_file);
-	free(this);
+	if (this)
+	{
+		ov_clear(&this->vorbis_file);
+		free(this);
+	}
 }
 
 void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this)
 {
-	ov_time_seek(&this->vorbis_file, 0);
+	if (this)
+		ov_time_seek(&this->vorbis_file, 0);
+}
+
+void Decoder_Vorbisfile_Loop(DecoderVorbisfile *this)
+{
+	if (this)
+		Decoder_Vorbisfile_Rewind(this);
 }
 
 unsigned long Decoder_Vorbisfile_GetSamples(DecoderVorbisfile *this, void *buffer, unsigned long bytes_to_do)
@@ -84,12 +90,7 @@ unsigned long Decoder_Vorbisfile_GetSamples(DecoderVorbisfile *this, void *buffe
 		bytes_done = ov_read(&this->vorbis_file, buffer + bytes_done_total, bytes_to_do - bytes_done_total, 0, 2, 1, NULL);
 
 		if (bytes_done == 0)
-		{
-			if (this->loop)
-				Decoder_Vorbisfile_Rewind(this);
-			else
-				break;
-		}
+			break;
 	}
 
 	return bytes_done_total;

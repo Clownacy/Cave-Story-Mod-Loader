@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mod_loader.h"
 #include "sprintfMalloc.h"
 
 #include "decoder.h"
@@ -21,7 +20,7 @@ typedef struct DualDecoder
 	Decoder *decoders[2];
 } DualDecoder;
 
-static void GetFileNameAndExtension(const char *path, char **name, char **extension)
+static void SplitFileExtension(const char *path, char **path_no_extension, char **extension)
 {
 	// Get filename
 	const char *slash1 = strrchr(path, '/');
@@ -41,34 +40,34 @@ static void GetFileNameAndExtension(const char *path, char **name, char **extens
 		dot = strchr(filename, '\0');
 
 	// Output them
-	if (name)
+	if (path_no_extension)
 	{
-		const unsigned int size = dot - filename;
-		*name = malloc(size + 1);
-		memcpy(*name, filename, size);
-		(*name)[size] = '\0';
+		const unsigned int size = dot - path;
+		*path_no_extension = malloc(size + 1);
+		memcpy(*path_no_extension, path, size);
+		(*path_no_extension)[size] = '\0';
 	}
 
 	if (extension)
 		*extension = strdup(dot);
 }
 
-static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *out_info, Decoder *decoders[2])
+static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool predecode, DecoderInfo *out_info, Decoder *decoders[2])
 {
 	int result;
 
 	DecoderInfo info[2];
 
-	char *file_name, *file_extension;
-	GetFileNameAndExtension(file_path, &file_name, &file_extension);
+	char *file_path_no_extension, *file_extension;
+	SplitFileExtension(file_path, &file_path_no_extension, &file_extension);
 
 	// Look for split-file music (Cave Story 3D)
-	char* const intro_file_path = sprintfMalloc("%s_intro%s", file_name, file_extension);
-	decoders[0] = Decoder_Open(intro_file_path, decoder_type, loop, predecode, &info[0]);
+	char* const intro_file_path = sprintfMalloc("%s_intro%s", file_path_no_extension, file_extension);
+	decoders[0] = Decoder_Open(intro_file_path, decoder_type, predecode, &info[0]);
 	free(intro_file_path);
 
-	char* const loop_file_path = sprintfMalloc("%s_loop%s", file_name, file_extension);
-	decoders[1] = Decoder_Open(loop_file_path, decoder_type, loop, predecode, &info[1]);
+	char* const loop_file_path = sprintfMalloc("%s_loop%s", file_path_no_extension, file_extension);
+	decoders[1] = Decoder_Open(loop_file_path, decoder_type, predecode, &info[1]);
 	free(loop_file_path);
 
 	if (decoders[0] == NULL || decoders[1] == NULL)
@@ -78,8 +77,8 @@ static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool
 		if (decoders[0] == NULL && decoders[1] == NULL)
 		{
 			// Look for single-file music (Cave Story WiiWare)
-			char* const single_file_path = sprintfMalloc("%s%s", file_name, file_extension);
-			decoders[0] = Decoder_Open(single_file_path, decoder_type, loop, predecode, &info[0]);
+			char* const single_file_path = sprintfMalloc("%s%s", file_path_no_extension, file_extension);
+			decoders[0] = Decoder_Open(single_file_path, decoder_type, predecode, &info[0]);
 			free(single_file_path);
 
 			if (decoders[0] == NULL)
@@ -105,7 +104,7 @@ static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool
 		result = 1;
 	}
 
-	free(file_name);
+	free(file_path_no_extension);
 	free(file_extension);
 
 	if (result == 1 && (info[0].channel_count != info[1].channel_count || info[0].sample_rate != info[1].sample_rate))
@@ -124,12 +123,12 @@ static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool
 	return result;
 }
 
-DualDecoder* DualDecoder_Open(const char* const path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *info)
+DualDecoder* DualDecoder_Open(const char* const path, DecoderType decoder_type, bool predecode, DecoderInfo *info)
 {
 	DualDecoder *song = NULL;
 
 	Decoder *decoders[2];
-	const int format = LoadFiles(path, decoder_type, loop, predecode, info, decoders);
+	const int format = LoadFiles(path, decoder_type, predecode, info, decoders);
 
 	if (format != -1)
 	{
@@ -175,6 +174,12 @@ void DualDecoder_Rewind(DualDecoder *this)
 		for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
 			Decoder_Rewind(this->decoders[i]);
 	}
+}
+
+void DualDecoder_Loop(DualDecoder *this)
+{
+	if (this)
+		Decoder_Rewind(this->decoders[1]);
 }
 
 unsigned long DualDecoder_GetSamples(DualDecoder *this, void *output_buffer, unsigned long bytes_to_do)

@@ -18,6 +18,7 @@ typedef struct Decoder
 
 	void (*close)(void *this);
 	void (*rewind)(void *this);
+	void (*loop)(void *this);
 	long (*get_samples)(void *this, void *output_buffer, unsigned long bytes_to_do);
 
 	void *backend;
@@ -26,15 +27,13 @@ typedef struct Decoder
 typedef struct DecoderPredecode
 {
 	MemoryFile *file;
-	bool loop;
 } DecoderPredecode;
 
-static DecoderPredecode* Decode_Predecode_Open(unsigned char *buffer, unsigned long size, bool loop)
+static DecoderPredecode* Decode_Predecode_Open(unsigned char *buffer, unsigned long size)
 {
 	DecoderPredecode *this = malloc(sizeof(DecoderPredecode));
 
 	this->file = MemoryFile_fopen_from(buffer, size);
-	this->loop = loop;
 
 	return this;
 }
@@ -50,32 +49,25 @@ static void Decoder_Predecode_Rewind(DecoderPredecode *this)
 	MemoryFile_fseek(this->file, 0, SEEK_SET);
 }
 
-static unsigned long Decode_Predecoded_GetSamples(DecoderPredecode *this, char *buffer, unsigned long bytes_to_do)
+
+static void Decoder_Predecode_Loop(DecoderPredecode *this)
 {
-	unsigned long bytes_done_total = 0;
-
-	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
-	{
-		bytes_done = MemoryFile_fread(buffer + bytes_done_total, 1, bytes_to_do - bytes_done_total, this->file);
-
-		if (bytes_done < bytes_to_do - bytes_done_total)
-		{
-			if (this->loop)
-				Decoder_Predecode_Rewind(this);
-			else
-				break;
-		}
-	}
-
-	return bytes_done_total;
+	Decoder_Predecode_Rewind(this);
 }
 
-Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool loop, bool predecode, DecoderInfo *info)
+static unsigned long Decode_Predecoded_GetSamples(DecoderPredecode *this, char *buffer, unsigned long bytes_to_do)
+{
+	return MemoryFile_fread(buffer, 1, bytes_to_do, this->file);
+}
+
+Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predecode, DecoderInfo *info)
 {
 	Decoder *this = NULL;
 
 	void *backend;
 	void (*close)(void*);
+	void (*rewind)(void*);
+	void (*loop)(void*);
 	long (*get_samples)(void*, void*, unsigned long);
 
 	DecoderInfo decoder_info;
@@ -84,15 +76,19 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool loop, 
 	if (type == DECODER_TYPE_OGG || type == DECODER_TYPE_FLAC)
 	{
 		close = (void (*)(void*))Decoder_Sndfile_Close;
+		rewind = (void (*)(void*))Decoder_Sndfile_Rewind;
+		loop = (void (*)(void*))Decoder_Sndfile_Loop;
 		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Sndfile_GetSamples;
-		backend = Decoder_Sndfile_Open(file_path, loop, &decoder_info);
+		backend = Decoder_Sndfile_Open(file_path, &decoder_info);
 	}
 #else
 	if (type == DECODER_TYPE_OGG)
 	{
 		close = (void (*)(void*))Decoder_Vorbisfile_Close;
+		rewind = (void (*)(void*))Decoder_Vorbisfile_Rewind;
+		loop = (void (*)(void*))Decoder_Vorbisfile_Loop;
 		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Vorbisfile_GetSamples;
-		backend = Decoder_Vorbisfile_Open(file_path, loop, &decoder_info);
+		backend = Decoder_Vorbisfile_Open(file_path, &decoder_info);
 	}
 #endif
 	else
@@ -115,12 +111,16 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool loop, 
 			close(backend);
 
 			this->close = (void (*)(void*))Decode_Predecode_Close;
+			this->rewind = (void (*)(void*))Decoder_Predecode_Rewind;
+			this->loop = (void (*)(void*))Decoder_Predecode_Loop;
 			this->get_samples = (long (*)(void*, void*, unsigned long))Decode_Predecoded_GetSamples;
-			this->backend = Decode_Predecode_Open(buffer, decoder_info.decoded_size, loop);
+			this->backend = Decode_Predecode_Open(buffer, decoder_info.decoded_size);
 		}
 		else
 		{
 			this->close = close;
+			this->rewind = rewind;
+			this->loop = loop;
 			this->get_samples = get_samples;
 			this->backend = backend;
 		}
@@ -142,6 +142,12 @@ void Decoder_Rewind(Decoder *this)
 {
 	if (this)
 		this->rewind(this->backend);
+}
+
+void Decoder_Loop(Decoder *this)
+{
+	if (this)
+		this->loop(this->backend);
 }
 
 unsigned long Decoder_GetSamples(Decoder *this, void *output_buffer, unsigned long bytes_to_do)

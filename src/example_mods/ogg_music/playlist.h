@@ -7,7 +7,7 @@
 typedef struct PlaylistEntry
 {
 	const char *name;
-	bool loops;
+	bool loop;
 	bool is_org;
 	DualDecoder *dual_decoder;
 	DecoderInfo decoder_info;

@@ -1,6 +1,5 @@
 #include "decoder_sndfile.h"
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +13,6 @@ typedef struct DecoderSndfile
 {
 	MemoryFile *file;
 	SNDFILE *sndfile;
-	bool loop;
 } DecoderSndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
@@ -52,7 +50,7 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, bool loop, DecoderInfo *info)
+DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, DecoderInfo *info)
 {
 	DecoderSndfile *this = malloc(sizeof(DecoderSndfile));
 
@@ -67,8 +65,6 @@ DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, bool loop, Dec
 
 		if (this->sndfile)
 		{
-			this->loop = loop;
-
 			// Set scaling to prevent weird clipping
 			sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
 
@@ -97,32 +93,27 @@ DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, bool loop, Dec
 
 void Decoder_Sndfile_Close(DecoderSndfile *this)
 {
-	sf_close(this->sndfile);
-	MemoryFile_fclose(this->file);
-	free(this);
+	if (this)
+	{
+		sf_close(this->sndfile);
+		MemoryFile_fclose(this->file);
+		free(this);
+	}
 }
 
 void Decoder_Sndfile_Rewind(DecoderSndfile *this)
 {
-	sf_seek(this->sndfile, 0, SEEK_SET);
+	if (this)
+		sf_seek(this->sndfile, 0, SEEK_SET);
+}
+
+void Decoder_Sndfile_Loop(DecoderSndfile *this)
+{
+	if (this)
+		Decoder_Sndfile_Rewind(this);
 }
 
 unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, unsigned long bytes_to_do)
 {
-	unsigned long bytes_done_total = 0;
-
-	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
-	{
-		bytes_done = sf_read_short(this->sndfile, buffer + bytes_done_total, (bytes_to_do - bytes_done_total) / sizeof(short)) * sizeof(short);
-
-		if (bytes_done < bytes_to_do - bytes_done_total)
-		{
-			if (this->loop)
-				Decoder_Sndfile_Rewind(this);
-			else
-				break;
-		}
-	}
-
-	return bytes_done_total;
+	return sf_read_short(this->sndfile, buffer + bytes_done_total, (bytes_to_do - bytes_done_total) / sizeof(short)) * sizeof(short);
 }

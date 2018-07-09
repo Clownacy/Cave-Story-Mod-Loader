@@ -112,7 +112,7 @@ bool InitPlaylist(void)
 				playlist_list_entry->id = current_song;
 
 				playlist_list_entry->playlist_data.name = song_path;
-				playlist_list_entry->playlist_data.loops = false;
+				playlist_list_entry->playlist_data.loop = false;
 				playlist_list_entry->playlist_data.is_org = false;
 				playlist_list_entry->playlist_data.dual_decoder = NULL;
 
@@ -127,7 +127,7 @@ bool InitPlaylist(void)
 					if (property_length != 0)
 					{
 						if (!strncmp(line_current_position, "loop", 4))
-							playlist_list_entry->playlist_data.loops = true;
+							playlist_list_entry->playlist_data.loop = true;
 						else if (!strncmp(line_current_position, "org", 3))
 							playlist_list_entry->playlist_data.is_org = true;
 
