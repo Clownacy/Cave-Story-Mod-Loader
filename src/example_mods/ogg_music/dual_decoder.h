@@ -6,7 +6,7 @@
 
 typedef struct DualDecoder DualDecoder;
 
-DualDecoder* DualDecoder_Open(const char* const path, bool loops, bool predecode, DecoderInfo *info);
+DualDecoder* DualDecoder_Open(const char* const path, DecoderType type, bool loops, bool predecode, DecoderInfo *info);
 void DualDecoder_Close(DualDecoder *this);
 void DualDecoder_Reset(DualDecoder *this);
 void DualDecoder_Rewind(DualDecoder *this);

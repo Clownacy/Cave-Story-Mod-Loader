@@ -4,12 +4,6 @@
 
 #include "decoder_common.h"
 
-typedef enum
-{
-	DECODER_OGG,
-	DECODER_FLAC
-} DecoderType;
-
 typedef struct Decoder Decoder;
 
 Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool loop, bool predecode, DecoderInfo *info);

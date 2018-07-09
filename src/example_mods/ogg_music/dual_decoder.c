@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "mod_loader.h"
 #include "sprintfMalloc.h"
@@ -20,27 +21,55 @@ typedef struct DualDecoder
 	Decoder *decoders[2];
 } DualDecoder;
 
-static int LoadFiles(const char* const base_path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *out_info, Decoder *decoders[2])
+static void GetFileNameAndExtension(const char *path, char **name, char **extension)
+{
+	// Get filename
+	const char *slash1 = strrchr(path, '/');
+	const char *slash2 = strrchr(path, '\\');
+
+	if (!slash1)
+		slash1 = path - 1;
+	if (!slash2)
+		slash2 = path - 1;
+
+	const char* const filename = (slash1 > slash2 ? slash1 : slash2) + 1;
+
+	// Get address of extension
+	const char *dot = strrchr(filename, '.');
+
+	if (!dot || dot == filename)
+		dot = strchr(filename, '\0');
+
+	// Output them
+	if (name)
+	{
+		const unsigned int size = dot - filename;
+		*name = malloc(size + 1);
+		memcpy(*name, filename, size);
+		(*name)[size] = '\0';
+	}
+
+	if (extension)
+		*extension = strdup(dot);
+}
+
+static int LoadFiles(const char* const file_path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *out_info, Decoder *decoders[2])
 {
 	int result;
 
-	const char *extension;
-
-	if (decoder_type == DECODER_OGG)
-		extension = "ogg";
-	else //if (decoder_type == DECODER_FLAC)
-		extension = "flac";
-
 	DecoderInfo info[2];
 
-	// Look for split-file music (Cave Story 3D)
-	char *file_path = sprintfMalloc("%s_intro.%s", base_path, extension);
-	decoders[0] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[0]);
-	free(file_path);
+	char *file_name, *file_extension;
+	GetFileNameAndExtension(file_path, &file_name, &file_extension);
 
-	file_path = sprintfMalloc("%s_loop.%s", base_path, extension);
-	decoders[1] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[1]);
-	free(file_path);
+	// Look for split-file music (Cave Story 3D)
+	char* const intro_file_path = sprintfMalloc("%s_intro%s", file_name, file_extension);
+	decoders[0] = Decoder_Open(intro_file_path, decoder_type, loop, predecode, &info[0]);
+	free(intro_file_path);
+
+	char* const loop_file_path = sprintfMalloc("%s_loop%s", file_name, file_extension);
+	decoders[1] = Decoder_Open(loop_file_path, decoder_type, loop, predecode, &info[1]);
+	free(loop_file_path);
 
 	if (decoders[0] == NULL || decoders[1] == NULL)
 	{
@@ -49,9 +78,9 @@ static int LoadFiles(const char* const base_path, DecoderType decoder_type, bool
 		if (decoders[0] == NULL && decoders[1] == NULL)
 		{
 			// Look for single-file music (Cave Story WiiWare)
-			file_path = sprintfMalloc("%s.%s", base_path, extension);
-			decoders[0] = Decoder_Open(file_path, decoder_type, loop, predecode, &info[0]);
-			free(file_path);
+			char* const single_file_path = sprintfMalloc("%s%s", file_name, file_extension);
+			decoders[0] = Decoder_Open(single_file_path, decoder_type, loop, predecode, &info[0]);
+			free(single_file_path);
 
 			if (decoders[0] == NULL)
 			{
@@ -76,6 +105,9 @@ static int LoadFiles(const char* const base_path, DecoderType decoder_type, bool
 		result = 1;
 	}
 
+	free(file_name);
+	free(file_extension);
+
 	if (result == 1 && (info[0].channel_count != info[1].channel_count || info[0].sample_rate != info[1].sample_rate))
 	{
 		Decoder_Close(decoders[0]);
@@ -92,12 +124,12 @@ static int LoadFiles(const char* const base_path, DecoderType decoder_type, bool
 	return result;
 }
 
-DualDecoder* DualDecoder_Open(const char* const path, bool loop, bool predecode, DecoderInfo *info)
+DualDecoder* DualDecoder_Open(const char* const path, DecoderType decoder_type, bool loop, bool predecode, DecoderInfo *info)
 {
 	DualDecoder *song = NULL;
 
 	Decoder *decoders[2];
-	const int format = LoadFiles(path, DECODER_OGG, loop, predecode, info, decoders);
+	const int format = LoadFiles(path, decoder_type, loop, predecode, info, decoders);
 
 	if (format != -1)
 	{

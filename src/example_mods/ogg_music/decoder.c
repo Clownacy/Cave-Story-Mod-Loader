@@ -81,14 +81,14 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool loop, 
 	DecoderInfo decoder_info;
 
 #ifdef USE_SNDFILE
-	if (type == DECODER_OGG || type == DECODER_FLAC)
+	if (type == DECODER_TYPE_OGG || type == DECODER_TYPE_FLAC)
 	{
 		close = (void (*)(void*))Decoder_Sndfile_Close;
 		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Sndfile_GetSamples;
 		backend = Decoder_Sndfile_Open(file_path, loop, &decoder_info);
 	}
 #else
-	if (type == DECODER_OGG)
+	if (type == DECODER_TYPE_OGG)
 	{
 		close = (void (*)(void*))Decoder_Vorbisfile_Close;
 		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Vorbisfile_GetSamples;

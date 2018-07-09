@@ -2,6 +2,12 @@
 
 typedef enum
 {
+	DECODER_TYPE_OGG,
+	DECODER_TYPE_FLAC
+} DecoderType;
+
+typedef enum
+{
 	DECODER_FORMAT_S16,
 	DECODER_FORMAT_F32
 } DecoderFormat;

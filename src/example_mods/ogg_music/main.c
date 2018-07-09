@@ -6,6 +6,7 @@
 
 #include "cave_story.h"
 #include "mod_loader.h"
+#include "sprintfMalloc.h"
 
 #include "backend.h"
 #include "dual_decoder.h"
@@ -85,7 +86,28 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->dual_decoder = DualDecoder_Open(playlist_entry->name, playlist_entry->loops, setting_predecode, &playlist_entry->decoder_info);
+	{
+		const struct
+		{
+			const char* const extension;
+			DecoderType decoder_type;
+		} formats[] = {
+			{"ogg", DECODER_TYPE_OGG},
+#ifdef USE_SNDFILE
+			{"flac", DECODER_TYPE_FLAC}
+#endif
+		};
+
+		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
+		{
+			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
+			playlist_entry->dual_decoder = DualDecoder_Open(filename, formats[i].decoder_type, playlist_entry->loops, setting_predecode, &playlist_entry->decoder_info);
+			free(filename);
+
+			if (playlist_entry->dual_decoder)
+				break;
+		}
+	}
 }
 
 static void PreloadSongs(void)
