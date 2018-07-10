@@ -6,7 +6,7 @@ OGG_MUSIC_USE_SNDFILE = false
 OGG_MUSIC_BACKEND = mini_al
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c11 -fno-ident
-ALL_CFLAGS = $(CFLAGS) -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"'
+ALL_CFLAGS = -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 
 SDL_CFLAGS = $(shell sdl2-config --cflags)
 SDL_LDFLAGS = $(shell sdl2-config --static-libs)
@@ -114,53 +114,62 @@ $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
+	@strip $@ --strip-unneeded
 
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES)
 	@mkdir -p $(@D)
 	@$(CC) $(OGG_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ $(OGG_MUSIC_LDFLAGS) $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
 	@mkdir -p $(@D)
 	@$(CC) $(SDL_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(SDL_LDFLAGS) $(LDFLAGS)
+	@strip $@ --strip-unneeded
 
 bin/mods/wasd_input/wasd_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/wasd_input/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/ikachan_cursor/ikachan_cursor.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ikachan_cursor/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/debug_save/debug_save.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/debug_save/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/graphics_enhancement/graphics_enhancement.dll: $(MOD_LOADER_HELPER_OBJECT) $(GRAPHICS_ENHANCEMENT_FILES)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/3ds_hud/3ds_hud.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/3ds_hud/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/disable_image_protection/disable_image_protection.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/disable_image_protection/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_mbx/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_nonod/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@strip $@ --strip-unneeded
 
 clean:
 	@rm -f $(MOD_LOADER_HELPER_OBJECT) $(OUTPUT)
-
-strip: $(OUTPUT)
-	@strip $^ --strip-unneeded
