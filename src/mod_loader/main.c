@@ -108,6 +108,8 @@ __declspec(dllexport) void init(void)
 
 BOOL APIENTRY DllMain(HINSTANCE hinstDll, DWORD fdwReason, LPVOID lpvReserved)
 {
+	(void)lpvReserved;
+
 	if (fdwReason == DLL_PROCESS_ATTACH)
 		this_hmodule = hinstDll;
 

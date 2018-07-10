@@ -25,6 +25,8 @@ Setting *mod_loader_settings;
 
 static int INICallback(void *user, const char *setting_section, const char *setting_name, const char *setting_value)
 {
+	(void)setting_section;
+
 	Setting **settings_list_head = (Setting**)user;
 
 	PrintDebug("      Setting name: '%s'\n      Setting value: '%s'\n", setting_name, setting_value);

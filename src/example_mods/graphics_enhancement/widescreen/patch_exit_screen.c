@@ -10,6 +10,8 @@
 
 static void DrawSprite1_hijack2(RECT* clip_rect, int x, int y, RECT* src_rect, int surface_id)
 {
+	(void)x;
+
 	CS_DrawSprite_WithTransparency(clip_rect, ((SCREEN_WIDTH - 208) / 2), y, src_rect, surface_id);
 }
 

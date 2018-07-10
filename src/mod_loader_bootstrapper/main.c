@@ -84,6 +84,9 @@ void LoadDSound(void)
 
 BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Reserved)
 {
+	(void)hDllHandle;
+	(void)Reserved;
+
 	if (nReason == DLL_PROCESS_ATTACH)
 	{
 		if (!memcmp((void*)0x412429, (char[]){0xA1, 0x20, 0x8B, 0x49, 0x00}, 5))	// Make sure this is the right EXE (or that the code hasn't been tampered with)

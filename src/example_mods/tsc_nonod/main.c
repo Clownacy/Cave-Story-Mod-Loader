@@ -3,7 +3,10 @@
 #include <string.h>
 #include <windows.h>
 
-static int TSCCommand(MLHookCPURegisters * regs, void * ud) {
+static int TSCCommand(MLHookCPURegisters * regs, void * ud)
+{
+	(void)ud;
+
 	char * where = CS_tsc_buffer + CS_tsc_offset;
 	if (where[0] != '<')
 		return 0;
