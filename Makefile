@@ -159,8 +159,8 @@ bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/t
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
 
-clean: $(MOD_LOADER_HELPER_OBJECT) $(OUTPUT)
-	rm $^
+clean:
+	@rm -f $(MOD_LOADER_HELPER_OBJECT) $(OUTPUT)
 
 strip: $(OUTPUT)
 	@strip $^ --strip-unneeded
