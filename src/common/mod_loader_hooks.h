@@ -18,4 +18,3 @@ typedef struct MLHookCPURegisters
 // If it's zero, then the "bi-stage" hook cleanup method occurs.
 // If it's non-zero,
 typedef int (*MLHookCallback)(MLHookCPURegisters *, void * cb);
-

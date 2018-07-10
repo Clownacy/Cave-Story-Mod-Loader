@@ -70,7 +70,7 @@ bool InitPlaylist(void)
 	}
 	else
 	{
-		char *playlist_folder = sprintfMalloc("%s%s", ModLoader_path_to_dll, playlist_filename);
+		char *playlist_folder = sprintfMalloc("%s%s", mod_loader_path_to_dll, playlist_filename);
 
 		char *playlist_path = sprintfMalloc("%s/playlist.txt", playlist_folder);
 		FILE *playlist_file = fopen(playlist_path, "r");

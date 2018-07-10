@@ -8,9 +8,10 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+
 #include "mod_loader_hooks.h"
 
-extern const char *ModLoader_path_to_dll;
+extern const char *mod_loader_path_to_dll;
 
 // Mod loader DLL functions
 extern void (*ModLoader_WriteRelativeAddress)(void* const address, const void* const new_destination);
@@ -29,9 +30,9 @@ extern void (*ModLoader_PrintDebug)(const char* const format, ...);
 extern void (*ModLoader_AddStackableHook)(void * address, unsigned int length, MLHookCallback cb, void * ud);
 
 // Mod loader helper functions
-extern const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string);
-extern int ModLoader_GetSettingInt(const char* const setting_name, const int default_int);
-extern bool ModLoader_GetSettingBool(const char* const setting_name, const bool default_bool);
+const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string);
+int ModLoader_GetSettingInt(const char* const setting_name, const int default_int);
+bool ModLoader_GetSettingBool(const char* const setting_name, const bool default_bool);
 
 #ifdef __cplusplus
 }

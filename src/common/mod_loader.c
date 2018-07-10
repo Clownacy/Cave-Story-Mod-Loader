@@ -25,7 +25,7 @@ void (*ModLoader_PrintError)(const char* const format, ...);
 void (*ModLoader_PrintDebug)(const char* const format, ...);
 void (*ModLoader_AddStackableHook)(void * address, unsigned int length, MLHookCallback cb, void * ud);
 
-const char *ModLoader_path_to_dll;
+const char *mod_loader_path_to_dll;
 
 static const char* (*GetSettingString)(const char* const filename, const char* const default_string, const Settings* const settings);
 static int (*GetSettingInt)(const char* const filename, const int default_int, const Settings* const settings);
@@ -51,7 +51,7 @@ bool ModLoader_GetSettingBool(const char* const setting_name, const bool default
 __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Settings* const settings_p, const char* const path_to_dll)
 {
 	settings = settings_p;
-	ModLoader_path_to_dll = path_to_dll;
+	mod_loader_path_to_dll = path_to_dll;
 
 	ModLoader_WriteRelativeAddress = (void (*)(void* const, const void* const))GetProcAddress(mod_loader_hmodule, "WriteRelativeAddress");
 	ModLoader_WriteByte = (void (*)(void* const, const unsigned char))GetProcAddress(mod_loader_hmodule, "WriteByte");

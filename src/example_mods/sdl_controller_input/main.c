@@ -304,7 +304,7 @@ void InitMod(void)
 	SDL_Init(SDL_INIT_GAMECONTROLLER);
 
 	// Load DInput controller mappings
-	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", ModLoader_path_to_dll);
+	char *controller_mappings_path = sprintfMalloc("%s/gamecontrollerdb.txt", mod_loader_path_to_dll);
 	if (SDL_GameControllerAddMappingsFromFile(controller_mappings_path) == -1)
 		ModLoader_PrintError("sdl_controller_input: Could not load 'gamecontrollerdb.txt'. DInput devices will not be supported\n");
 
