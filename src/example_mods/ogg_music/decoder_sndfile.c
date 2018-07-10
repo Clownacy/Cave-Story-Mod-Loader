@@ -115,5 +115,5 @@ void Decoder_Sndfile_Loop(DecoderSndfile *this)
 
 unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, unsigned long bytes_to_do)
 {
-	return sf_read_short(this->sndfile, buffer + bytes_done_total, (bytes_to_do - bytes_done_total) / sizeof(short)) * sizeof(short);
+	return sf_read_short(this->sndfile, buffer, bytes_to_do / sizeof(short)) * sizeof(short);
 }
