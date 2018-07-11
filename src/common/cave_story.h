@@ -55,6 +55,19 @@ typedef enum SurfaceID
 	SURFACE_ID_UNKNOWN_27
 } SurfaceID;
 
+// Structs
+typedef struct CS_ConfigData
+{
+	char magic_string[0x20];
+	char font_name[0x40];
+	long directional_keys;
+	long jump_shoot_keys;
+	long jump_shoot_keys_2;
+	long window_size;
+	long gamepad_enabled;
+	long gamepad_buttons[8];
+} CS_ConfigData;
+
 // Variables
 #define CS_window_upscale (*(int*)0x48F914)
 #define CS_clip_rect_common (*(RECT*)0x48F91C)
@@ -97,6 +110,7 @@ typedef enum SurfaceID
 // Functions
 static void (* const CS_LoadBackgroundSprite)(char*, int) = (void(*)(char*,int))0x402270;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
+static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (int(*)(CS_ConfigData*))0x40AD60;
 static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,SurfaceID) = (void(*)(RECT*,int,int,RECT*,SurfaceID))0x40C3C0;
 static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, SurfaceID) = (void(*)(RECT*, int, int, RECT*, SurfaceID))0x40C5B0;
 static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;

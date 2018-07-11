@@ -144,19 +144,11 @@ void SetupVSync(void)
 
 }
 
-void ApplyFullscreenPatches(void)
+static int ActuallyApplyFullscreenPatches(CS_ConfigData *config)
 {
-	unsigned char video_mode = 0;	// If there's no file, Cave Story defaults to fullscreen
+	const int result = CS_LoadConfigFile(config);
 
-	FILE *file = fopen("Config.dat", "rb");
-	if (file != NULL)
-	{
-		fseek(file, 0x6C, SEEK_SET);
-		video_mode = fgetc(file);
-		fclose(file);
-	}
-
-	if (video_mode != 0 && video_mode != 3 && video_mode != 4)
+	if (config->window_size != 0 && config->window_size != 3 && config->window_size != 4)
 	{
 		// Not in fullscreen
 		fullscreen_auto_aspect_ratio = false;
@@ -232,4 +224,12 @@ void ApplyFullscreenPatches(void)
 			ModLoader_PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
 		}
 	}
+
+	return result;
+}
+
+void ApplyFullscreenPatches(void)
+{
+	// We can't apply the fullscreen patches until config.dat has been loaded
+	ModLoader_WriteRelativeAddress((void*)0x4124CD + 1, ActuallyApplyFullscreenPatches);
 }
