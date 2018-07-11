@@ -77,8 +77,7 @@ void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this)
 
 void Decoder_Vorbisfile_Loop(DecoderVorbisfile *this)
 {
-	if (this)
-		Decoder_Vorbisfile_Rewind(this);
+	Decoder_Vorbisfile_Rewind(this);
 }
 
 unsigned long Decoder_Vorbisfile_GetSamples(DecoderVorbisfile *this, void *buffer, unsigned long bytes_to_do)

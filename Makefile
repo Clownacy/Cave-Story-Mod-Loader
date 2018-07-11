@@ -75,10 +75,10 @@ OGG_MUSIC_SOURCES = \
 ifeq ($(OGG_MUSIC_USE_SNDFILE), true)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_sndfile.c
 OGG_MUSIC_CFLAGS += -DUSE_SNDFILE
-OGG_MUSIC_LDFLAGS += -lsndfile -lspeex -lflac -lvorbisenc -lvorbis -logg
+OGG_MUSIC_LDFLAGS += -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 else
-OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
-OGG_MUSIC_LDFLAGS += -lvorbisfile -lvorbis -logg
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_flac.c $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
+OGG_MUSIC_LDFLAGS += -lFLAC -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(OGG_MUSIC_BACKEND), mini_al)

@@ -109,8 +109,7 @@ void Decoder_Sndfile_Rewind(DecoderSndfile *this)
 
 void Decoder_Sndfile_Loop(DecoderSndfile *this)
 {
-	if (this)
-		Decoder_Sndfile_Rewind(this);
+	Decoder_Sndfile_Rewind(this);
 }
 
 unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, unsigned long bytes_to_do)

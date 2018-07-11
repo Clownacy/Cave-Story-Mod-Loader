@@ -8,6 +8,7 @@
 #ifdef USE_SNDFILE
 #include "decoder_sndfile.h"
 #else
+#include "decoder_flac.h"
 #include "decoder_vorbisfile.h"
 #endif
 #include "memory_file.h"
@@ -89,6 +90,14 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		loop = (void (*)(void*))Decoder_Vorbisfile_Loop;
 		get_samples = (long (*)(void*, void*, unsigned long))Decoder_Vorbisfile_GetSamples;
 		backend = Decoder_Vorbisfile_Open(file_path, &decoder_info);
+	}
+	else if (type == DECODER_TYPE_FLAC)
+	{
+		close = (void (*)(void*))Decoder_FLAC_Close;
+		rewind = (void (*)(void*))Decoder_FLAC_Rewind;
+		loop = (void (*)(void*))Decoder_FLAC_Loop;
+		get_samples = (long (*)(void*, void*, unsigned long))Decoder_FLAC_GetSamples;
+		backend = Decoder_FLAC_Open(file_path, &decoder_info);
 	}
 #endif
 	else
