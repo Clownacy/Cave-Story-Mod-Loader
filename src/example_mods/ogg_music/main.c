@@ -125,9 +125,7 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 static void PreloadSongs(void)
 {
 	for (PlaylistEntry *playlist_entry = GetFirstPlaylistEntry(); playlist_entry != NULL; playlist_entry = GetNextPlaylistEntry())
-	{
 		LoadSong(playlist_entry);
-	}
 }
 
 static void UnloadSong(Song *song)
