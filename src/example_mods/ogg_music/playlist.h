@@ -2,14 +2,14 @@
 
 #include <stdbool.h>
 
-#include "dual_decoder.h"
+#include "decoder.h"
 
 typedef struct PlaylistEntry
 {
 	const char *name;
 	bool loop;
 	bool is_org;
-	DualDecoder *dual_decoder;
+	Decoder *decoder;
 	DecoderInfo decoder_info;
 } PlaylistEntry;
 

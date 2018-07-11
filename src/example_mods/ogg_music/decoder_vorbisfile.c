@@ -25,8 +25,10 @@ typedef struct DecoderVorbisfile
 	OggVorbis_File vorbis_file;
 } DecoderVorbisfile;
 
-DecoderVorbisfile* Decoder_Vorbisfile_Open(const char* const file_path, DecoderInfo *info)
+DecoderVorbisfile* Decoder_Vorbisfile_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
 {
+	(void)backend;
+
 	DecoderVorbisfile *this = malloc(sizeof(DecoderVorbisfile));
 
 	MemoryFile *file = MemoryFile_fopen(file_path);

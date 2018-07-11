@@ -67,7 +67,8 @@ OGG_MUSIC_PATH = $(MODS_PATH)/ogg_music
 OGG_MUSIC_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc.c \
 	$(OGG_MUSIC_PATH)/decoder.c \
-	$(OGG_MUSIC_PATH)/dual_decoder.c \
+	$(OGG_MUSIC_PATH)/decoder_predecode.c \
+	$(OGG_MUSIC_PATH)/decoder_split.c \
 	$(OGG_MUSIC_PATH)/main.c \
 	$(OGG_MUSIC_PATH)/memory_file.c \
 	$(OGG_MUSIC_PATH)/playlist.c

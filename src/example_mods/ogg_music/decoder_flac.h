@@ -4,7 +4,7 @@
 
 typedef struct DecoderFLAC DecoderFLAC;
 
-DecoderFLAC* Decoder_FLAC_Open(const char* const file_path, DecoderInfo *info);
+DecoderFLAC* Decoder_FLAC_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend);
 void Decoder_FLAC_Close(DecoderFLAC *this);
 void Decoder_FLAC_Rewind(DecoderFLAC *this);
 void Decoder_FLAC_Loop(DecoderFLAC *this);

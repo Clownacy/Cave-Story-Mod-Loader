@@ -151,8 +151,10 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 	(void)user;
 }
 
-DecoderFLAC* Decoder_FLAC_Open(const char* const file_path, DecoderInfo *info)
+DecoderFLAC* Decoder_FLAC_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
 {
+	(void)backend;
+
 	DecoderFLAC *this = malloc(sizeof(DecoderFLAC));
 
 	this->stream_decoder = FLAC__stream_decoder_new();

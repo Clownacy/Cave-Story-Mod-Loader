@@ -9,12 +9,12 @@
 #include "sprintfMalloc.h"
 
 #include "backend.h"
-#include "dual_decoder.h"
+#include "decoder.h"
 #include "playlist.h"
 
 typedef struct Song
 {
-	DualDecoder *dual_decoder;
+	Decoder *decoder;
 	DecoderInfo decoder_info;
 	bool is_org;
 	bool loop;
@@ -45,12 +45,12 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 
 	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
 	{
-		bytes_done = DualDecoder_GetSamples(song->dual_decoder, output_buffer, bytes_to_do);
+		bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
 
 		if (bytes_done < bytes_to_do - bytes_done_total)
 		{
 			if (song->loop)
-				DualDecoder_Loop(song->dual_decoder);
+				Decoder_Loop(song->decoder);
 			else
 				break;
 		}
@@ -115,10 +115,10 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
 		{
 			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
-			playlist_entry->dual_decoder = DualDecoder_Open(filename, formats[i].decoder_type, setting_predecode, &playlist_entry->decoder_info);
+			playlist_entry->decoder = Decoder_Open(filename, formats[i].decoder_type, setting_predecode, &playlist_entry->decoder_info);
 			free(filename);
 
-			if (playlist_entry->dual_decoder)
+			if (playlist_entry->decoder)
 				break;
 		}
 	}
@@ -135,9 +135,9 @@ static void PreloadSongs(void)
 static void UnloadSong(Song *song)
 {
 	if (setting_preload)
-		DualDecoder_Rewind(song->dual_decoder);
+		Decoder_Rewind(song->decoder);
 	else
-		DualDecoder_Close(song->dual_decoder);
+		Decoder_Close(song->decoder);
 }
 
 static void PauseSong(void)
@@ -192,9 +192,9 @@ static bool PlayOggMusic(const int song_id)
 		if (!setting_preload)
 			LoadSong(playlist_entry);
 
-		DualDecoder *dual_decoder = playlist_entry->dual_decoder;
+		Decoder *decoder = playlist_entry->decoder;
 
-		if (dual_decoder)
+		if (decoder)
 		{
 			const unsigned int sample_rate = playlist_entry->decoder_info.sample_rate;
 			const unsigned int channel_count = playlist_entry->decoder_info.channel_count;
@@ -205,18 +205,18 @@ static bool PlayOggMusic(const int song_id)
 				ModLoader_PrintError("ogg_music: Unsupported channel count\n");
 
 				if (!setting_preload)
-					DualDecoder_Close(dual_decoder);
+					Decoder_Close(decoder);
 			}
 			else
 			{
 				if (!RefreshStream(sample_rate, channel_count))
 				{
 					if (!setting_preload)
-						DualDecoder_Close(dual_decoder);
+						Decoder_Close(decoder);
 				}
 				else
 				{
-					current_song.dual_decoder = dual_decoder;
+					current_song.decoder = decoder;
 					current_song.decoder_info = playlist_entry->decoder_info;
 					current_song.loop = playlist_entry->loop;
 

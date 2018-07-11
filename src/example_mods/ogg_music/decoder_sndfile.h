@@ -4,7 +4,7 @@
 
 typedef struct DecoderSndfile DecoderSndfile;
 
-DecoderSndfile* Decoder_Sndfile_Open(const char* const file_path, DecoderInfo *info);
+DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend);
 void Decoder_Sndfile_Close(DecoderSndfile *this);
 void Decoder_Sndfile_Rewind(DecoderSndfile *this);
 void Decoder_Sndfile_Loop(DecoderSndfile *this);
