@@ -28,7 +28,7 @@ static void DrawColourFill_RawXY(RECT *dst_rect, int colour)
 	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect, 0, 0, 0x1000400, &ddbltfx);
 }
 
-static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id, bool transparency)
+static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id, bool transparency)
 {
 	RECT new_clip_rect;
 	RECT new_src_rect;
@@ -80,12 +80,12 @@ static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, Surf
 	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, transparency? 0x1008000 : 0x1000000, 0);
 }
 
-static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id)
+static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
 {
 	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, true);
 }
 
-static void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, SurfaceID surface_id)
+static void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
 {
 	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, false);
 }
@@ -110,7 +110,7 @@ void BackgroundType1_Scroll(int camera_x_pos, int camera_y_pos)
 	{
 		for (int x = -((camera_x_pos / 2) % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
 		{
-			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
+			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
 	}
 }
@@ -135,7 +135,7 @@ void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 	{
 		for (int x = -(camera_x_pos % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
 		{
-			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, SURFACE_ID_LEVEL_BACKGROUND);
+			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
 	}
 }

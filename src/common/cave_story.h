@@ -11,61 +11,61 @@ extern "C" {
 #include <windows.h>
 
 // Enums
-typedef enum SurfaceID
+typedef enum CS_SurfaceID
 {
-	SURFACE_ID_TITLE,
-	SURFACE_ID_PIXEL,
-	SURFACE_ID_LEVEL_TILESET,
-	SURFACE_ID_UNKNOWN_3,
-	SURFACE_ID_UNKNOWN_4,
-	SURFACE_ID_UNKNOWN_5,
-	SURFACE_ID_FADE,
-	SURFACE_ID_UNKNOWN_7,
-	SURFACE_ID_ITEM_IMAGE,
-	SURFACE_ID_MAP,
-	SURFACE_ID_SCREEN_GRAB,
-	SURFACE_ID_ARMS,
-	SURFACE_ID_ARMS_IMAGE,
-	SURFACE_ID_ROOM_NAME,
-	SURFACE_ID_STAGE_ITEM,
-	SURFACE_ID_LOADING,
-	SURFACE_ID_MY_CHAR,
-	SURFACE_ID_BULLET,
-	SURFACE_ID_UNKNOWN_12,
-	SURFACE_ID_CARET,
-	SURFACE_ID_NPC_SYM,
-	SURFACE_ID_LEVEL_SPRITESET_1,
-	SURFACE_ID_LEVEL_SPRITESET_2,
-	SURFACE_ID_NPC_REGU,
-	SURFACE_ID_UNKNOWN_18,
-	SURFACE_ID_UNKNOWN_19,
-	SURFACE_ID_TEXT_BOX,
-	SURFACE_ID_FACE,
-	SURFACE_ID_LEVEL_BACKGROUND,
-	SURFACE_ID_UNKNOWN_1D,
-	SURFACE_ID_UNKNOWN_1E,
-	SURFACE_ID_UNKNOWN_1F,
-	SURFACE_ID_UNKNOWN_20,
-	SURFACE_ID_UNKNOWN_21,
-	SURFACE_ID_UNKNOWN_22,
-	SURFACE_ID_UNKNOWN_23,
-	SURFACE_ID_CREDITS_IMAGE,
-	SURFACE_ID_CASTS,
-	SURFACE_ID_UNKNOWN_26,
-	SURFACE_ID_UNKNOWN_27
-} SurfaceID;
+	CS_SURFACE_ID_TITLE,
+	CS_SURFACE_ID_PIXEL,
+	CS_SURFACE_ID_LEVEL_TILESET,
+	CS_SURFACE_ID_UNKNOWN_3,
+	CS_SURFACE_ID_UNKNOWN_4,
+	CS_SURFACE_ID_UNKNOWN_5,
+	CS_SURFACE_ID_FADE,
+	CS_SURFACE_ID_UNKNOWN_7,
+	CS_SURFACE_ID_ITEM_IMAGE,
+	CS_SURFACE_ID_MAP,
+	CS_SURFACE_ID_SCREEN_GRAB,
+	CS_SURFACE_ID_ARMS,
+	CS_SURFACE_ID_ARMS_IMAGE,
+	CS_SURFACE_ID_ROOM_NAME,
+	CS_SURFACE_ID_STAGE_ITEM,
+	CS_SURFACE_ID_LOADING,
+	CS_SURFACE_ID_MY_CHAR,
+	CS_SURFACE_ID_BULLET,
+	CS_SURFACE_ID_UNKNOWN_12,
+	CS_SURFACE_ID_CARET,
+	CS_SURFACE_ID_NPC_SYM,
+	CS_SURFACE_ID_LEVEL_SPRITESET_1,
+	CS_SURFACE_ID_LEVEL_SPRITESET_2,
+	CS_SURFACE_ID_NPC_REGU,
+	CS_SURFACE_ID_UNKNOWN_18,
+	CS_SURFACE_ID_UNKNOWN_19,
+	CS_SURFACE_ID_TEXT_BOX,
+	CS_SURFACE_ID_FACE,
+	CS_SURFACE_ID_LEVEL_BACKGROUND,
+	CS_SURFACE_ID_UNKNOWN_1D,
+	CS_SURFACE_ID_UNKNOWN_1E,
+	CS_SURFACE_ID_UNKNOWN_1F,
+	CS_SURFACE_ID_UNKNOWN_20,
+	CS_SURFACE_ID_UNKNOWN_21,
+	CS_SURFACE_ID_UNKNOWN_22,
+	CS_SURFACE_ID_UNKNOWN_23,
+	CS_SURFACE_ID_CREDITS_IMAGE,
+	CS_SURFACE_ID_CASTS,
+	CS_SURFACE_ID_UNKNOWN_26,
+	CS_SURFACE_ID_UNKNOWN_27
+} CS_SurfaceID;
 
 // Structs
 typedef struct CS_ConfigData
 {
 	char magic_string[0x20];
 	char font_name[0x40];
-	long directional_keys;
-	long jump_shoot_keys;
-	long jump_shoot_keys_2;
-	long window_size;
-	long gamepad_enabled;
-	long gamepad_buttons[8];
+	unsigned long directional_keys;
+	unsigned long jump_shoot_keys;
+	unsigned long jump_shoot_keys_2;
+	unsigned long window_size;
+	unsigned long gamepad_enabled;
+	unsigned long gamepad_buttons[8];
 } CS_ConfigData;
 
 // Variables
@@ -108,28 +108,28 @@ typedef struct CS_ConfigData
 #define CS_org_playlist (*(char*(*)[42])0x4981E8)
 
 // Functions
-static void (* const CS_LoadBackgroundSprite)(char*, int) = (void(*)(char*,int))0x402270;
-static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
-static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (int(*)(CS_ConfigData*))0x40AD60;
-static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,SurfaceID) = (void(*)(RECT*,int,int,RECT*,SurfaceID))0x40C3C0;
-static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, SurfaceID) = (void(*)(RECT*, int, int, RECT*, SurfaceID))0x40C5B0;
-static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*, int))0x40C9E0;
-static int (* const CS_RegenerateSurfaces)(void) = (int(*)(void))0x40CB60;
-static void (* const CS_DrawNumber)(int x, int y, int, int) = (void(*)(int x, int y, int, int))0x40F380;
-static void (* const CS_DrawHUD_Air)(int x, int y) = (void(*)(int x, int y))0x41A350;
-static void (* const CS_LoadOrgMusic)(const char* const) = (void(*)(const char* const))0x41C6F0;
-static void (* const CS_SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
-static int (* const CS_GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
-static void (* const CS_StartOrgPlayback)(void) = (void(*)(void))0x41C790;
-static void (* const CS_SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
-static void (* const CS_sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
-static void (* const CS_FadeMusic)(void) = (void(*)(void))0x41C880;
-static void (* const CS_PlayMusic)(int music_id) = (void(*)(int))0x420EE0;
-static void (* const CS_PlayPreviousMusic)(void) = (void(*)(void))0x420F50;
+static void (* const CS_LoadBackgroundSprite)(char*, int) = (void*)0x402270;
+static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void*)0x402830;
+static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (void*)0x40AD60;
+static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_SurfaceID) = (void*)0x40C3C0;
+static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, CS_SurfaceID) = (void*)0x40C5B0;
+static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void*)0x40C9E0;
+static int (* const CS_RegenerateSurfaces)(void) = (void*)0x40CB60;
+static void (* const CS_DrawNumber)(int x, int y, int, int) = (void*)0x40F380;
+static void (* const CS_DrawHUD_Air)(int x, int y) = (void*)0x41A350;
+static void (* const CS_LoadOrgMusic)(const char* const) = (void*)0x41C6F0;
+static void (* const CS_SetOrgMusicPosition)(int) = (void*)0x41C730;
+static int (* const CS_GetOrgMusicPosition)(void) = (void*)0x41C770;
+static void (* const CS_StartOrgPlayback)(void) = (void*)0x41C790;
+static void (* const CS_SetOrgVolume)(int) = (void*)0x41C7C0;
+static void (* const CS_sub_41C7F0)(void) = (void*)0x41C7F0;
+static void (* const CS_FadeMusic)(void) = (void*)0x41C880;
+static void (* const CS_PlayMusic)(int music_id) = (void*)0x420EE0;
+static void (* const CS_PlayPreviousMusic)(void) = (void*)0x420F50;
 // Good name for this would be 'ExecuteTSC'
-static void (* const CS_sub_422510)(void) = (void(*)(void))0x422510;
+static void (* const CS_sub_422510)(void) = (void*)0x422510;
 // Good name for this would be 'UpdateAllNPCs'
-static void (* const CS_sub_46FA00)(void) = (void(*)(void))0x46FA00;
+static void (* const CS_sub_46FA00)(void) = (void*)0x46FA00;
 
 // Hookspaces & Hookjumps
 
