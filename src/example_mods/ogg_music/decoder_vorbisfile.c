@@ -8,16 +8,31 @@
 #include "decoder_common.h"
 #include "memory_file.h"
 
-static int MemoryFile_fseek_wrapper(MemoryFile *file, ogg_int64_t offset, int origin)
+static size_t MemoryFile_fread_wrapper(void *output, size_t size, size_t count, void *file)
+{
+	return MemoryFile_fread(output, size, count, file);
+}
+
+static int MemoryFile_fseek_wrapper(void *file, ogg_int64_t offset, int origin)
 {
 	return MemoryFile_fseek(file, offset, origin);
 }
 
+static int MemoryFile_fclose_wrapper(void *file)
+{
+	return MemoryFile_fclose(file);
+}
+
+static long MemoryFile_ftell_wrapper(void *file)
+{
+	return MemoryFile_ftell(file);
+}
+
 static const ov_callbacks ov_callback_memory = {
-	(size_t (*)(void*, size_t, size_t, void*))  MemoryFile_fread,
-	(int (*)(void*, ogg_int64_t, int))          MemoryFile_fseek_wrapper,
-	(int (*)(void*))                            MemoryFile_fclose,
-	(long (*)(void*))                           MemoryFile_ftell
+	MemoryFile_fread_wrapper,
+	MemoryFile_fseek_wrapper,
+	MemoryFile_fclose_wrapper,
+	MemoryFile_ftell_wrapper
 };
 
 typedef struct DecoderVorbisfile
@@ -64,17 +79,13 @@ DecoderVorbisfile* Decoder_Vorbisfile_Open(const char *file_path, DecoderInfo *i
 
 void Decoder_Vorbisfile_Close(DecoderVorbisfile *this)
 {
-	if (this)
-	{
-		ov_clear(&this->vorbis_file);
-		free(this);
-	}
+	ov_clear(&this->vorbis_file);
+	free(this);
 }
 
 void Decoder_Vorbisfile_Rewind(DecoderVorbisfile *this)
 {
-	if (this)
-		ov_time_seek(&this->vorbis_file, 0);
+	ov_time_seek(&this->vorbis_file, 0);
 }
 
 void Decoder_Vorbisfile_Loop(DecoderVorbisfile *this)

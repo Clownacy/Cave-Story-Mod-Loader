@@ -134,10 +134,13 @@ static void PreloadSongs(void)
 
 static void UnloadSong(Song *song)
 {
-	if (setting_preload)
-		Decoder_Rewind(song->decoder);
-	else
-		Decoder_Close(song->decoder);
+	if (song->decoder)
+	{
+		if (setting_preload)
+			Decoder_Rewind(song->decoder);
+		else
+			Decoder_Close(song->decoder);
+	}
 }
 
 static void PauseSong(void)

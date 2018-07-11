@@ -33,17 +33,13 @@ DecoderPredecode* Decoder_Predecode_Open(const char *file_path, DecoderInfo *inf
 
 void Decoder_Predecode_Close(DecoderPredecode *this)
 {
-	if (this)
-	{
-		MemoryFile_fclose(this->file);
-		free(this);
-	}
+	MemoryFile_fclose(this->file);
+	free(this);
 }
 
 void Decoder_Predecode_Rewind(DecoderPredecode *this)
 {
-	if (this)
-		MemoryFile_fseek(this->file, 0, SEEK_SET);
+	MemoryFile_fseek(this->file, 0, SEEK_SET);
 }
 
 

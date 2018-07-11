@@ -196,20 +196,16 @@ DecoderFLAC* Decoder_FLAC_Open(const char *file_path, DecoderInfo *info, Decoder
 
 void Decoder_FLAC_Close(DecoderFLAC *this)
 {
-	if (this)
-	{
-		FLAC__stream_decoder_finish(this->stream_decoder);
-		FLAC__stream_decoder_delete(this->stream_decoder);
-		MemoryFile_fclose(this->file);
-		free(this->block_buffer);
-		free(this);
-	}
+	FLAC__stream_decoder_finish(this->stream_decoder);
+	FLAC__stream_decoder_delete(this->stream_decoder);
+	MemoryFile_fclose(this->file);
+	free(this->block_buffer);
+	free(this);
 }
 
 void Decoder_FLAC_Rewind(DecoderFLAC *this)
 {
-	if (this)
-		FLAC__stream_decoder_seek_absolute(this->stream_decoder, 0);
+	FLAC__stream_decoder_seek_absolute(this->stream_decoder, 0);
 }
 
 void Decoder_FLAC_Loop(DecoderFLAC *this)

@@ -161,32 +161,25 @@ DecoderSplit* Decoder_Split_Open(const char *path, DecoderInfo *info, DecoderBac
 
 void Decoder_Split_Close(DecoderSplit *this)
 {
-	if (this)
-	{
-		for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
-			this->backend->Close(this->decoders[i]);
+	for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
+		this->backend->Close(this->decoders[i]);
 
-		free(this->backend);
-		free(this);
-	}
+	free(this->backend);
+	free(this);
 }
 
 void Decoder_Split_Rewind(DecoderSplit *this)
 {
-	if (this)
-	{
-		this->playing_intro = this->is_split;
-		this->current_file = 0;
+	this->playing_intro = this->is_split;
+	this->current_file = 0;
 
-		for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
-			this->backend->Rewind(this->decoders[i]);
-	}
+	for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
+		this->backend->Rewind(this->decoders[i]);
 }
 
 void Decoder_Split_Loop(DecoderSplit *this)
 {
-	if (this)
-		this->backend->Rewind(this->decoders[1]);
+	this->backend->Rewind(this->decoders[1]);
 }
 
 unsigned long Decoder_Split_GetSamples(DecoderSplit *this, void *output_buffer, unsigned long bytes_to_do)

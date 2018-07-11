@@ -46,7 +46,7 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_GetSize,
 	MemoryFile_fseek_wrapper,
 	MemoryFile_fread_wrapper,
-	(sf_count_t (*)(const void *, sf_count_t, void*))NULL,
+	(void*)NULL,
 	MemoryFile_ftell_wrapper
 };
 
@@ -95,18 +95,14 @@ DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, DecoderInfo *info, D
 
 void Decoder_Sndfile_Close(DecoderSndfile *this)
 {
-	if (this)
-	{
-		sf_close(this->sndfile);
-		MemoryFile_fclose(this->file);
-		free(this);
-	}
+	sf_close(this->sndfile);
+	MemoryFile_fclose(this->file);
+	free(this);
 }
 
 void Decoder_Sndfile_Rewind(DecoderSndfile *this)
 {
-	if (this)
-		sf_seek(this->sndfile, 0, SEEK_SET);
+	sf_seek(this->sndfile, 0, SEEK_SET);
 }
 
 void Decoder_Sndfile_Loop(DecoderSndfile *this)

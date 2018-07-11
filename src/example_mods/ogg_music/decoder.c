@@ -86,24 +86,19 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 
 void Decoder_Close(Decoder *this)
 {
-	if (this)
-	{
-		this->backend->Close(this->backend_object);
-		free(this->backend);
-		free(this);
-	}
+	this->backend->Close(this->backend_object);
+	free(this->backend);
+	free(this);
 }
 
 void Decoder_Rewind(Decoder *this)
 {
-	if (this)
-		this->backend->Rewind(this->backend_object);
+	this->backend->Rewind(this->backend_object);
 }
 
 void Decoder_Loop(Decoder *this)
 {
-	if (this)
-		this->backend->Loop(this->backend_object);
+	this->backend->Loop(this->backend_object);
 }
 
 unsigned long Decoder_GetSamples(Decoder *this, void *output_buffer, unsigned long bytes_to_do)
