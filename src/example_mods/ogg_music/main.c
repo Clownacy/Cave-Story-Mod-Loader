@@ -17,7 +17,6 @@ typedef struct Song
 	Decoder *decoder;
 	DecoderInfo decoder_info;
 	bool is_org;
-	bool loop;
 
 	bool fade_in_active;
 	bool fade_out_active;
@@ -41,20 +40,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 {
 	Song *song = user_data;
 
-	unsigned long bytes_done_total = 0;
-
-	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
-	{
-		bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
-
-		if (bytes_done < bytes_to_do - bytes_done_total)
-		{
-			if (song->loop)
-				Decoder_Loop(song->decoder);
-			else
-				break;
-		}
-	}
+	const unsigned long bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
 
 	if (song->fade_out_active)
 	{
@@ -62,7 +48,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 5;
 
 		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done_total / channel_count / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / (float)fade_counter_max;
 
@@ -79,7 +65,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 2;
 
 		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done_total / channel_count / sizeof(short); ++i)
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
 			const float volume_float = song->fade_counter / (float)fade_counter_max;
 
@@ -94,7 +80,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 		}
 	}
 
-	return bytes_done_total;
+	return bytes_done;
 }
 
 static void LoadSong(PlaylistEntry *playlist_entry)
@@ -113,7 +99,7 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
 		{
 			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
-			playlist_entry->decoder = Decoder_Open(filename, formats[i].decoder_type, setting_predecode, &playlist_entry->decoder_info);
+			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode);
 			free(filename);
 
 			if (playlist_entry->decoder)
@@ -217,7 +203,6 @@ static bool PlayOggMusic(const int song_id)
 				{
 					current_song.decoder = decoder;
 					current_song.decoder_info = playlist_entry->decoder_info;
-					current_song.loop = playlist_entry->loop;
 
 					ResumeSong();
 

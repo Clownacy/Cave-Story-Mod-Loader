@@ -1,5 +1,6 @@
 #include "decoder_sndfile.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +14,7 @@ typedef struct DecoderSndfile
 {
 	MemoryFile *file;
 	SNDFILE *sndfile;
+	bool loop;
 } DecoderSndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
@@ -46,11 +48,11 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_GetSize,
 	MemoryFile_fseek_wrapper,
 	MemoryFile_fread_wrapper,
-	(void*)NULL,
+	NULL,
 	MemoryFile_ftell_wrapper
 };
 
-DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
+DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
 
@@ -69,6 +71,8 @@ DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, DecoderInfo *info, D
 		{
 			// Set scaling to prevent weird clipping
 			sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
+
+			this->loop = loop;
 
 			if (info)
 			{
@@ -105,12 +109,19 @@ void Decoder_Sndfile_Rewind(DecoderSndfile *this)
 	sf_seek(this->sndfile, 0, SEEK_SET);
 }
 
-void Decoder_Sndfile_Loop(DecoderSndfile *this)
-{
-	Decoder_Sndfile_Rewind(this);
-}
-
 unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, unsigned long bytes_to_do)
 {
-	return sf_read_short(this->sndfile, buffer, bytes_to_do / sizeof(short)) * sizeof(short);
+	unsigned long bytes_done_total = 0;
+
+	for (;;)
+	{
+		bytes_done_total += sf_read_short(this->sndfile, buffer, bytes_to_do / sizeof(short)) * sizeof(short);
+
+		if (bytes_done_total == bytes_to_do || !this->loop)
+			break;
+
+		Decoder_Sndfile_Rewind(this);
+	}
+
+	return bytes_done_total;
 }

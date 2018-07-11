@@ -20,7 +20,7 @@ typedef struct Decoder
 	void *backend_object;
 } Decoder;
 
-Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predecode, DecoderInfo *info)
+Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info, DecoderType type, bool predecode)
 {
 	Decoder *this = malloc(sizeof(Decoder));
 
@@ -32,7 +32,6 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		backend->Open = (void*)Decoder_Sndfile_Open;
 		backend->Close = (void*)Decoder_Sndfile_Close;
 		backend->Rewind = (void*)Decoder_Sndfile_Rewind;
-		backend->Loop = (void*)Decoder_Sndfile_Loop;
 		backend->GetSamples = (void*)Decoder_Sndfile_GetSamples;
 	}
 #else
@@ -41,7 +40,6 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		backend->Open = (void*)Decoder_Vorbisfile_Open;
 		backend->Close = (void*)Decoder_Vorbisfile_Close;
 		backend->Rewind = (void*)Decoder_Vorbisfile_Rewind;
-		backend->Loop = (void*)Decoder_Vorbisfile_Loop;
 		backend->GetSamples = (void*)Decoder_Vorbisfile_GetSamples;
 	}
 	else if (type == DECODER_TYPE_FLAC)
@@ -49,7 +47,6 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		backend->Open = (void*)Decoder_FLAC_Open;
 		backend->Close = (void*)Decoder_FLAC_Close;
 		backend->Rewind = (void*)Decoder_FLAC_Rewind;
-		backend->Loop = (void*)Decoder_FLAC_Loop;
 		backend->GetSamples = (void*)Decoder_FLAC_GetSamples;
 	}
 #endif
@@ -63,7 +60,6 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		backend->Open = (void*)Decoder_Predecode_Open;
 		backend->Close = (void*)Decoder_Predecode_Close;
 		backend->Rewind = (void*)Decoder_Predecode_Rewind;
-		backend->Loop = (void*)Decoder_Predecode_Loop;
 		backend->GetSamples = (void*)Decoder_Predecode_GetSamples;
 	}
 
@@ -74,12 +70,11 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 	backend->Open = (void*)Decoder_Split_Open;
 	backend->Close = (void*)Decoder_Split_Close;
 	backend->Rewind = (void*)Decoder_Split_Rewind;
-	backend->Loop = (void*)Decoder_Split_Loop;
 	backend->GetSamples = (void*)Decoder_Split_GetSamples;
 
 	this->backend = backend;
 
-	this->backend_object = this->backend->Open(file_path, info, this->backend->backend);
+	this->backend_object = this->backend->Open(file_path, loop, info, this->backend->backend);
 
 	return this;
 }
@@ -94,11 +89,6 @@ void Decoder_Close(Decoder *this)
 void Decoder_Rewind(Decoder *this)
 {
 	this->backend->Rewind(this->backend_object);
-}
-
-void Decoder_Loop(Decoder *this)
-{
-	this->backend->Loop(this->backend_object);
 }
 
 unsigned long Decoder_GetSamples(Decoder *this, void *output_buffer, unsigned long bytes_to_do)

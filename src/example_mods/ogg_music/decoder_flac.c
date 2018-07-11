@@ -19,6 +19,8 @@ typedef struct DecoderFLAC
 	FLAC__StreamDecoder *stream_decoder;
 	DecoderInfo *info; 
 
+	bool loop;
+
 	unsigned int bits_per_sample;
 
 	unsigned char *block_buffer;
@@ -151,7 +153,7 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 	(void)user;
 }
 
-DecoderFLAC* Decoder_FLAC_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
+DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
 
@@ -167,6 +169,7 @@ DecoderFLAC* Decoder_FLAC_Open(const char *file_path, DecoderInfo *info, Decoder
 		{
 			if (FLAC__stream_decoder_init_stream(this->stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
+				this->loop = loop;
 				this->info = info;
 				FLAC__stream_decoder_process_until_end_of_metadata(this->stream_decoder);
 			}
@@ -208,11 +211,6 @@ void Decoder_FLAC_Rewind(DecoderFLAC *this)
 	FLAC__stream_decoder_seek_absolute(this->stream_decoder, 0);
 }
 
-void Decoder_FLAC_Loop(DecoderFLAC *this)
-{
-	Decoder_FLAC_Rewind(this);
-}
-
 unsigned long Decoder_FLAC_GetSamples(DecoderFLAC *this, void *buffer, unsigned long bytes_to_do)
 {
 	unsigned long bytes_done_total = 0;
@@ -224,7 +222,17 @@ unsigned long Decoder_FLAC_GetSamples(DecoderFLAC *this, void *buffer, unsigned 
 			FLAC__stream_decoder_process_single(this->stream_decoder);
 
 			if (FLAC__stream_decoder_get_state(this->stream_decoder) == FLAC__STREAM_DECODER_END_OF_STREAM)
-				break;
+			{
+				if (this->loop)
+				{
+					Decoder_FLAC_Rewind(this);
+					continue;
+				}
+				else
+				{
+					break;
+				}
+			}
 		}
 
 		const unsigned long block_bytes_to_do = MIN(bytes_to_do - bytes_done_total, this->block_buffer_size - this->block_buffer_index);

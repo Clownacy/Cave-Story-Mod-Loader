@@ -1,5 +1,6 @@
 #include "decoder_predecode.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 
@@ -9,17 +10,20 @@
 typedef struct DecoderPredecode
 {
 	MemoryFile *file;
+	bool loop;
 } DecoderPredecode;
 
-DecoderPredecode* Decoder_Predecode_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
+DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
 {
 	DecoderPredecode *this = NULL;
 
-	void *backend_object = backend->Open(file_path, info, backend->backend);
+	void *backend_object = backend->Open(file_path, loop, info, backend->backend);
 
 	if (backend_object)
 	{
 		this = malloc(sizeof(DecoderPredecode));
+
+		this->loop = loop;
 
 		unsigned char *buffer = malloc(info->decoded_size);
 		backend->GetSamples(backend_object, buffer, info->decoded_size);
@@ -42,13 +46,19 @@ void Decoder_Predecode_Rewind(DecoderPredecode *this)
 	MemoryFile_fseek(this->file, 0, SEEK_SET);
 }
 
-
-void Decoder_Predecode_Loop(DecoderPredecode *this)
-{
-	Decoder_Predecode_Rewind(this);
-}
-
 unsigned long Decoder_Predecode_GetSamples(DecoderPredecode *this, void *output_buffer, unsigned long bytes_to_do)
 {
-	return MemoryFile_fread(output_buffer, 1, bytes_to_do, this->file);
+	unsigned long bytes_done_total = 0;
+
+	for (;;)
+	{
+		bytes_done_total += MemoryFile_fread(output_buffer + bytes_done_total, 1, bytes_to_do - bytes_done_total, this->file);
+
+		if (bytes_done_total == bytes_to_do || !this->loop)
+			break;
+
+		Decoder_Predecode_Rewind(this);
+	}
+
+	return bytes_done_total;
 }

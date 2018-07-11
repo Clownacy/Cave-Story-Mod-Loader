@@ -1,5 +1,6 @@
 #include "decoder_openmpt.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +17,7 @@ typedef struct DecoderOpenMPT
 	openmpt_module *module;
 } DecoderOpenMPT;
 
-DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend)
+DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
 
@@ -37,7 +38,8 @@ DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, DecoderInfo *info, D
 	info->channel_count = CHANNEL_COUNT;
 	info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * CHANNEL_COUNT * sizeof(short);
 
-	openmpt_module_set_repeat_count(this->module, -1);
+	if (loop)
+		openmpt_module_set_repeat_count(this->module, -1);
 
 	return this;
 }
@@ -51,11 +53,6 @@ void Decoder_OpenMPT_Close(DecoderOpenMPT *this)
 void Decoder_OpenMPT_Rewind(DecoderOpenMPT *this)
 {
 	openmpt_module_set_position_seconds(this->module, 0);
-}
-
-void Decoder_OpenMPT_Loop(DecoderOpenMPT *this)
-{
-	Decoder_OpenMPT_Rewind(this);
 }
 
 unsigned long Decoder_OpenMPT_GetSamples(DecoderOpenMPT *this, void *buffer, unsigned long bytes_to_do)

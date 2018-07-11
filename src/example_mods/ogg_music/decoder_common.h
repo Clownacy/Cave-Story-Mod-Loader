@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef enum
 {
 	DECODER_FORMAT_S16,
@@ -17,9 +19,8 @@ typedef struct DecoderBackend
 {
 	struct DecoderBackend *backend;
 
-	void* (*Open)(const char *file_path, DecoderInfo *info, struct DecoderBackend *backend);
+	void* (*Open)(const char *file_path, bool loop, DecoderInfo *info, struct DecoderBackend *backend);
 	void (*Close)(void *this);
 	void (*Rewind)(void *this);
-	void (*Loop)(void *this);
 	long (*GetSamples)(void *this, void *output_buffer, unsigned long bytes_to_do);
 } DecoderBackend;

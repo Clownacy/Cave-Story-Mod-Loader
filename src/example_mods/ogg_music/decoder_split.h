@@ -1,10 +1,12 @@
 #pragma once
 
+#include <stdbool.h>
+
 #include "decoder_common.h"
 
 typedef struct DecoderSplit DecoderSplit;
 
-DecoderSplit* Decoder_Split_Open(const char *file_path, DecoderInfo *info, DecoderBackend *backend);
+DecoderSplit* Decoder_Split_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend);
 void Decoder_Split_Close(DecoderSplit *this);
 void Decoder_Split_Rewind(DecoderSplit *this);
 void Decoder_Split_Loop(DecoderSplit *this);
