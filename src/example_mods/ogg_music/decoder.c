@@ -29,28 +29,28 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 #ifdef USE_SNDFILE
 	if (type == DECODER_TYPE_OGG || type == DECODER_TYPE_FLAC)
 	{
-		backend->Open = (void* (*)(const char*, DecoderInfo*, DecoderBackend*))Decoder_Sndfile_Open;
-		backend->Close = (void (*)(void*))Decoder_Sndfile_Close;
-		backend->Rewind = (void (*)(void*))Decoder_Sndfile_Rewind;
-		backend->Loop = (void (*)(void*))Decoder_Sndfile_Loop;
-		backend->GetSamples = (long (*)(void*, void*, unsigned long))Decoder_Sndfile_GetSamples;
+		backend->Open = (void*)Decoder_Sndfile_Open;
+		backend->Close = (void*)Decoder_Sndfile_Close;
+		backend->Rewind = (void*)Decoder_Sndfile_Rewind;
+		backend->Loop = (void*)Decoder_Sndfile_Loop;
+		backend->GetSamples = (void*)Decoder_Sndfile_GetSamples;
 	}
 #else
 	if (type == DECODER_TYPE_OGG)
 	{
-		backend->Open = (void* (*)(const char*, DecoderInfo*, DecoderBackend*))Decoder_Vorbisfile_Open;
-		backend->Close = (void (*)(void*))Decoder_Vorbisfile_Close;
-		backend->Rewind = (void (*)(void*))Decoder_Vorbisfile_Rewind;
-		backend->Loop = (void (*)(void*))Decoder_Vorbisfile_Loop;
-		backend->GetSamples = (long (*)(void*, void*, unsigned long))Decoder_Vorbisfile_GetSamples;
+		backend->Open = (void*)Decoder_Vorbisfile_Open;
+		backend->Close = (void*)Decoder_Vorbisfile_Close;
+		backend->Rewind = (void*)Decoder_Vorbisfile_Rewind;
+		backend->Loop = (void*)Decoder_Vorbisfile_Loop;
+		backend->GetSamples = (void*)Decoder_Vorbisfile_GetSamples;
 	}
 	else if (type == DECODER_TYPE_FLAC)
 	{
-		backend->Open = (void* (*)(const char*, DecoderInfo*, DecoderBackend*))Decoder_FLAC_Open;
-		backend->Close = (void (*)(void*))Decoder_FLAC_Close;
-		backend->Rewind = (void (*)(void*))Decoder_FLAC_Rewind;
-		backend->Loop = (void (*)(void*))Decoder_FLAC_Loop;
-		backend->GetSamples = (long (*)(void*, void*, unsigned long))Decoder_FLAC_GetSamples;
+		backend->Open = (void*)Decoder_FLAC_Open;
+		backend->Close = (void*)Decoder_FLAC_Close;
+		backend->Rewind = (void*)Decoder_FLAC_Rewind;
+		backend->Loop = (void*)Decoder_FLAC_Loop;
+		backend->GetSamples = (void*)Decoder_FLAC_GetSamples;
 	}
 #endif
 
@@ -60,22 +60,22 @@ Decoder* Decoder_Open(const char* const file_path, DecoderType type, bool predec
 		backend = malloc(sizeof(DecoderBackend));
 		backend->backend = last_backend;
 
-		backend->Open = (void* (*)(const char*, DecoderInfo*, DecoderBackend*))Decoder_Predecode_Open;
-		backend->Close = (void (*)(void*))Decoder_Predecode_Close;
-		backend->Rewind = (void (*)(void*))Decoder_Predecode_Rewind;
-		backend->Loop = (void (*)(void*))Decoder_Predecode_Loop;
-		backend->GetSamples = (long (*)(void*, void*, unsigned long))Decoder_Predecode_GetSamples;
+		backend->Open = (void*)Decoder_Predecode_Open;
+		backend->Close = (void*)Decoder_Predecode_Close;
+		backend->Rewind = (void*)Decoder_Predecode_Rewind;
+		backend->Loop = (void*)Decoder_Predecode_Loop;
+		backend->GetSamples = (void*)Decoder_Predecode_GetSamples;
 	}
 
 	DecoderBackend *last_backend = backend;
 	backend = malloc(sizeof(DecoderBackend));
 	backend->backend = last_backend;
 
-	backend->Open = (void* (*)(const char*, DecoderInfo*, DecoderBackend*))Decoder_Split_Open;
-	backend->Close = (void (*)(void*))Decoder_Split_Close;
-	backend->Rewind = (void (*)(void*))Decoder_Split_Rewind;
-	backend->Loop = (void (*)(void*))Decoder_Split_Loop;
-	backend->GetSamples = (long (*)(void*, void*, unsigned long))Decoder_Split_GetSamples;
+	backend->Open = (void*)Decoder_Split_Open;
+	backend->Close = (void*)Decoder_Split_Close;
+	backend->Rewind = (void*)Decoder_Split_Rewind;
+	backend->Loop = (void*)Decoder_Split_Loop;
+	backend->GetSamples = (void*)Decoder_Split_GetSamples;
 
 	this->backend = backend;
 
