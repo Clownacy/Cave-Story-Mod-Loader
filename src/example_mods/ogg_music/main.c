@@ -107,9 +107,7 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 			DecoderType decoder_type;
 		} formats[] = {
 			{"ogg", DECODER_TYPE_OGG},
-#ifdef USE_SNDFILE
 			{"flac", DECODER_TYPE_FLAC}
-#endif
 		};
 
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
