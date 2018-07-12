@@ -1,8 +1,8 @@
 MOD_LOADER_VERSION = v1.4
 COMMON_PATH = src/common
 
-OGG_MUSIC_USE_OPENMPT = false
 OGG_MUSIC_USE_SNDFILE = false
+OGG_MUSIC_USE_OPENMPT = true
 # Can be 'mini_al', 'SDL2', or 'Cubeb'
 OGG_MUSIC_BACKEND = mini_al
 
