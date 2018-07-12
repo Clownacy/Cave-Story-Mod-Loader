@@ -131,12 +131,10 @@ static void MetadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__Str
 
 	DecoderFLAC *this = user;
 
-	if (this->info)
-	{
-		this->info->sample_rate = metadata->data.stream_info.sample_rate;
-		this->info->channel_count = metadata->data.stream_info.channels;
-		this->info->decoded_size = (metadata->data.stream_info.bits_per_sample / 8) * metadata->data.stream_info.channels * metadata->data.stream_info.total_samples;
-	}
+	this->info->sample_rate = metadata->data.stream_info.sample_rate;
+	this->info->channel_count = metadata->data.stream_info.channels;
+	this->info->decoded_size = (metadata->data.stream_info.bits_per_sample / 8) * metadata->data.stream_info.channels * metadata->data.stream_info.total_samples;
+	this->info->format = DECODER_FORMAT_S16;	// libFLAC doesn't do float32
 
 	this->bits_per_sample = metadata->data.stream_info.bits_per_sample;
 
@@ -153,41 +151,48 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 	(void)user;
 }
 
-DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
+DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
+	(void)format;
 
-	DecoderFLAC *this = NULL;
+	DecoderFLAC *this = malloc(sizeof(DecoderFLAC));
 
-	FLAC__StreamDecoder *stream_decoder = FLAC__stream_decoder_new();
+	this->stream_decoder = FLAC__stream_decoder_new();
 
-	if (stream_decoder)
+	if (this->stream_decoder)
 	{
-		MemoryFile *file = MemoryFile_fopen(file_path);
+		this->file = MemoryFile_fopen(file_path);
 
-		if (file)
+		if (this->file)
 		{
-			if (FLAC__stream_decoder_init_stream(stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
+			if (FLAC__stream_decoder_init_stream(this->stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
-				DecoderFLAC *this = malloc(sizeof(DecoderFLAC));
-
-				this->stream_decoder = stream_decoder;
-				this->file = file;
 				this->loop = loop;
 
 				this->info = info;
 				FLAC__stream_decoder_process_until_end_of_metadata(this->stream_decoder);
+
 			}
 			else
 			{
-				MemoryFile_fclose(file);
-				FLAC__stream_decoder_delete(stream_decoder);
+				MemoryFile_fclose(this->file);
+				FLAC__stream_decoder_delete(this->stream_decoder);
+				free(this);
+				this = NULL;
 			}
 		}
 		else
 		{
-			FLAC__stream_decoder_delete(stream_decoder);
+			FLAC__stream_decoder_delete(this->stream_decoder);
+			free(this);
+			this = NULL;
 		}
+	}
+	else
+	{
+		free(this);
+		this = NULL;
 	}
 
 	return this;

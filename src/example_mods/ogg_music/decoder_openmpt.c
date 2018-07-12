@@ -15,9 +15,11 @@
 typedef struct DecoderOpenMPT
 {
 	openmpt_module *module;
+	unsigned int bytes_per_frame;
+	DecoderFormat format;
 } DecoderOpenMPT;
 
-DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
+DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
 
@@ -42,10 +44,14 @@ DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderIn
 			this = malloc(sizeof(DecoderOpenMPT));
 
 			this->module = module;
+			this->format = format;
+
+			this->bytes_per_frame = CHANNEL_COUNT * DECODER_GET_FORMAT_SIZE(format);
 
 			info->sample_rate = SAMPLE_RATE;
 			info->channel_count = CHANNEL_COUNT;
-			info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * CHANNEL_COUNT * sizeof(short);
+			info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * this->bytes_per_frame;
+			info->format = format;
 
 			if (loop)
 				openmpt_module_set_repeat_count(this->module, -1);
@@ -68,16 +74,27 @@ void Decoder_OpenMPT_Rewind(DecoderOpenMPT *this)
 
 unsigned long Decoder_OpenMPT_GetSamples(DecoderOpenMPT *this, void *buffer, unsigned long bytes_to_do)
 {
-	const unsigned int bytes_per_frame = CHANNEL_COUNT * sizeof(short);
-
 	unsigned long bytes_done_total = 0;
 
-	for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
+	if (this->format == DECODER_FORMAT_F32)
 	{
-		bytes_done = openmpt_module_read_interleaved_stereo(this->module, SAMPLE_RATE, (bytes_to_do - bytes_done_total) / bytes_per_frame, buffer + bytes_done_total) * bytes_per_frame;
+		for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
+		{
+			bytes_done = openmpt_module_read_interleaved_float_stereo(this->module, SAMPLE_RATE, (bytes_to_do - bytes_done_total) / this->bytes_per_frame, buffer + bytes_done_total) * this->bytes_per_frame;
 
-		if (bytes_done == 0)
-			break;
+			if (bytes_done == 0)
+				break;
+		}
+	}
+	else if (this->format == DECODER_FORMAT_S16)
+	{
+		for (unsigned long bytes_done; bytes_done_total != bytes_to_do; bytes_done_total += bytes_done)
+		{
+			bytes_done = openmpt_module_read_interleaved_stereo(this->module, SAMPLE_RATE, (bytes_to_do - bytes_done_total) / (CHANNEL_COUNT * sizeof(short)), buffer + bytes_done_total) * CHANNEL_COUNT * sizeof(short);
+
+			if (bytes_done == 0)
+				break;
+		}
 	}
 
 	return bytes_done_total;

@@ -49,12 +49,12 @@ bool Backend_Init(void)
 	return cubeb_init(&cubeb_context, NULL, NULL) == CUBEB_OK;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = NULL;
 
 	cubeb_stream_params output_params;
-	output_params.format = CUBEB_SAMPLE_S16LE;
+	output_params.format = (format == BACKEND_FORMAT_F32 ? CUBEB_SAMPLE_FLOAT32LE : CUBEB_SAMPLE_S16LE);
 	output_params.rate = sample_rate;
 	output_params.prefs = CUBEB_STREAM_PREF_NONE;
 	output_params.channels = channel_count;
@@ -83,7 +83,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 				stream->user_data = user_data;
 
 				stream->cubeb_stream_pointer = cubeb_stream_pointer;
-				stream->bytes_per_frame = channel_count * sizeof(short);
+				stream->bytes_per_frame = channel_count * (format == BACKEND_FORMAT_F32 ? sizeof(float) : sizeof(short));
 			}
 			else
 			{

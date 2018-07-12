@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "decoder_common.h"
 #include "decoder_predecode.h"
@@ -26,8 +27,63 @@ typedef struct Decoder
 	void *backend_object;
 } Decoder;
 
-Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderType type, bool predecode)
+static void SplitFileExtension(const char *path, char **path_no_extension, char **extension)
 {
+	// Get filename
+	const char *slash1 = strrchr(path, '/');
+	const char *slash2 = strrchr(path, '\\');
+
+	if (!slash1)
+		slash1 = path - 1;
+	if (!slash2)
+		slash2 = path - 1;
+
+	const char* const filename = (slash1 > slash2 ? slash1 : slash2) + 1;
+
+	// Get address of extension
+	const char *dot = strrchr(filename, '.');
+
+	if (!dot || dot == filename)
+		dot = strchr(filename, '\0');
+
+	// Output them
+	if (path_no_extension)
+	{
+		const unsigned int size = dot - path;
+		*path_no_extension = malloc(size + 1);
+		memcpy(*path_no_extension, path, size);
+		(*path_no_extension)[size] = '\0';
+	}
+
+	if (extension)
+		*extension = strdup(dot);
+}
+
+Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool predecode)
+{
+	char *extension;
+	SplitFileExtension(file_path, NULL, &extension);
+
+	DecoderType type;
+	if (!strcmp(extension, ".ogg"))
+		type = DECODER_TYPE_OGG;
+	else if (!strcmp(extension, ".flac"))
+		type = DECODER_TYPE_FLAC;
+#ifdef USE_OPENMPT
+	else if (!strcmp(extension, ".xm"))
+		type = DECODER_TYPE_MODULE;
+	else if (!strcmp(extension, ".it"))
+		type = DECODER_TYPE_MODULE;
+	else if (!strcmp(extension, ".mod"))
+		type = DECODER_TYPE_MODULE;
+	else if (!strcmp(extension, ".s3m"))
+		type = DECODER_TYPE_MODULE;
+	else if (!strcmp(extension, ".mptm"))
+		type = DECODER_TYPE_MODULE;
+#endif
+	else
+		return NULL;
+
 	Decoder *this = malloc(sizeof(Decoder));
 
 	DecoderBackend *backend = malloc(sizeof(DecoderBackend));
@@ -66,6 +122,10 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, Decod
 		backend->GetSamples = (void*)Decoder_OpenMPT_GetSamples;
 	}
 #endif
+	else
+	{
+		return NULL;
+	}
 
 	if (predecode && type != DECODER_TYPE_MODULE)
 	{
@@ -90,7 +150,7 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, Decod
 
 	this->backend = backend;
 
-	this->backend_object = this->backend->Open(file_path, loop, info, this->backend->backend);
+	this->backend_object = this->backend->Open(file_path, loop, DECODER_FORMAT_F32, info, this->backend->backend);
 
 	if (this->backend_object == NULL)
 	{

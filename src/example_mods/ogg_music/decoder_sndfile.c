@@ -15,6 +15,8 @@ typedef struct DecoderSndfile
 	MemoryFile *file;
 	SNDFILE *sndfile;
 	bool loop;
+	DecoderFormat format;
+	unsigned int bytes_per_frame;
 } DecoderSndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
@@ -52,7 +54,7 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
+DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
 {
 	(void)backend;
 
@@ -70,15 +72,19 @@ DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderIn
 		if (this->sndfile)
 		{
 			// Set scaling to prevent weird clipping
-			sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
+			if (format == DECODER_FORMAT_S16)
+				sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
 
 			this->loop = loop;
+			this->format = format;
+			this->bytes_per_frame = sf_info.channels * DECODER_GET_FORMAT_SIZE(format);
 
 			if (info)
 			{
 				info->sample_rate = sf_info.samplerate;
 				info->channel_count = sf_info.channels;
-				info->decoded_size = sf_info.frames * sf_info.channels * sizeof(short);
+				info->decoded_size = sf_info.frames * this->bytes_per_frame;
+				info->format = format;
 			}
 		}
 		else
@@ -113,14 +119,29 @@ unsigned long Decoder_Sndfile_GetSamples(DecoderSndfile *this, void *buffer, uns
 {
 	unsigned long bytes_done_total = 0;
 
-	for (;;)
+	if (this->format == DECODER_FORMAT_F32)
 	{
-		bytes_done_total += sf_read_short(this->sndfile, buffer, bytes_to_do / sizeof(short)) * sizeof(short);
+		for (;;)
+		{
+			bytes_done_total += sf_readf_float(this->sndfile, buffer, bytes_to_do / this->bytes_per_frame) * this->bytes_per_frame;
 
-		if (bytes_done_total == bytes_to_do || !this->loop)
-			break;
+			if (bytes_done_total == bytes_to_do || !this->loop)
+				break;
 
-		Decoder_Sndfile_Rewind(this);
+			Decoder_Sndfile_Rewind(this);
+		}
+	}
+	else if (this->format == DECODER_FORMAT_S16)
+	{
+		for (;;)
+		{
+			bytes_done_total += sf_readf_short(this->sndfile, buffer, bytes_to_do / this->bytes_per_frame) * this->bytes_per_frame;
+
+			if (bytes_done_total == bytes_to_do || !this->loop)
+				break;
+
+			Decoder_Sndfile_Rewind(this);
+		}
 	}
 
 	return bytes_done_total;

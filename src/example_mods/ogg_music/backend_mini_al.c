@@ -61,9 +61,9 @@ bool Backend_Init(void)
 	return true;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
-	mal_device_config config = mal_device_config_init_playback(mal_format_s16, channel_count, sample_rate, Callback);
+	mal_device_config config = mal_device_config_init_playback(format == BACKEND_FORMAT_F32 ? mal_format_f32 : mal_format_s16, channel_count, sample_rate, Callback);
 
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
@@ -72,7 +72,7 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 		stream->user_callback = user_callback;
 		stream->user_data = user_data;
 
-		stream->bytes_per_frame = channel_count * sizeof(short);
+		stream->bytes_per_frame = channel_count * (format == BACKEND_FORMAT_F32 ? sizeof(float) : sizeof(short));
 		stream->volume = 0x100;
 	}
 	else

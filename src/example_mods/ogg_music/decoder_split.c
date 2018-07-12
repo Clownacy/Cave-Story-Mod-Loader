@@ -53,7 +53,7 @@ static void SplitFileExtension(const char *path, char **path_no_extension, char 
 		*extension = strdup(dot);
 }
 
-static int LoadFiles(const char *file_path, bool loop, DecoderInfo *out_info, DecoderBackend *backend, void *decoders[2])
+static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *out_info, DecoderBackend *backend, void *decoders[2])
 {
 	int result;
 
@@ -64,11 +64,11 @@ static int LoadFiles(const char *file_path, bool loop, DecoderInfo *out_info, De
 
 	// Look for split-file music (Cave Story 3D)
 	char* const intro_file_path = sprintfMalloc("%s_intro%s", file_path_no_extension, file_extension);
-	decoders[0] = backend->Open(intro_file_path, false, &info[0], backend->backend);
+	decoders[0] = backend->Open(intro_file_path, false, format, &info[0], backend->backend);
 	free(intro_file_path);
 
 	char* const loop_file_path = sprintfMalloc("%s_loop%s", file_path_no_extension, file_extension);
-	decoders[1] = backend->Open(loop_file_path, loop, &info[1], backend->backend);
+	decoders[1] = backend->Open(loop_file_path, loop, format, &info[1], backend->backend);
 	free(loop_file_path);
 
 	if (decoders[0] == NULL || decoders[1] == NULL)
@@ -79,7 +79,7 @@ static int LoadFiles(const char *file_path, bool loop, DecoderInfo *out_info, De
 		{
 			// Look for single-file music (Cave Story WiiWare)
 			char* const single_file_path = sprintfMalloc("%s%s", file_path_no_extension, file_extension);
-			decoders[0] = backend->Open(single_file_path, loop, &info[0], backend->backend);
+			decoders[0] = backend->Open(single_file_path, loop, format, &info[0], backend->backend);
 			free(single_file_path);
 
 			if (decoders[0] == NULL)
@@ -125,24 +125,24 @@ static int LoadFiles(const char *file_path, bool loop, DecoderInfo *out_info, De
 	return result;
 }
 
-DecoderSplit* Decoder_Split_Open(const char *path, bool loop, DecoderInfo *info, DecoderBackend *backend)
+DecoderSplit* Decoder_Split_Open(const char *path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
 {
 	DecoderSplit *this = NULL;
 
 	void *decoders[2];
-	const int format = LoadFiles(path, loop, info, backend, decoders);
+	const int split_format = LoadFiles(path, loop, format, info, backend, decoders);
 
-	if (format != -1)
+	if (split_format != -1)
 	{
 		this = malloc(sizeof(DecoderSplit));
 		this->backend = backend;
 
-		if (format == 0)
+		if (split_format == 0)
 		{
 			this->is_split = false;
 			this->playing_intro = false;
 		}
-		else //if (format == 1)
+		else //if (split_format == 1)
 		{
 			this->is_split = true;
 			this->playing_intro = true;

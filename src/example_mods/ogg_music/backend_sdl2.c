@@ -48,14 +48,14 @@ bool Backend_Init(void)
 	return true;
 }
 
-BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
 	SDL_AudioSpec want;
 	memset(&want, 0, sizeof(want));
 	want.freq = sample_rate;
-	want.format = AUDIO_S16;
+	want.format = (format == BACKEND_FORMAT_F32 ? AUDIO_F32 : AUDIO_S16);
 	want.channels = channel_count;
 	want.samples = 4096;
 	want.callback = Callback;

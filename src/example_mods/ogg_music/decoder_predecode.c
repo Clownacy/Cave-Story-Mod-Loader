@@ -13,11 +13,11 @@ typedef struct DecoderPredecode
 	bool loop;
 } DecoderPredecode;
 
-DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderBackend *backend)
+DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
 {
 	DecoderPredecode *this = NULL;
 
-	void *backend_object = backend->Open(file_path, loop, info, backend->backend);
+	void *backend_object = backend->Open(file_path, loop, format, info, backend->backend);
 
 	if (backend_object)
 	{

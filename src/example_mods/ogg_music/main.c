@@ -160,7 +160,7 @@ static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count)
 		}
 		else
 		{
-			stream = Backend_CreateStream(sample_rate, channel_count, StreamCallback, &current_song);
+			stream = Backend_CreateStream(sample_rate, channel_count, BACKEND_FORMAT_F32, StreamCallback, &current_song);
 
 			if (stream == NULL)
 			{
