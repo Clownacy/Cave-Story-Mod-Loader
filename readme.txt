@@ -20,7 +20,7 @@ https://lib.openmpt.org/libopenmpt/
 
 The Makefile is designed to link all libraries statically, so their respective
 dependencies apply as well. The one exception to this is libopenmpt, which the
-Makefile assumes you built with --disable-mpg123.
+Makefile assumes you built with --without-mpg123.
 
 
 More info here:
