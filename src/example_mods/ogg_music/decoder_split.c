@@ -161,7 +161,6 @@ void Decoder_Split_Close(DecoderSplit *this)
 	for (unsigned int i = 0; i < (this->is_split ? 2 : 1); ++i)
 		this->backend->Close(this->decoders[i]);
 
-	free(this->backend);
 	free(this);
 }
 

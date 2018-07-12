@@ -94,14 +94,12 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, Decod
 
 	if (this->backend_object == NULL)
 	{
-		if (this->backend->backend)
+		for (DecoderBackend *backend = this->backend, *next_backend; next_backend != NULL; backend = next_backend)
 		{
-			if (this->backend->backend->backend)
-				free(this->backend->backend->backend);
-
-			free(this->backend->backend);
+			next_backend = backend->backend;
+			free(backend);
 		}
-		free(this->backend);
+
 		free(this);
 		this = NULL;
 	}
@@ -112,14 +110,13 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, Decod
 void Decoder_Close(Decoder *this)
 {
 	this->backend->Close(this->backend_object);
-	if (this->backend->backend)
-	{
-		if (this->backend->backend->backend)
-			free(this->backend->backend->backend);
 
-		free(this->backend->backend);
+	for (DecoderBackend *backend = this->backend, *next_backend; next_backend != NULL; backend = next_backend)
+	{
+		next_backend = backend->backend;
+		free(backend);
 	}
-	free(this->backend);
+
 	free(this);
 }
 
