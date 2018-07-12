@@ -6,13 +6,18 @@
 #include "decoder_common.h"
 #include "decoder_predecode.h"
 #include "decoder_split.h"
+#include "memory_file.h"
+
 #ifdef USE_SNDFILE
 #include "decoder_sndfile.h"
 #else
 #include "decoder_flac.h"
 #include "decoder_vorbisfile.h"
 #endif
-#include "memory_file.h"
+
+#ifdef USE_OPENMPT
+#include "decoder_openmpt.h"
+#endif
 
 typedef struct Decoder
 {
@@ -50,8 +55,17 @@ Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info,
 		backend->GetSamples = (void*)Decoder_FLAC_GetSamples;
 	}
 #endif
+#ifdef USE_OPENMPT
+	else if (type == DECODER_TYPE_MODULE)
+	{
+		backend->Open = (void*)Decoder_OpenMPT_Open;
+		backend->Close = (void*)Decoder_OpenMPT_Close;
+		backend->Rewind = (void*)Decoder_OpenMPT_Rewind;
+		backend->GetSamples = (void*)Decoder_OpenMPT_GetSamples;
+	}
+#endif
 
-	if (predecode)
+	if (predecode && type != DECODER_TYPE_MODULE)
 	{
 		DecoderBackend *last_backend = backend;
 		backend = malloc(sizeof(DecoderBackend));
@@ -75,6 +89,13 @@ Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info,
 	this->backend = backend;
 
 	this->backend_object = this->backend->Open(file_path, loop, info, this->backend->backend);
+
+	if (this->backend_object == NULL)
+	{
+		free(this->backend);
+		free(this);
+		this = NULL;
+	}
 
 	return this;
 }

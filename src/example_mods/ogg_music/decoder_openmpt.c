@@ -21,25 +21,36 @@ DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderIn
 {
 	(void)backend;
 
-	DecoderOpenMPT *this = malloc(sizeof(DecoderOpenMPT));
+	DecoderOpenMPT *this = NULL;
 
 	FILE *file = fopen(file_path, "rb");
-	fseek(file, 0, SEEK_END);
-	const long file_size = ftell(file);
-	rewind(file);
 
-	unsigned char file_buffer[file_size];
-	fread(file_buffer, 1, file_size, file);
-	fclose(file);
+	if (file)
+	{
+		fseek(file, 0, SEEK_END);
+		const long file_size = ftell(file);
+		rewind(file);
 
-	this->module = openmpt_module_create_from_memory2(file_buffer, file_size, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+		unsigned char file_buffer[file_size];
+		fread(file_buffer, 1, file_size, file);
+		fclose(file);
 
-	info->sample_rate = SAMPLE_RATE;
-	info->channel_count = CHANNEL_COUNT;
-	info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * CHANNEL_COUNT * sizeof(short);
+		openmpt_module *module = openmpt_module_create_from_memory2(file_buffer, file_size, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
-	if (loop)
-		openmpt_module_set_repeat_count(this->module, -1);
+		if (module)
+		{
+			this = malloc(sizeof(DecoderOpenMPT));
+
+			this->module = module;
+
+			info->sample_rate = SAMPLE_RATE;
+			info->channel_count = CHANNEL_COUNT;
+			info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * CHANNEL_COUNT * sizeof(short);
+
+			if (loop)
+				openmpt_module_set_repeat_count(this->module, -1);
+		}
+	}
 
 	return this;
 }

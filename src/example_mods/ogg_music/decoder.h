@@ -7,7 +7,8 @@
 typedef enum
 {
 	DECODER_TYPE_OGG,
-	DECODER_TYPE_FLAC
+	DECODER_TYPE_FLAC,
+	DECODER_TYPE_MODULE
 } DecoderType;
 
 typedef struct Decoder Decoder;

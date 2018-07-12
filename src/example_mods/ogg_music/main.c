@@ -93,7 +93,14 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 			DecoderType decoder_type;
 		} formats[] = {
 			{"ogg", DECODER_TYPE_OGG},
-			{"flac", DECODER_TYPE_FLAC}
+			{"flac", DECODER_TYPE_FLAC},
+#ifdef USE_OPENMPT
+			{"xm", DECODER_TYPE_MODULE},
+			{"mod", DECODER_TYPE_MODULE},
+			{"s3m", DECODER_TYPE_MODULE},
+			{"mptm", DECODER_TYPE_MODULE},
+			{"it", DECODER_TYPE_MODULE}
+#endif
 		};
 
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
@@ -187,7 +194,7 @@ static bool PlayOggMusic(const int song_id)
 			if (channel_count != 1 && channel_count != 2)
 			{
 				// Unsupported channel count
-				ModLoader_PrintError("ogg_music: Unsupported channel count\n");
+				ModLoader_PrintError("ogg_music: Unsupported channel count (%d)\n", channel_count);
 
 				if (!setting_preload)
 					Decoder_Close(decoder);

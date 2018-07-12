@@ -96,6 +96,7 @@ static int LoadFiles(const char *file_path, bool loop, DecoderInfo *out_info, De
 				// Swap files, since there has to be one in the first slot
 				decoders[0] = decoders[1];
 				decoders[1] = NULL;
+				info[0] = info[1];
 			}
 		}
 	}
