@@ -29,7 +29,6 @@ DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, Decod
 		backend->GetSamples(backend_object, buffer, info->decoded_size);
 		this->file = MemoryFile_fopen_from(buffer, info->decoded_size);
 		backend->Close(backend_object);
-		free(backend);
 	}
 
 	return this;

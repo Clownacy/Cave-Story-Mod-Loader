@@ -152,10 +152,6 @@ DecoderSplit* Decoder_Split_Open(const char *path, bool loop, DecoderInfo *info,
 		this->decoders[1] = decoders[1];
 		this->current_file = 0;
 	}
-	else
-	{
-		free(backend);
-	}
 
 	return this;
 }

@@ -1,6 +1,7 @@
 #include "decoder.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdlib.h>
 
 #include "decoder_common.h"
@@ -25,11 +26,12 @@ typedef struct Decoder
 	void *backend_object;
 } Decoder;
 
-Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info, DecoderType type, bool predecode)
+Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, DecoderType type, bool predecode)
 {
 	Decoder *this = malloc(sizeof(Decoder));
 
 	DecoderBackend *backend = malloc(sizeof(DecoderBackend));
+	backend->backend = NULL;
 
 #ifdef USE_SNDFILE
 	if (type == DECODER_TYPE_OGG || type == DECODER_TYPE_FLAC)
@@ -92,6 +94,13 @@ Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info,
 
 	if (this->backend_object == NULL)
 	{
+		if (this->backend->backend)
+		{
+			if (this->backend->backend->backend)
+				free(this->backend->backend->backend);
+
+			free(this->backend->backend);
+		}
 		free(this->backend);
 		free(this);
 		this = NULL;
@@ -103,6 +112,13 @@ Decoder* Decoder_Open(const char* const file_path, bool loop, DecoderInfo *info,
 void Decoder_Close(Decoder *this)
 {
 	this->backend->Close(this->backend_object);
+	if (this->backend->backend)
+	{
+		if (this->backend->backend->backend)
+			free(this->backend->backend->backend);
+
+		free(this->backend->backend);
+	}
 	free(this->backend);
 	free(this);
 }
