@@ -106,7 +106,7 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
 		{
 			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
-			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode || setting_preload);
+			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode);
 			free(filename);
 
 			if (playlist_entry->decoder)
