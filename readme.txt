@@ -1,23 +1,27 @@
-This is a DLL mod loader for the 2004 Windows version of Cave Story. Also included in this repo are some example mods.
+This is a DLL mod loader for the 2004 Windows version of Cave Story.
+Also included in this repo are some example mods.
 
-Everything is designed to be compiled with MinGW-w64, particularly in an MSYS2 environment
+Everything is designed to be compiled with MinGW-w64 in an MSYS2 environment.
 https://www.msys2.org/
+
 
 Dependencies:
 
-sdl_controller_input requires SDL2
-https://libsdl.org/
+sdl_controller_input requires SDL2 (available on MSYS2's Pacman).
 
-ogg_music requires SDL2, libogg, and libvorbis
-https://libsdl.org/
-https://github.com/xiph/ogg
-https://github.com/xiph/vorbis
+ogg_music requires libvorbisfile and libFLAC (available on Pacman), as well as
+libopenmpt (not on Pacman - you'll have to grab it yourself).
 
-The Cubeb version requires Cubeb instead of SDL2
-https://github.com/kinetiknz/cubeb
+https://www.libsdl.org/
+https://xiph.org/vorbis/
+https://xiph.org/flac/
+https://lib.openmpt.org/libopenmpt/
 
-The mod loader itself requires the inih library (its source is already included in the repo)
-https://github.com/benhoyt/inih
+
+The Makefile is designed to link all libraries statically, so their respective
+dependencies apply as well. The one exception to this is libopenmpt, which the
+Makefile assumes you built with --disable-mpg123.
+
 
 More info here:
 https://www.cavestory.org/forums/threads/dll-mod-loader-ogg-music-mod.13879/
