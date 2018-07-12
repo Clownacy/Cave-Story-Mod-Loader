@@ -32,10 +32,27 @@ typedef struct BackendStream
 
 	mal_device device;
 	unsigned int bytes_per_frame;
-	unsigned int volume;
+	float volume;
+	unsigned int volume_int;
 } BackendStream;
 
-static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *output_buffer)
+static mal_uint32 CallbackF32(mal_device *device, mal_uint32 frames_to_do, void *output_buffer)
+{
+	BackendStream *stream = (BackendStream*)device->pUserData;
+	const unsigned int bytes_to_do = frames_to_do * stream->bytes_per_frame;
+
+	const unsigned long bytes_done = stream->user_callback(stream->user_data, output_buffer, bytes_to_do);
+
+	// Handle volume in software, since mini_al's API doesn't have volume control
+	float *output_buffer_float = output_buffer;
+	if (stream->volume_int != 0x100)
+		for (unsigned int i = 0; i < bytes_done / sizeof(float); ++i)
+			*output_buffer_float++ *= stream->volume;
+
+	return bytes_done / stream->bytes_per_frame;
+}
+
+static mal_uint32 CallbackS16(mal_device *device, mal_uint32 frames_to_do, void *output_buffer)
 {
 	BackendStream *stream = (BackendStream*)device->pUserData;
 	const unsigned int bytes_to_do = frames_to_do * stream->bytes_per_frame;
@@ -44,11 +61,11 @@ static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *ou
 
 	// Handle volume in software, since mini_al's API doesn't have volume control
 	short *output_buffer_short = output_buffer;
-	if (stream->volume != 0x100)
+	if (stream->volume_int != 0x100)
 	{
 		for (unsigned int i = 0; i < bytes_done / sizeof(short); ++i)
 		{
-			const short sample = (*output_buffer_short * stream->volume) / 0x100;
+			const short sample = (*output_buffer_short * stream->volume_int) / 0x100;
 			*output_buffer_short++ = sample;
 		}
 	}
@@ -63,7 +80,7 @@ bool Backend_Init(void)
 
 BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format, unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
-	mal_device_config config = mal_device_config_init_playback(format == BACKEND_FORMAT_F32 ? mal_format_f32 : mal_format_s16, channel_count, sample_rate, Callback);
+	mal_device_config config = mal_device_config_init_playback((format == BACKEND_FORMAT_F32 ? mal_format_f32 : mal_format_s16), channel_count, sample_rate, (format == BACKEND_FORMAT_F32 ? CallbackF32 : CallbackS16));
 
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
@@ -73,7 +90,8 @@ BackendStream* Backend_CreateStream(unsigned int sample_rate, unsigned int chann
 		stream->user_data = user_data;
 
 		stream->bytes_per_frame = channel_count * (format == BACKEND_FORMAT_F32 ? sizeof(float) : sizeof(short));
-		stream->volume = 0x100;
+		stream->volume = 1.0f;
+		stream->volume_int = 0x100;
 	}
 	else
 	{
@@ -98,7 +116,10 @@ bool Backend_DestroyStream(BackendStream *stream)
 bool Backend_SetVolume(BackendStream *stream, float volume)
 {
 	if (stream)
-		stream->volume = volume * 0x100;
+	{
+		stream->volume = volume;
+		stream->volume_int = volume * 0x100;
+	}
 
 	return true;
 }
