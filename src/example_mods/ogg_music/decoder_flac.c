@@ -157,41 +157,37 @@ DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderInfo *in
 {
 	(void)backend;
 
-	DecoderFLAC *this = malloc(sizeof(DecoderFLAC));
+	DecoderFLAC *this = NULL;
 
-	this->stream_decoder = FLAC__stream_decoder_new();
+	FLAC__StreamDecoder *stream_decoder = FLAC__stream_decoder_new();
 
-	if (this->stream_decoder)
+	if (stream_decoder)
 	{
-		this->file = MemoryFile_fopen(file_path);
+		MemoryFile *file = MemoryFile_fopen(file_path);
 
-		if (this->file)
+		if (file)
 		{
-			if (FLAC__stream_decoder_init_stream(this->stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
+			if (FLAC__stream_decoder_init_stream(stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
+				DecoderFLAC *this = malloc(sizeof(DecoderFLAC));
+
+				this->stream_decoder = stream_decoder;
+				this->file = file;
 				this->loop = loop;
+
 				this->info = info;
 				FLAC__stream_decoder_process_until_end_of_metadata(this->stream_decoder);
 			}
 			else
 			{
-				MemoryFile_fclose(this->file);
-				FLAC__stream_decoder_delete(this->stream_decoder);
-				free(this);
-				this = NULL;
+				MemoryFile_fclose(file);
+				FLAC__stream_decoder_delete(stream_decoder);
 			}
 		}
 		else
 		{
-			FLAC__stream_decoder_delete(this->stream_decoder);
-			free(this);
-			this = NULL;
+			FLAC__stream_decoder_delete(stream_decoder);
 		}
-	}
-	else
-	{
-		free(this);
-		this = NULL;
 	}
 
 	return this;
