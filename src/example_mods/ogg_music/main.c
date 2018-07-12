@@ -106,7 +106,7 @@ static void LoadSong(PlaylistEntry *playlist_entry)
 		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
 		{
 			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
-			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode);
+			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode || setting_preload);
 			free(filename);
 
 			if (playlist_entry->decoder)
@@ -329,6 +329,7 @@ void InitMod(void)
 	setting_preload = ModLoader_GetSettingBool("preload_songs", false);
 	setting_predecode = ModLoader_GetSettingBool("predecode_songs", false);
 	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
+	const bool setting_pause_when_focus_lost = ModLoader_GetSettingBool("pause_when_focus_lost", true);
 
 	if (InitPlaylist())
 	{
@@ -340,8 +341,11 @@ void InitMod(void)
 			ModLoader_WriteJump(CS_PlayMusic, PlayMusic_new);
 			ModLoader_WriteJump(CS_PlayPreviousMusic, PlayPreviousMusic_new);
 			// We also need to replace the music pausing/resuming when the window focus changes
-			ModLoader_WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
-			ModLoader_WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
+			if (setting_pause_when_focus_lost)
+			{
+				ModLoader_WriteRelativeAddress((void*)0x412BD6 + 1, WindowFocusLost_new);
+				ModLoader_WriteRelativeAddress((void*)0x412C06 + 1, WindowFocusGained_new);
+			}
 			// Patch fading
 			ModLoader_WriteJump(CS_FadeMusic, FadeMusic_new);
 		}
