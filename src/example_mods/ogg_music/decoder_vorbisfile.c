@@ -44,9 +44,9 @@ static const ov_callbacks ov_callback_memory = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderVorbisfile* Decoder_Vorbisfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
+DecoderVorbisfile* Decoder_Vorbisfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
-	(void)backend;
+	(void)linked_backend;
 
 	DecoderVorbisfile *this = malloc(sizeof(DecoderVorbisfile));
 

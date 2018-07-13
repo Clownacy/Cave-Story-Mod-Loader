@@ -23,90 +23,71 @@
 
 typedef struct Decoder
 {
-	DecoderBackend *backend;
+	LinkedBackend *linked_backend;
 	void *backend_object;
 } Decoder;
 
-Decoder* TryOpen(DecoderBackend *backend, DecoderBackend **out_backend, const char *file_path, bool loop, DecoderInfo *info, bool predecode)
+void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_backend, const char *file_path, bool loop, DecoderInfo *info, bool predecode)
 {
+	LinkedBackend *last_backend;
+	LinkedBackend *linked_backend = malloc(sizeof(LinkedBackend));
+	linked_backend->next = NULL;
+	linked_backend->backend = backend;
+
 	if (predecode)
 	{
-		DecoderBackend *last_backend = backend;
-		backend = malloc(sizeof(DecoderBackend));
-		backend->backend = last_backend;
-
-		backend->Open = (void*)Decoder_Predecode_Open;
-		backend->Close = (void*)Decoder_Predecode_Close;
-		backend->Rewind = (void*)Decoder_Predecode_Rewind;
-		backend->GetSamples = (void*)Decoder_Predecode_GetSamples;
+		last_backend = linked_backend;
+		linked_backend = malloc(sizeof(LinkedBackend));
+		linked_backend->next = last_backend;
+		linked_backend->backend = &DecoderBackend_Predecode;
 	}
 
-	DecoderBackend *last_backend = backend;
-	backend = malloc(sizeof(DecoderBackend));
-	backend->backend = last_backend;
+	last_backend = linked_backend;
+	linked_backend = malloc(sizeof(LinkedBackend));
+	linked_backend->next = last_backend;
+	linked_backend->backend = &DecoderBackend_Split;
 
-	backend->Open = (void*)Decoder_Split_Open;
-	backend->Close = (void*)Decoder_Split_Close;
-	backend->Rewind = (void*)Decoder_Split_Rewind;
-	backend->GetSamples = (void*)Decoder_Split_GetSamples;
-
-	Decoder *backend_object = backend->Open(file_path, loop, DECODER_FORMAT_F32, info, backend->backend);
+	void *backend_object = linked_backend->backend->Open(file_path, loop, DECODER_FORMAT_F32, info, linked_backend->next);
 
 	if (backend_object == NULL)
 	{
-		for (DecoderBackend *current_backend = backend, *next_backend; current_backend->backend != NULL; current_backend = next_backend)
+		for (LinkedBackend *current_backend = linked_backend, *next_backend; current_backend != NULL; current_backend = next_backend)
 		{
-			next_backend = current_backend->backend;
+			next_backend = current_backend->next;
 			free(current_backend);
 		}
 	}
 	else
 	{
-		*out_backend = backend;
+		*out_linked_backend = linked_backend;
 	}
 
 	return backend_object;
 }
 
-static DecoderBackend backends[] = {
+static const struct
+{
+	const DecoderBackend *decoder;
+	bool can_be_predecoded;
+} backends[] = {
 #ifdef USE_SNDFILE
-	{
-		.Open = (void*)Decoder_Sndfile_Open,
-		.Close = (void*)Decoder_Sndfile_Close,
-		.Rewind = (void*)Decoder_Sndfile_Rewind,
-		.GetSamples = (void*)Decoder_Sndfile_GetSamples
-	},
+	{&DecoderBackend_Sndfile, true},
 #else
-	{
-		.Open = (void*)Decoder_Vorbisfile_Open,
-		.Close = (void*)Decoder_Vorbisfile_Close,
-		.Rewind = (void*)Decoder_Vorbisfile_Rewind,
-		.GetSamples = (void*)Decoder_Vorbisfile_GetSamples
-	},
-	{
-		.Open = (void*)Decoder_FLAC_Open,
-		.Close = (void*)Decoder_FLAC_Close,
-		.Rewind = (void*)Decoder_FLAC_Rewind,
-		.GetSamples = (void*)Decoder_FLAC_GetSamples
-	},
+	{&DecoderBackend_Vorbisfile, true},
+	{&DecoderBackend_FLAC, true},
 #endif
 #ifdef USE_OPENMPT
-	{
-		.Open = (void*)Decoder_OpenMPT_Open,
-		.Close = (void*)Decoder_OpenMPT_Close,
-		.Rewind = (void*)Decoder_OpenMPT_Rewind,
-		.GetSamples = (void*)Decoder_OpenMPT_GetSamples
-	}
+	{&DecoderBackend_OpenMPT, true}
 #endif
 };
 
 Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool predecode)
 {
-	Decoder *backend_object;
-	DecoderBackend *backend;
+	void *backend_object;
+	LinkedBackend *linked_backend;
 	for (unsigned int i = 0; i < sizeof(backends) / sizeof(backends[0]); ++i)
 	{
-		backend_object = TryOpen(&backends[i], &backend, file_path, loop, info, predecode);
+		backend_object = TryOpen(backends[i].decoder, &linked_backend, file_path, loop, info, predecode && backends[i].can_be_predecoded);
 
 		if (backend_object)
 			break;
@@ -118,7 +99,7 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool 
 	{
 		this = malloc(sizeof(Decoder));
 		this->backend_object = backend_object;
-		this->backend = backend;
+		this->linked_backend = linked_backend;
 	}
 
 	return this;
@@ -126,12 +107,12 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool 
 
 void Decoder_Close(Decoder *this)
 {
-	this->backend->Close(this->backend_object);
+	this->linked_backend->backend->Close(this->backend_object);
 
-	for (DecoderBackend *backend = this->backend, *next_backend; backend->backend != NULL; backend = next_backend)
+	for (LinkedBackend *current_backend = this->linked_backend, *next_backend; current_backend != NULL; current_backend = next_backend)
 	{
-		next_backend = backend->backend;
-		free(backend);
+		next_backend = current_backend->next;
+		free(current_backend);
 	}
 
 	free(this);
@@ -139,10 +120,10 @@ void Decoder_Close(Decoder *this)
 
 void Decoder_Rewind(Decoder *this)
 {
-	this->backend->Rewind(this->backend_object);
+	this->linked_backend->backend->Rewind(this->backend_object);
 }
 
 unsigned long Decoder_GetSamples(Decoder *this, void *output_buffer, unsigned long bytes_to_do)
 {
-	return this->backend->GetSamples(this->backend_object, output_buffer, bytes_to_do);
+	return this->linked_backend->backend->GetSamples(this->backend_object, output_buffer, bytes_to_do);
 }

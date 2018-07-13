@@ -54,9 +54,9 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
+DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
-	(void)backend;
+	(void)linked_backend;
 
 	DecoderSndfile *this = malloc(sizeof(DecoderSndfile));
 

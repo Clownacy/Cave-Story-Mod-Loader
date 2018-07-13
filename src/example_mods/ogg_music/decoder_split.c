@@ -18,7 +18,7 @@ typedef struct DecoderSplit
 
 	void *decoders[2];
 
-	DecoderBackend *backend;
+	const DecoderBackend *backend;
 } DecoderSplit;
 
 static void SplitFileExtension(const char *path, char **path_no_extension, char **extension)
@@ -53,7 +53,7 @@ static void SplitFileExtension(const char *path, char **path_no_extension, char 
 		*extension = strdup(dot);
 }
 
-static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *out_info, DecoderBackend *backend, void *decoders[2])
+static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *out_info, LinkedBackend *linked_backend, void *decoders[2])
 {
 	int result;
 
@@ -64,11 +64,11 @@ static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, Dec
 
 	// Look for split-file music (Cave Story 3D)
 	char* const intro_file_path = sprintfMalloc("%s_intro%s", file_path_no_extension, file_extension);
-	decoders[0] = backend->Open(intro_file_path, false, format, &info[0], backend->backend);
+	decoders[0] = linked_backend->backend->Open(intro_file_path, false, format, &info[0], linked_backend->next);
 	free(intro_file_path);
 
 	char* const loop_file_path = sprintfMalloc("%s_loop%s", file_path_no_extension, file_extension);
-	decoders[1] = backend->Open(loop_file_path, loop, format, &info[1], backend->backend);
+	decoders[1] = linked_backend->backend->Open(loop_file_path, loop, format, &info[1], linked_backend->next);
 	free(loop_file_path);
 
 	if (decoders[0] == NULL || decoders[1] == NULL)
@@ -79,7 +79,7 @@ static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, Dec
 		{
 			// Look for single-file music (Cave Story WiiWare)
 			char* const single_file_path = sprintfMalloc("%s%s", file_path_no_extension, file_extension);
-			decoders[0] = backend->Open(single_file_path, loop, format, &info[0], backend->backend);
+			decoders[0] = linked_backend->backend->Open(single_file_path, loop, format, &info[0], linked_backend->next);
 			free(single_file_path);
 
 			if (decoders[0] == NULL)
@@ -111,8 +111,8 @@ static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, Dec
 
 	if (result == 1 && (info[0].channel_count != info[1].channel_count || info[0].sample_rate != info[1].sample_rate))
 	{
-		backend->Close(decoders[0]);
-		backend->Close(decoders[1]);
+		linked_backend->backend->Close(decoders[0]);
+		linked_backend->backend->Close(decoders[1]);
 
 		result = -1;
 	}
@@ -125,17 +125,17 @@ static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, Dec
 	return result;
 }
 
-DecoderSplit* Decoder_Split_Open(const char *path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
+DecoderSplit* Decoder_Split_Open(const char *path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
 	DecoderSplit *this = NULL;
 
 	void *decoders[2];
-	const int split_format = LoadFiles(path, loop, format, info, backend, decoders);
+	const int split_format = LoadFiles(path, loop, format, info, linked_backend, decoders);
 
 	if (split_format != -1)
 	{
 		this = malloc(sizeof(DecoderSplit));
-		this->backend = backend;
+		this->backend = linked_backend->backend;
 
 		if (split_format == 0)
 		{

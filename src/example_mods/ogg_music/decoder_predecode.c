@@ -13,11 +13,11 @@ typedef struct DecoderPredecode
 	bool loop;
 } DecoderPredecode;
 
-DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
+DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
 	DecoderPredecode *this = NULL;
 
-	void *backend_object = backend->Open(file_path, loop, format, info, backend->backend);
+	void *backend_object = linked_backend->backend->Open(file_path, loop, format, info, linked_backend->next);
 
 	if (backend_object)
 	{
@@ -26,9 +26,9 @@ DecoderPredecode* Decoder_Predecode_Open(const char *file_path, bool loop, Decod
 		this->loop = loop;
 
 		unsigned char *buffer = malloc(info->decoded_size);
-		backend->GetSamples(backend_object, buffer, info->decoded_size);
+		linked_backend->backend->GetSamples(backend_object, buffer, info->decoded_size);
 		this->file = MemoryFile_fopen_from(buffer, info->decoded_size);
-		backend->Close(backend_object);
+		linked_backend->backend->Close(backend_object);
 	}
 
 	return this;

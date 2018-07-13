@@ -19,9 +19,9 @@ typedef struct DecoderOpenMPT
 	DecoderFormat format;
 } DecoderOpenMPT;
 
-DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
+DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
-	(void)backend;
+	(void)linked_backend;
 
 	DecoderOpenMPT *this = NULL;
 
