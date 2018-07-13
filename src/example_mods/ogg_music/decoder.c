@@ -10,15 +10,20 @@
 #include "decoder_split.h"
 #include "memory_file.h"
 
-#ifdef USE_SNDFILE
-#include "decoder_sndfile.h"
-#else
-#include "decoder_flac.h"
+#ifdef USE_VORBISFILE
 #include "decoder_vorbisfile.h"
 #endif
-
+#ifdef USE_FLAC
+#include "decoder_flac.h"
+#endif
+#ifdef USE_SNDFILE
+#include "decoder_sndfile.h"
+#endif
 #ifdef USE_OPENMPT
 #include "decoder_openmpt.h"
+#endif
+#ifdef USE_SPC
+#include "decoder_spc.h"
 #endif
 
 typedef struct Decoder
@@ -70,14 +75,20 @@ static const struct
 	const DecoderBackend *decoder;
 	bool can_be_predecoded;
 } backends[] = {
-#ifdef USE_SNDFILE
-	{&DecoderBackend_Sndfile, true},
-#else
+#ifdef USE_VORBISFILE
 	{&DecoderBackend_Vorbisfile, true},
+#endif
+#ifdef USE_FLAC
 	{&DecoderBackend_FLAC, true},
 #endif
+#ifdef USE_SNDFILE
+	{&DecoderBackend_Sndfile, true},
+#endif
 #ifdef USE_OPENMPT
-	{&DecoderBackend_OpenMPT, false}
+	{&DecoderBackend_OpenMPT, false},
+#endif
+#ifdef USE_SPC
+	{&DecoderBackend_SPC, false},
 #endif
 };
 

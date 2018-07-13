@@ -1,6 +1,8 @@
 MOD_LOADER_VERSION = v1.4
 COMMON_PATH = src/common
 
+OGG_MUSIC_USE_VORBISFILE = true
+OGG_MUSIC_USE_FLAC = true
 OGG_MUSIC_USE_SNDFILE = false
 OGG_MUSIC_USE_OPENMPT = true
 # Can be 'mini_al', 'SDL2', or 'Cubeb'
@@ -75,23 +77,32 @@ OGG_MUSIC_SOURCES = \
 	$(OGG_MUSIC_PATH)/playlist.c
 
 LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
-LIBFLAC_LIBS = -lFLAC
+LIBFLAC_LIBS = -lFLAC -logg
 LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 
-ifeq ($(OGG_MUSIC_USE_OPENMPT), true)
-OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_openmpt.c
-OGG_MUSIC_CFLAGS += -DUSE_OPENMPT
-OGG_MUSIC_LDFLAGS += $(LIBOPENMPT_LIBS)
+ifeq ($(OGG_MUSIC_USE_VORBISFILE)$(OGG_MUSIC_USE_SNDFILE), truefalse)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
+OGG_MUSIC_CFLAGS += -DUSE_VORBISFILE
+OGG_MUSIC_LDFLAGS += $(LIBVORBISFILE_LIBS)
+endif
+
+ifeq ($(OGG_MUSIC_USE_FLAC)$(OGG_MUSIC_USE_SNDFILE), truefalse)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_flac.c
+OGG_MUSIC_CFLAGS += -DUSE_FLAC
+OGG_MUSIC_LDFLAGS += $(LIBFLAC_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_USE_SNDFILE), true)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_sndfile.c
 OGG_MUSIC_CFLAGS += -DUSE_SNDFILE
 OGG_MUSIC_LDFLAGS += $(LIBSNDFILE_LIBS)
-else
-OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_flac.c $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
-OGG_MUSIC_LDFLAGS += $(LIBVORBISFILE_LIBS) $(LIBFLAC_LIBS)
+endif
+
+ifeq ($(OGG_MUSIC_USE_OPENMPT), true)
+OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_openmpt.c
+OGG_MUSIC_CFLAGS += -DUSE_OPENMPT
+OGG_MUSIC_LDFLAGS += $(LIBOPENMPT_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_BACKEND), mini_al)
