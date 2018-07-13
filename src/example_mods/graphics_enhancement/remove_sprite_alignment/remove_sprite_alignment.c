@@ -432,6 +432,10 @@ void RemoveSpriteAlignment(void)
 	ModLoader_WriteLong((void*)0x40EB9E + 3, SCREEN_WIDTH * 0x200);
 	ModLoader_WriteLong((void*)0x40EBA5 + 3, 240 * 0x200);
 	ModLoader_WriteLong((void*)0x40EBAE + 3, 240 * 0x200);
-	ModLoader_WriteLong((void*)0x40EBD0 + 6, 240 * 0x200); 
-	ModLoader_WriteLong((void*)0x40EBE4 + 6, SCREEN_WIDTH * 0x200); 
+	ModLoader_WriteLong((void*)0x40EBD0 + 6, 240 * 0x200);
+	ModLoader_WriteLong((void*)0x40EBE4 + 6, SCREEN_WIDTH * 0x200);
+
+	// UpdateRapidScreenFlash
+	ModLoader_WriteLong((void*)0x40ED7C + 6, 240 * 0x200);
+	ModLoader_WriteLong((void*)0x40ED90 + 6, SCREEN_WIDTH * 0x200);
 }
