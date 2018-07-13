@@ -77,7 +77,7 @@ static const struct
 	{&DecoderBackend_FLAC, true},
 #endif
 #ifdef USE_OPENMPT
-	{&DecoderBackend_OpenMPT, true}
+	{&DecoderBackend_OpenMPT, false}
 #endif
 };
 
