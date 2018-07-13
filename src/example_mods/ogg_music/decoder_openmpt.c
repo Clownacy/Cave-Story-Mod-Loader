@@ -50,7 +50,6 @@ DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderFo
 
 			info->sample_rate = SAMPLE_RATE;
 			info->channel_count = CHANNEL_COUNT;
-			info->decoded_size = openmpt_module_get_duration_seconds(this->module) * SAMPLE_RATE * this->bytes_per_frame;
 			info->format = format;
 
 			if (loop)
