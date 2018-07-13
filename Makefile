@@ -8,7 +8,7 @@ OGG_MUSIC_USE_OPENMPT = true
 # Can be 'mini_al', 'SDL2', or 'Cubeb'
 OGG_MUSIC_BACKEND = mini_al
 
-CFLAGS = -O3 -static -Wall -Wextra -std=c11 -fno-ident
+CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident
 ALL_CFLAGS = -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 
 SDL_CFLAGS = $(shell sdl2-config --cflags)
