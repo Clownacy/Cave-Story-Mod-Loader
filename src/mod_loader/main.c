@@ -66,7 +66,7 @@ void LoadMod(const char* const filename)
 
 	SetDllDirectory(NULL);
 
-	PrintDebug("  Done loading mod\n");
+	PrintDebug("  Done loading mod\n\n");
 }
 
 __declspec(dllexport) void init(void)
