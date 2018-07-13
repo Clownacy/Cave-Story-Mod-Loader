@@ -27,107 +27,9 @@ typedef struct Decoder
 	void *backend_object;
 } Decoder;
 
-static void SplitFileExtension(const char *path, char **path_no_extension, char **extension)
+Decoder* TryOpen(DecoderBackend *backend, DecoderBackend **out_backend, const char *file_path, bool loop, DecoderInfo *info, bool predecode)
 {
-	// Get filename
-	const char *slash1 = strrchr(path, '/');
-	const char *slash2 = strrchr(path, '\\');
-
-	if (!slash1)
-		slash1 = path - 1;
-	if (!slash2)
-		slash2 = path - 1;
-
-	const char* const filename = (slash1 > slash2 ? slash1 : slash2) + 1;
-
-	// Get address of extension
-	const char *dot = strrchr(filename, '.');
-
-	if (!dot || dot == filename)
-		dot = strchr(filename, '\0');
-
-	// Output them
-	if (path_no_extension)
-	{
-		const unsigned int size = dot - path;
-		*path_no_extension = malloc(size + 1);
-		memcpy(*path_no_extension, path, size);
-		(*path_no_extension)[size] = '\0';
-	}
-
-	if (extension)
-		*extension = strdup(dot);
-}
-
-Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool predecode)
-{
-	char *extension;
-	SplitFileExtension(file_path, NULL, &extension);
-
-	DecoderType type;
-	if (!strcmp(extension, ".ogg"))
-		type = DECODER_TYPE_OGG;
-	else if (!strcmp(extension, ".flac"))
-		type = DECODER_TYPE_FLAC;
-#ifdef USE_OPENMPT
-	else if (!strcmp(extension, ".xm"))
-		type = DECODER_TYPE_MODULE;
-	else if (!strcmp(extension, ".it"))
-		type = DECODER_TYPE_MODULE;
-	else if (!strcmp(extension, ".mod"))
-		type = DECODER_TYPE_MODULE;
-	else if (!strcmp(extension, ".s3m"))
-		type = DECODER_TYPE_MODULE;
-	else if (!strcmp(extension, ".mptm"))
-		type = DECODER_TYPE_MODULE;
-#endif
-	else
-		return NULL;
-
-	Decoder *this = malloc(sizeof(Decoder));
-
-	DecoderBackend *backend = malloc(sizeof(DecoderBackend));
-	backend->backend = NULL;
-
-#ifdef USE_SNDFILE
-	if (type == DECODER_TYPE_OGG || type == DECODER_TYPE_FLAC)
-	{
-		backend->Open = (void*)Decoder_Sndfile_Open;
-		backend->Close = (void*)Decoder_Sndfile_Close;
-		backend->Rewind = (void*)Decoder_Sndfile_Rewind;
-		backend->GetSamples = (void*)Decoder_Sndfile_GetSamples;
-	}
-#else
-	if (type == DECODER_TYPE_OGG)
-	{
-		backend->Open = (void*)Decoder_Vorbisfile_Open;
-		backend->Close = (void*)Decoder_Vorbisfile_Close;
-		backend->Rewind = (void*)Decoder_Vorbisfile_Rewind;
-		backend->GetSamples = (void*)Decoder_Vorbisfile_GetSamples;
-	}
-	else if (type == DECODER_TYPE_FLAC)
-	{
-		backend->Open = (void*)Decoder_FLAC_Open;
-		backend->Close = (void*)Decoder_FLAC_Close;
-		backend->Rewind = (void*)Decoder_FLAC_Rewind;
-		backend->GetSamples = (void*)Decoder_FLAC_GetSamples;
-	}
-#endif
-#ifdef USE_OPENMPT
-	else if (type == DECODER_TYPE_MODULE)
-	{
-		backend->Open = (void*)Decoder_OpenMPT_Open;
-		backend->Close = (void*)Decoder_OpenMPT_Close;
-		backend->Rewind = (void*)Decoder_OpenMPT_Rewind;
-		backend->GetSamples = (void*)Decoder_OpenMPT_GetSamples;
-	}
-#endif
-	else
-	{
-		return NULL;
-	}
-
-	if (predecode && type != DECODER_TYPE_MODULE)
+	if (predecode)
 	{
 		DecoderBackend *last_backend = backend;
 		backend = malloc(sizeof(DecoderBackend));
@@ -148,20 +50,75 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool 
 	backend->Rewind = (void*)Decoder_Split_Rewind;
 	backend->GetSamples = (void*)Decoder_Split_GetSamples;
 
-	this->backend = backend;
+	Decoder *backend_object = backend->Open(file_path, loop, DECODER_FORMAT_F32, info, backend->backend);
 
-	this->backend_object = this->backend->Open(file_path, loop, DECODER_FORMAT_F32, info, this->backend->backend);
-
-	if (this->backend_object == NULL)
+	if (backend_object == NULL)
 	{
-		for (DecoderBackend *backend = this->backend, *next_backend; next_backend != NULL; backend = next_backend)
+		for (DecoderBackend *current_backend = backend, *next_backend; current_backend->backend != NULL; current_backend = next_backend)
 		{
-			next_backend = backend->backend;
-			free(backend);
+			next_backend = current_backend->backend;
+			free(current_backend);
 		}
+	}
+	else
+	{
+		*out_backend = backend;
+	}
 
-		free(this);
-		this = NULL;
+	return backend_object;
+}
+
+static DecoderBackend backends[] = {
+#ifdef USE_SNDFILE
+	{
+		.Open = (void*)Decoder_Sndfile_Open,
+		.Close = (void*)Decoder_Sndfile_Close,
+		.Rewind = (void*)Decoder_Sndfile_Rewind,
+		.GetSamples = (void*)Decoder_Sndfile_GetSamples
+	},
+#else
+	{
+		.Open = (void*)Decoder_Vorbisfile_Open,
+		.Close = (void*)Decoder_Vorbisfile_Close,
+		.Rewind = (void*)Decoder_Vorbisfile_Rewind,
+		.GetSamples = (void*)Decoder_Vorbisfile_GetSamples
+	},
+	{
+		.Open = (void*)Decoder_FLAC_Open,
+		.Close = (void*)Decoder_FLAC_Close,
+		.Rewind = (void*)Decoder_FLAC_Rewind,
+		.GetSamples = (void*)Decoder_FLAC_GetSamples
+	},
+#endif
+#ifdef USE_OPENMPT
+	{
+		.Open = (void*)Decoder_OpenMPT_Open,
+		.Close = (void*)Decoder_OpenMPT_Close,
+		.Rewind = (void*)Decoder_OpenMPT_Rewind,
+		.GetSamples = (void*)Decoder_OpenMPT_GetSamples
+	}
+#endif
+};
+
+Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool predecode)
+{
+	Decoder *backend_object;
+	DecoderBackend *backend;
+	for (unsigned int i = 0; i < sizeof(backends) / sizeof(backends[0]); ++i)
+	{
+		backend_object = TryOpen(&backends[i], &backend, file_path, loop, info, predecode);
+
+		if (backend_object)
+			break;
+	}
+
+	Decoder *this = NULL;
+
+	if (backend_object)
+	{
+		this = malloc(sizeof(Decoder));
+		this->backend_object = backend_object;
+		this->backend = backend;
 	}
 
 	return this;
@@ -171,7 +128,7 @@ void Decoder_Close(Decoder *this)
 {
 	this->backend->Close(this->backend_object);
 
-	for (DecoderBackend *backend = this->backend, *next_backend; next_backend != NULL; backend = next_backend)
+	for (DecoderBackend *backend = this->backend, *next_backend; backend->backend != NULL; backend = next_backend)
 	{
 		next_backend = backend->backend;
 		free(backend);

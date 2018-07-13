@@ -86,33 +86,7 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-	{
-		const struct
-		{
-			const char* const extension;
-			DecoderType decoder_type;
-		} formats[] = {
-			{"ogg", DECODER_TYPE_OGG},
-			{"flac", DECODER_TYPE_FLAC},
-#ifdef USE_OPENMPT
-			{"xm", DECODER_TYPE_MODULE},
-			{"mod", DECODER_TYPE_MODULE},
-			{"s3m", DECODER_TYPE_MODULE},
-			{"mptm", DECODER_TYPE_MODULE},
-			{"it", DECODER_TYPE_MODULE}
-#endif
-		};
-
-		for (unsigned int i = 0; i < sizeof(formats) / sizeof(formats[0]); ++i)
-		{
-			char* const filename = sprintfMalloc("%s.%s", playlist_entry->name, formats[i].extension);
-			playlist_entry->decoder = Decoder_Open(filename, playlist_entry->loop, &playlist_entry->decoder_info, formats[i].decoder_type, setting_predecode);
-			free(filename);
-
-			if (playlist_entry->decoder)
-				break;
-		}
-	}
+		playlist_entry->decoder = Decoder_Open(playlist_entry->name, playlist_entry->loop, &playlist_entry->decoder_info, setting_predecode);
 }
 
 static void PreloadSongs(void)

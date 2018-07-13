@@ -21,6 +21,8 @@ typedef struct DecoderFLAC
 
 	bool loop;
 
+	bool error;
+
 	unsigned int bits_per_sample;
 
 	unsigned char *block_buffer;
@@ -148,7 +150,10 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 {
 	(void)decoder;
 	(void)status;
-	(void)user;
+
+	DecoderFLAC *this = user;
+
+	this->error = true;
 }
 
 DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, DecoderBackend *backend)
@@ -168,16 +173,28 @@ DecoderFLAC* Decoder_FLAC_Open(const char *file_path, bool loop, DecoderFormat f
 		{
 			if (FLAC__stream_decoder_init_stream(this->stream_decoder, MemoryFile_fread_wrapper, MemoryFile_fseek_wrapper, MemoryFile_ftell_wrapper, MemoryFile_GetSize, MemoryFile_EOF, WriteCallback, MetadataCallback, ErrorCallback, this) == FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
-				this->loop = loop;
-
+				this->error = false;
 				this->info = info;
 				FLAC__stream_decoder_process_until_end_of_metadata(this->stream_decoder);
+
+				if (!this->error)
+				{
+					this->loop = loop;
+				}
+				else
+				{
+					FLAC__stream_decoder_finish(this->stream_decoder);
+					FLAC__stream_decoder_delete(this->stream_decoder);
+					MemoryFile_fclose(this->file);
+					free(this);
+					this = NULL;
+				}
 
 			}
 			else
 			{
-				MemoryFile_fclose(this->file);
 				FLAC__stream_decoder_delete(this->stream_decoder);
+				MemoryFile_fclose(this->file);
 				free(this);
 				this = NULL;
 			}

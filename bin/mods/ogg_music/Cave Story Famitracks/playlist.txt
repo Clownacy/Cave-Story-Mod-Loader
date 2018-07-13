@@ -1,41 +1,41 @@
-ogg17/wanpaku, loop
-ogg17/anzen, loop
-ogg17/gameover
-ogg17/gravity, loop
-ogg17/weed, loop
-ogg17/mdown2, loop
-ogg17/fireeye, loop
-ogg17/vivi, loop
-ogg17/mura, loop
-ogg17/fanfale1
-ogg17/ginsuke, loop
-ogg17/cemetery, loop
-ogg17/plant, loop
-ogg17/kodou, loop
-ogg17/fanfale3
-ogg17/fanfale2
-ogg17/dr, loop
-ogg17/escape, loop
-ogg17/jenka, loop
-ogg17/maze, loop
-ogg17/access, loop
-ogg17/ironh, loop
-ogg17/grand, loop
-ogg17/curly, loop
-ogg17/oside, loop
-ogg17/requiem, loop
-ogg17/wanpak2, loop
-ogg17/quiet, loop
-ogg17/lastcave, loop
-ogg17/balcony, loop
-ogg17/lastbtl, loop
-ogg17/lastbt3, loop
-ogg17/ending, loop
-ogg17/zonbie, loop
-ogg17/bdown, loop
-ogg17/hell, loop
-ogg17/jenka2, loop
-ogg17/marine, loop
-ogg17/ballos, loop
-ogg17/toroko
-ogg17/white, loop
+ogg17/wanpaku.ogg, loop
+ogg17/anzen.ogg, loop
+ogg17/gameover.ogg
+ogg17/gravity.ogg, loop
+ogg17/weed.ogg, loop
+ogg17/mdown2.ogg, loop
+ogg17/fireeye.ogg, loop
+ogg17/vivi.ogg, loop
+ogg17/mura.ogg, loop
+ogg17/fanfale1.ogg
+ogg17/ginsuke.ogg, loop
+ogg17/cemetery.ogg, loop
+ogg17/plant.ogg, loop
+ogg17/kodou.ogg, loop
+ogg17/fanfale3.ogg
+ogg17/fanfale2.ogg
+ogg17/dr.ogg, loop
+ogg17/escape.ogg, loop
+ogg17/jenka.ogg, loop
+ogg17/maze.ogg, loop
+ogg17/access.ogg, loop
+ogg17/ironh.ogg, loop
+ogg17/grand.ogg, loop
+ogg17/curly.ogg, loop
+ogg17/oside.ogg, loop
+ogg17/requiem.ogg, loop
+ogg17/wanpak2.ogg, loop
+ogg17/quiet.ogg, loop
+ogg17/lastcave.ogg, loop
+ogg17/balcony.ogg, loop
+ogg17/lastbtl.ogg, loop
+ogg17/lastbt3.ogg, loop
+ogg17/ending.ogg, loop
+ogg17/zonbie.ogg, loop
+ogg17/bdown.ogg, loop
+ogg17/hell.ogg, loop
+ogg17/jenka2.ogg, loop
+ogg17/marine.ogg, loop
+ogg17/ballos.ogg, loop
+ogg17/toroko.ogg
+ogg17/white.ogg, loop
