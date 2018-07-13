@@ -26,6 +26,7 @@ typedef struct Song
 static BackendStream *stream;
 static unsigned int stream_sample_rate;
 static unsigned int stream_channel_count;
+static BackendFormat stream_format;
 
 static bool setting_preload;
 static bool setting_predecode;
@@ -36,7 +37,53 @@ static const Song blank_song;
 static Song current_song;
 static Song previous_song;
 
-static unsigned long StreamCallback(void *user_data, void *output_buffer, unsigned long bytes_to_do)
+static unsigned long StreamCallbackF32(void *user_data, void *output_buffer, unsigned long bytes_to_do)
+{
+	Song *song = user_data;
+
+	const unsigned long bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
+
+	if (song->fade_out_active)
+	{
+		const unsigned int channel_count = song->decoder_info.channel_count;
+		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 5;
+
+		float *output_buffer_float = output_buffer;
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(float); ++i)
+		{
+			const float volume = song->fade_counter / (float)fade_counter_max;
+
+			for (unsigned int i = 0; i < channel_count; ++i)
+				*output_buffer_float++ *= volume * volume;
+
+			if (song->fade_counter)
+				--song->fade_counter;
+		}
+	}
+	else if (song->fade_in_active)
+	{
+		const unsigned int channel_count = song->decoder_info.channel_count;
+		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 2;
+
+		float *output_buffer_float = output_buffer;
+		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(float); ++i)
+		{
+			const float volume = song->fade_counter / (float)fade_counter_max;
+
+			for (unsigned int i = 0; i < channel_count; ++i)
+				*output_buffer_float++ *= volume * volume;
+
+			if (++song->fade_counter == fade_counter_max)
+			{
+				song->fade_in_active = false;
+				break;
+			}
+		}
+	}
+
+	return bytes_done;
+}
+static unsigned long StreamCallbackS16(void *user_data, void *output_buffer, unsigned long bytes_to_do)
 {
 	Song *song = user_data;
 
@@ -50,10 +97,10 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 		short *output_buffer_short = output_buffer;
 		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
-			const float volume_float = song->fade_counter / (float)fade_counter_max;
+			const float volume = song->fade_counter / (float)fade_counter_max;
 
 			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_short++ *= volume_float * volume_float;
+				*output_buffer_short++ *= volume * volume;
 
 			if (song->fade_counter)
 				--song->fade_counter;
@@ -67,10 +114,10 @@ static unsigned long StreamCallback(void *user_data, void *output_buffer, unsign
 		short *output_buffer_short = output_buffer;
 		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
 		{
-			const float volume_float = song->fade_counter / (float)fade_counter_max;
+			const float volume = song->fade_counter / (float)fade_counter_max;
 
 			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_short++ *= volume_float * volume_float;
+				*output_buffer_short++ *= volume * volume;
 
 			if (++song->fade_counter == fade_counter_max)
 			{
@@ -118,14 +165,15 @@ static void ResumeSong(void)
 		ModLoader_PrintError("ogg_music: Could not resume the stream\n");
 }
 
-static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count)
+static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format)
 {
 	bool success = true;
 
-	if (stream_sample_rate != sample_rate || stream_channel_count != channel_count)
+	if (stream_sample_rate != sample_rate || stream_channel_count != channel_count || stream_format != format)
 	{
 		stream_sample_rate = sample_rate;
 		stream_channel_count = channel_count;
+		stream_format = format;
 
 		if (stream && !Backend_DestroyStream(stream))
 		{
@@ -134,7 +182,7 @@ static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count)
 		}
 		else
 		{
-			stream = Backend_CreateStream(sample_rate, channel_count, BACKEND_FORMAT_F32, StreamCallback, &current_song);
+			stream = Backend_CreateStream(sample_rate, channel_count, format, format == BACKEND_FORMAT_F32 ? StreamCallbackF32 : StreamCallbackS16, &current_song);
 
 			if (stream == NULL)
 			{
@@ -175,7 +223,7 @@ static bool PlayOggMusic(const int song_id)
 			}
 			else
 			{
-				if (!RefreshStream(sample_rate, channel_count))
+				if (!RefreshStream(sample_rate, channel_count, playlist_entry->decoder_info.format))
 				{
 					if (!setting_preload)
 						Decoder_Close(decoder);
@@ -265,7 +313,7 @@ static void PlayPreviousMusic_new(void)
 			current_song.fade_in_active = true;
 		}
 
-		RefreshStream(current_song.decoder_info.sample_rate, current_song.decoder_info.channel_count);
+		RefreshStream(current_song.decoder_info.sample_rate, current_song.decoder_info.channel_count, current_song.decoder_info.format);
 
 		ResumeSong();
 	}
