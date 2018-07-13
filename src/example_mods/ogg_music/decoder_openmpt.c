@@ -37,7 +37,7 @@ DecoderOpenMPT* Decoder_OpenMPT_Open(const char *file_path, bool loop, DecoderFo
 		fread(file_buffer, 1, file_size, file);
 		fclose(file);
 
-		openmpt_module *module = openmpt_module_create_from_memory2(file_buffer, file_size, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+		openmpt_module *module = openmpt_module_create_from_memory2(file_buffer, file_size, openmpt_log_func_silent, NULL, openmpt_error_func_ignore, NULL, NULL, NULL, NULL);
 
 		if (module)
 		{
