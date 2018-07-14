@@ -11,6 +11,4 @@ void Decoder_SPC_Close(DecoderSPC *this);
 void Decoder_SPC_Rewind(DecoderSPC *this);
 unsigned long Decoder_SPC_GetSamples(DecoderSPC *this, void *buffer, unsigned long bytes_to_do);
 
-static const DecoderBackend DecoderBackend_SPC = {
-	(void*)Decoder_SPC_Open, (void*)Decoder_SPC_Close, (void*)Decoder_SPC_Rewind, (void*)Decoder_SPC_GetSamples
-};
+static const DecoderBackend DecoderBackend_SPC = {(void*)Decoder_SPC_Open, (void*)Decoder_SPC_Close, (void*)Decoder_SPC_Rewind, (void*)Decoder_SPC_GetSamples};

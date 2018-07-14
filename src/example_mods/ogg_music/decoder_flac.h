@@ -11,6 +11,4 @@ void Decoder_FLAC_Close(DecoderFLAC *this);
 void Decoder_FLAC_Rewind(DecoderFLAC *this);
 unsigned long Decoder_FLAC_GetSamples(DecoderFLAC *this, void *buffer, unsigned long bytes_to_do);
 
-static const DecoderBackend DecoderBackend_FLAC = {
-	(void*)Decoder_FLAC_Open, (void*)Decoder_FLAC_Close, (void*)Decoder_FLAC_Rewind, (void*)Decoder_FLAC_GetSamples
-};
+static const DecoderBackend DecoderBackend_FLAC = {(void*)Decoder_FLAC_Open, (void*)Decoder_FLAC_Close, (void*)Decoder_FLAC_Rewind, (void*)Decoder_FLAC_GetSamples};
