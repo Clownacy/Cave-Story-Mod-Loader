@@ -1,4 +1,4 @@
-// Ogg music mod for Freeware Cave Story
+// Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
 #include <stdbool.h>

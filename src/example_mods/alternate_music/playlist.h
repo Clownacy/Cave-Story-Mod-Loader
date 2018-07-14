@@ -1,3 +1,6 @@
+// Alternate music mod for 2004 Cave Story
+// Copyright © 2018 Clownacy
+
 #pragma once
 
 #include <stdbool.h>
@@ -19,4 +22,3 @@ PlaylistEntry* GetNextPlaylistEntry(void);
 PlaylistEntry* GetPlaylistEntry(unsigned int song_id);
 
 bool InitPlaylist(void);
-
