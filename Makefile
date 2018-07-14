@@ -11,8 +11,8 @@ OGG_MUSIC_BACKEND = mini_al
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident
 ALL_CFLAGS = -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 
-SDL_CFLAGS = $(shell sdl2-config --cflags)
-SDL_LDFLAGS = $(shell sdl2-config --static-libs)
+SDL2_CFLAGS = $(shell sdl2-config --cflags)
+SDL2_LIBS = $(shell sdl2-config --static-libs)
 
 MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
 
@@ -84,33 +84,33 @@ LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 ifeq ($(OGG_MUSIC_USE_VORBISFILE)$(OGG_MUSIC_USE_SNDFILE), truefalse)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_vorbisfile.c
 OGG_MUSIC_CFLAGS += -DUSE_VORBISFILE
-OGG_MUSIC_LDFLAGS += $(LIBVORBISFILE_LIBS)
+OGG_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_USE_FLAC)$(OGG_MUSIC_USE_SNDFILE), truefalse)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_flac.c
 OGG_MUSIC_CFLAGS += -DUSE_FLAC
-OGG_MUSIC_LDFLAGS += $(LIBFLAC_LIBS)
+OGG_MUSIC_LIBS += $(LIBFLAC_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_USE_SNDFILE), true)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_sndfile.c
 OGG_MUSIC_CFLAGS += -DUSE_SNDFILE
-OGG_MUSIC_LDFLAGS += $(LIBSNDFILE_LIBS)
+OGG_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_USE_OPENMPT), true)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/decoder_openmpt.c
 OGG_MUSIC_CFLAGS += -DUSE_OPENMPT
-OGG_MUSIC_LDFLAGS += $(LIBOPENMPT_LIBS)
+OGG_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
 endif
 
 ifeq ($(OGG_MUSIC_BACKEND), mini_al)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_mini_al.c
 else ifeq ($(OGG_MUSIC_BACKEND), SDL2)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_SDL2.c
-OGG_MUSIC_CFLAGS += $(SDL_CFLAGS)
-OGG_MUSIC_LIBS += $(SDL_LDFLAGS)
+OGG_MUSIC_CFLAGS += $(SDL2_CFLAGS)
+OGG_MUSIC_LIBS += $(SDL2_LIBS)
 else ifeq ($(OGG_MUSIC_BACKEND), Cubeb)
 OGG_MUSIC_SOURCES += $(OGG_MUSIC_PATH)/backend_cubeb.c
 OGG_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
@@ -127,72 +127,73 @@ OUTPUT = \
 	bin/mods/graphics_enhancement/graphics_enhancement.dll \
 	bin/mods/3ds_hud/3ds_hud.dll \
 	bin/mods/disable_image_protection/disable_image_protection.dll \
-	bin/mods/tsc_nonod/tsc_nonod.dll bin/mods/tsc_mbx/tsc_mbx.dll
+	bin/mods/tsc_nonod/tsc_nonod.dll \
+	bin/mods/tsc_mbx/tsc_mbx.dll
 
 all: $(OUTPUT)
 
 $(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -c
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -c
 
 bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
 	@strip $@ --strip-unneeded
 
 bin/mods/ogg_music/ogg_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(OGG_MUSIC_SOURCES)
 	@mkdir -p $(@D)
-	@$(CC) $(OGG_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ $(OGG_MUSIC_LDFLAGS) $(LDFLAGS) -shared
+	@$(CC) $(OGG_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(OGG_MUSIC_LIBS) $(LIBS)
 	@strip $@ --strip-unneeded
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
 	@mkdir -p $(@D)
-	@$(CC) $(SDL_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(SDL_LDFLAGS) $(LDFLAGS)
+	@$(CC) $(SDL2_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(SDL2_LIBS) $(LIBS)
 	@strip $@ --strip-unneeded
 
 bin/mods/wasd_input/wasd_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/wasd_input/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/ikachan_cursor/ikachan_cursor.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ikachan_cursor/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/debug_save/debug_save.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/debug_save/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/graphics_enhancement/graphics_enhancement.dll: $(MOD_LOADER_HELPER_OBJECT) $(GRAPHICS_ENHANCEMENT_FILES)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/3ds_hud/3ds_hud.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/3ds_hud/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/disable_image_protection/disable_image_protection.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/disable_image_protection/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_mbx/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_nonod/main.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) -shared
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
 clean:
