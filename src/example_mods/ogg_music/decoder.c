@@ -32,7 +32,7 @@ typedef struct Decoder
 	void *backend_object;
 } Decoder;
 
-void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_backend, const char *file_path, bool loop, DecoderInfo *info, bool predecode)
+void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_backend, const char *file_path, bool loop, DecoderInfo *info, bool predecode, bool split)
 {
 	LinkedBackend *last_backend;
 	LinkedBackend *linked_backend = malloc(sizeof(LinkedBackend));
@@ -47,10 +47,13 @@ void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_backend,
 		linked_backend->backend = &DecoderBackend_Predecode;
 	}
 
-	last_backend = linked_backend;
-	linked_backend = malloc(sizeof(LinkedBackend));
-	linked_backend->next = last_backend;
-	linked_backend->backend = &DecoderBackend_Split;
+	if (split)
+	{
+		last_backend = linked_backend;
+		linked_backend = malloc(sizeof(LinkedBackend));
+		linked_backend->next = last_backend;
+		linked_backend->backend = &DecoderBackend_Split;
+	}
 
 	void *backend_object = linked_backend->backend->Open(file_path, loop, DECODER_FORMAT_F32, info, linked_backend->next);
 
@@ -74,21 +77,22 @@ static const struct
 {
 	const DecoderBackend *decoder;
 	bool can_be_predecoded;
+	bool can_be_split;
 } backends[] = {
 #ifdef USE_VORBISFILE
-	{&DecoderBackend_Vorbisfile, true},
+	{&DecoderBackend_Vorbisfile, true, true},
 #endif
 #ifdef USE_FLAC
-	{&DecoderBackend_FLAC, true},
+	{&DecoderBackend_FLAC, true, true},
 #endif
 #ifdef USE_SNDFILE
-	{&DecoderBackend_Sndfile, true},
+	{&DecoderBackend_Sndfile, true, true},
 #endif
 #ifdef USE_OPENMPT
-	{&DecoderBackend_OpenMPT, false},
+	{&DecoderBackend_OpenMPT, false, false},
 #endif
 #ifdef USE_SPC
-	{&DecoderBackend_SPC, false},
+	{&DecoderBackend_SPC, false, false},
 #endif
 };
 
@@ -98,7 +102,7 @@ Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool 
 	LinkedBackend *linked_backend = NULL;
 	for (unsigned int i = 0; i < sizeof(backends) / sizeof(backends[0]); ++i)
 	{
-		backend_object = TryOpen(backends[i].decoder, &linked_backend, file_path, loop, info, predecode && backends[i].can_be_predecoded);
+		backend_object = TryOpen(backends[i].decoder, &linked_backend, file_path, loop, info, predecode && backends[i].can_be_predecoded,  backends[i].can_be_split);
 
 		if (backend_object)
 			break;
