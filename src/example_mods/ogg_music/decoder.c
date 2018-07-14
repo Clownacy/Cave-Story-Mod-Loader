@@ -94,8 +94,8 @@ static const struct
 
 Decoder* Decoder_Open(const char *file_path, bool loop, DecoderInfo *info, bool predecode)
 {
-	void *backend_object;
-	LinkedBackend *linked_backend;
+	void *backend_object = NULL;
+	LinkedBackend *linked_backend = NULL;
 	for (unsigned int i = 0; i < sizeof(backends) / sizeof(backends[0]); ++i)
 	{
 		backend_object = TryOpen(backends[i].decoder, &linked_backend, file_path, loop, info, predecode && backends[i].can_be_predecoded);

@@ -13,6 +13,8 @@ typedef struct DecoderSPC
 {
 	SNES_SPC *snes_spc;
 //	SPC_Filter *filter;
+	void *file_buffer;
+	long file_size;
 } DecoderSPC;
 
 DecoderSPC* Decoder_SPC_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
@@ -47,13 +49,13 @@ DecoderSPC* Decoder_SPC_Open(const char *file_path, bool loop, DecoderFormat for
 			this = malloc(sizeof(DecoderSPC));
 			this->snes_spc = snes_spc;
 		//	this->filter = filter;
+			this->file_buffer = file_buffer;
+			this->file_size = file_size;
 
 			info->sample_rate = spc_sample_rate;
 			info->channel_count = 2;
 			info->format = DECODER_FORMAT_S16;
 		}
-
-		free(file_buffer);
 	}
 
 	return this;
@@ -62,12 +64,14 @@ DecoderSPC* Decoder_SPC_Open(const char *file_path, bool loop, DecoderFormat for
 void Decoder_SPC_Close(DecoderSPC *this)
 {
 	spc_delete(this->snes_spc);
+	free(this->file_buffer);
 	free(this);
 }
 
 void Decoder_SPC_Rewind(DecoderSPC *this)
 {
-	// Sadface
+	spc_delete(this->snes_spc);
+	spc_load_spc(this->snes_spc, this->file_buffer, this->file_size);
 }
 
 unsigned long Decoder_SPC_GetSamples(DecoderSPC *this, void *buffer, unsigned long bytes_to_do)
