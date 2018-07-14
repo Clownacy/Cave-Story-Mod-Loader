@@ -108,7 +108,8 @@ typedef struct CS_ConfigData
 #define CS_org_playlist (*(char*(*)[42])0x4981E8)
 
 // Functions
-static void (* const CS_LoadBackgroundSprite)(char*, int) = (void*)0x402270;
+static void (* const CS_LoadBackgroundSprite)(char *background_filename, int background_type) = (void*)0x402270;
+static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void*)0x4023D0;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void*)0x402830;
 static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (void*)0x40AD60;
 static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_SurfaceID) = (void*)0x40C3C0;

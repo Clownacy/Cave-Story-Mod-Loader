@@ -118,6 +118,7 @@ void PatchCamera(void)
 	ModLoader_WriteLong((void*)0x40F1BE + 1, SCREEN_WIDTH);
 	ModLoader_WriteLong((void*)0x40F1D8 + 2, SCREEN_WIDTH);
 
+	ModLoader_WriteRelativeAddress((void*)0x40F871 + 1, DrawBackground_hijack);
 	ModLoader_WriteRelativeAddress((void*)0x410633 + 1, DrawBackground_hijack);
 	ModLoader_WriteJump((void*)0x402830, DrawWater_new);
 }
