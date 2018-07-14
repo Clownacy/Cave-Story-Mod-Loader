@@ -31,6 +31,7 @@ static BackendFormat stream_format;
 static bool setting_preload;
 static bool setting_predecode;
 static bool setting_fade_in_previous_song;
+static float setting_volume;
 
 static const Song blank_song;
 
@@ -188,6 +189,10 @@ static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count, 
 			{
 				ModLoader_PrintError("ogg_music: Could not create the stream\n");
 				success = false;
+			}
+			else
+			{
+				Backend_SetVolume(stream, setting_volume);
 			}
 		}
 	}
@@ -352,6 +357,13 @@ void InitMod(void)
 	setting_predecode = ModLoader_GetSettingBool("predecode_songs", false);
 	setting_fade_in_previous_song = ModLoader_GetSettingBool("fade_in_previous_song", true);
 	const bool setting_pause_when_focus_lost = ModLoader_GetSettingBool("pause_when_focus_lost", true);
+
+	int volume = ModLoader_GetSettingInt("volume", 100);
+	if (volume > 100)
+		volume = 100;
+	else if (volume < 0)
+		volume = 0;
+	setting_volume = volume / 100.0f;
 
 	if (InitPlaylist())
 	{
