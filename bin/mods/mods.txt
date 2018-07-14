@@ -1,7 +1,7 @@
 3ds_hud
+alternate_music
 debug_save
 disable_image_protection
 graphics_enhancement
 ikachan_cursor
-ogg_music
 sdl_controller_input

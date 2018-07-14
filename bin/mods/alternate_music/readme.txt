@@ -1,4 +1,5 @@
-This mod enables playback of Ogg Vorbis music files. 
+This mod enables playback of music files in various formats, including Ogg Vorbis, FLAC,
+XM, IT, and MOD.
 
 This mod also comes with example playlist data, allowing drag-and-drop compatibility with
 Cave Story+'s soundtracks:
@@ -14,13 +15,13 @@ To specify which soundtrack to use, change the 'playlist' option in the 'setting
 If you want to make your own soundtrack, here are the formats the mod supports:
 
 The first format is the one used by the WiiWare soundtrack,
-where each song gets one Ogg file that repeats in its entirety.
+where each song gets one file that repeats in its entirety.
 
-The second is the format used by the Cave Story 3D soundtrack - each song gets two files:
-'[song name]_intro.ogg' and '[song name]_loop.ogg'. As you can imagine, when a song starts playing,
-it plays the intro file first, then when it ends, it continues onto the loop file.
-When the loop file ends, it loops back to itself, meaning the intro never gets played again.
-This allows for more complex music.
+The second one only applies to Ogg Vorbis and FLAC files, and is the format used by the Cave Story
+3D soundtrack - each song gets two files: '[song name]_intro.ogg' and '[song name]_loop.ogg'. As
+you can imagine, when a song starts playing, it plays the intro file first, then when it ends, it
+continues onto the loop file. When the loop file ends, it loops back to itself, meaning the intro
+never gets played again. This allows for more complex music.
 
 
 
