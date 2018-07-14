@@ -109,6 +109,7 @@ typedef struct CS_ConfigData
 
 // Functions
 static void (* const CS_LoadBackgroundSprite)(char *background_filename, int background_type) = (void*)0x402270;
+static void (* const CS_IncrementBGScroll)(void) = (void*)0x402370;
 static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void*)0x4023D0;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void*)0x402830;
 static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (void*)0x40AD60;
