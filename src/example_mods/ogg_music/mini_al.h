@@ -7019,7 +7019,7 @@ mal_result mal_context_get_device_info__dsound(mal_context* pContext, mal_device
             // Look at the speaker configuration to get a better idea on the channel count.
             DWORD speakerConfig;
             if (SUCCEEDED(mal_IDirectSound_GetSpeakerConfig(pDirectSound, &speakerConfig))) {
-                WORD actualChannels;
+                WORD actualChannels = 2;
                 mal_get_channels_from_speaker_config__dsound(speakerConfig, &actualChannels, NULL);
 
                 pDeviceInfo->minChannels = actualChannels;

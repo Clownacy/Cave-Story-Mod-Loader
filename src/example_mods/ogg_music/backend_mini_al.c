@@ -8,9 +8,9 @@
 #include <stdlib.h>
 
 #define MINI_AL_IMPLEMENTATION
-/*
-#define MAL_NO_WASAPI
-#define MAL_NO_DSOUND
+
+//#define MAL_NO_WASAPI
+//#define MAL_NO_DSOUND
 #define MAL_NO_WINMM
 #define MAL_NO_ALSA
 #define MAL_NO_PULSEAUDIO
@@ -21,7 +21,7 @@
 #define MAL_NO_OPENAL
 #define MAL_NO_SDL
 #define MAL_NO_NULL
-*/
+
 #define MAL_NO_DECODING
 #include "mini_al.h"
 
