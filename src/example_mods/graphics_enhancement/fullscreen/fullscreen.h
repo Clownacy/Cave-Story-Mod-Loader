@@ -3,4 +3,4 @@
 
 #pragma once
 
-extern void ApplyFullscreenPatches(void);
+extern void ApplyFullscreenPatches(int window_size);

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <windows.h>
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "common.h"
@@ -42,12 +43,34 @@ void LoadWindowRect_NewCode(RECT *rect)
 		rect->bottom = rect->top + window_height;
 }
 
+static int DoTheRest(CS_ConfigData *config)
+{
+	const int result = CS_LoadConfigFile(config);
+
+	ApplyFullscreenPatches(config->window_size);
+
+	if (aspect_ratio_x != 4 || aspect_ratio_y != 3)
+		SetWidescreen();
+
+	if (sprite_resolution_factor != 1)
+		SetSpriteResolution();
+
+	if (window_upscale_factor != 2)
+		UpscaleWindow();
+
+	if (ModLoader_GetSettingBool("remove_sprite_alignment", true))
+		RemoveSpriteAlignment();
+
+	return result;
+}
+
 void InitMod(void)
 {
 	borderless_fullscreen = ModLoader_GetSettingBool("borderless_fullscreen", false);
 	fullscreen_auto_aspect_ratio = ModLoader_GetSettingBool("fullscreen_auto_aspect_ratio", true);
 	fullscreen_auto_window_upscale = ModLoader_GetSettingBool("fullscreen_auto_window_upscale", true);
 	fullscreen_vsync = ModLoader_GetSettingBool("fullscreen_vsync", true);
+	fullscreen_integer_scaling = ModLoader_GetSettingBool("fullscreen_integer_scaling", false);
 	sixty_fps = ModLoader_GetSettingBool("60fps", true);
 
 	aspect_ratio_x = ModLoader_GetSettingInt("aspect_ratio_x", 16);
@@ -72,17 +95,6 @@ void InitMod(void)
 	if (sixty_fps)
 		Apply60FPSPatch();
 
-	ApplyFullscreenPatches();
-
-	if (aspect_ratio_x != 4 || aspect_ratio_y != 3)
-		SetWidescreen();
-
-	if (sprite_resolution_factor != 1)
-		SetSpriteResolution();
-
-	if (window_upscale_factor != 2)
-		UpscaleWindow();
-
-	if (ModLoader_GetSettingBool("remove_sprite_alignment", true))
-		RemoveSpriteAlignment();
+	// We can't apply the fullscreen patches until config.dat has been loaded
+	ModLoader_WriteRelativeAddress((void*)0x4124CD + 1, DoTheRest);
 }

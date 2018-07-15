@@ -12,6 +12,18 @@
 
 #include "../common.h"
 
+static unsigned int GetGreatestCommonDivisor(unsigned int value1, unsigned int value2)
+{
+		while (value2 != 0)
+		{
+			const unsigned int remainder = value1 % value2;
+			value1 = value2;
+			value2 = remainder;
+		}
+
+		return value1;
+}
+
 static IDirectDrawSurface7 *vsync_new_screen_surface;
 
 __stdcall void CalculateFullscreenDimensionsAndPadding(const int window_size)
@@ -21,18 +33,26 @@ __stdcall void CalculateFullscreenDimensionsAndPadding(const int window_size)
 		const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
 		const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
 
-		const unsigned int game_width = SCREEN_WIDTH;
-		const unsigned int game_height = 240;
-
-		if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
+		if (fullscreen_integer_scaling)
 		{
-			CS_window_surface_width = monitor_width;
-			CS_window_surface_height = (game_height * monitor_width) / game_width;
+			CS_window_surface_width = SCREEN_WIDTH * window_upscale_factor;
+			CS_window_surface_height = 240 * window_upscale_factor;
 		}
 		else
 		{
-			CS_window_surface_width = (game_width * monitor_height) / game_height;
-			CS_window_surface_height = monitor_height;
+			const unsigned int game_width = SCREEN_WIDTH;
+			const unsigned int game_height = 240;
+
+			if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
+			{
+				CS_window_surface_width = monitor_width;
+				CS_window_surface_height = (game_height * monitor_width) / game_width;
+			}
+			else
+			{
+				CS_window_surface_width = (game_width * monitor_height) / game_height;
+				CS_window_surface_height = monitor_height;
+			}
 		}
 
 		CS_window_padding_w = (monitor_width - CS_window_surface_width) / 2;
@@ -144,11 +164,9 @@ void SetupVSync(void)
 
 }
 
-static int ActuallyApplyFullscreenPatches(CS_ConfigData *config)
+void ApplyFullscreenPatches(int window_size)
 {
-	const int result = CS_LoadConfigFile(config);
-
-	if (config->window_size != 0 && config->window_size != 3 && config->window_size != 4)
+	if (window_size != 0 && window_size != 3 && window_size != 4)
 	{
 		// Not in fullscreen
 		fullscreen_auto_aspect_ratio = false;
@@ -177,59 +195,84 @@ static int ActuallyApplyFullscreenPatches(CS_ConfigData *config)
 		// Change the window background colour to black instead of grey
 		ModLoader_WriteByte((void*)0x412717 + 1, BLACK_BRUSH);
 
-		if (fullscreen_auto_aspect_ratio)
+		if (fullscreen_integer_scaling)
 		{
-			// Compute best aspect ratio to fill the monitor
+			// Calculate maximum window-upscale
 			const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
 			const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
 
-			unsigned int gcd_value1 = monitor_width;
-			unsigned int gcd_value2 = monitor_height;
-			while (gcd_value2 != 0)
+			const unsigned int game_height = 240;
+
+			const unsigned int max_window_upscale_factor = (monitor_height / game_height);
+
+			// Cap window-upscale
+			if (window_upscale_factor > max_window_upscale_factor)
+				window_upscale_factor = max_window_upscale_factor;
+
+			if (fullscreen_auto_window_upscale)
+				window_upscale_factor = max_window_upscale_factor;
+
+			// Calculate maximum aspect-ratio width
+			unsigned int max_aspect_ratio_x = (monitor_width / window_upscale_factor) * window_upscale_factor;
+			unsigned int max_aspect_ratio_y = game_height * window_upscale_factor;
+
+			const unsigned int greatest_common_divisor = GetGreatestCommonDivisor(max_aspect_ratio_x, max_aspect_ratio_y);
+
+			max_aspect_ratio_x /= greatest_common_divisor;
+			max_aspect_ratio_y /= greatest_common_divisor;
+
+			// Cap aspect ratio width
+			if ((double)aspect_ratio_x / aspect_ratio_y >= (double)max_aspect_ratio_x / max_aspect_ratio_y)
 			{
-				const unsigned int remainder = gcd_value1 % gcd_value2;
-				gcd_value1 = gcd_value2;
-				gcd_value2 = remainder;
+				aspect_ratio_x = max_aspect_ratio_x;
+				aspect_ratio_y = max_aspect_ratio_y;
 			}
 
-			const unsigned int greatest_common_divisor = gcd_value1;
-
-			aspect_ratio_x = monitor_width / greatest_common_divisor;
-			aspect_ratio_y = monitor_height / greatest_common_divisor;
-
-			ModLoader_PrintDebug("Auto-detected aspect ratio is %d:%d\n", aspect_ratio_x, aspect_ratio_y);
+			if (fullscreen_auto_aspect_ratio)
+			{
+				aspect_ratio_x = max_aspect_ratio_x;
+				aspect_ratio_y = max_aspect_ratio_y;
+			}
 		}
-
-		if (fullscreen_auto_window_upscale)
+		else
 		{
-			// Compute best window upscale factor (for font rendering)
-			const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
-			const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
-
-			const unsigned int game_width = SCREEN_WIDTH * sprite_resolution_factor;
-			const unsigned int game_height = 240 * sprite_resolution_factor;
-
-			unsigned int output_window_height;
-			if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
+			if (fullscreen_auto_window_upscale)
 			{
-				output_window_height = (game_height * monitor_width) / game_width;
+				// Compute best window upscale factor (for font rendering)
+				const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
+				const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
+
+				const unsigned int game_width = SCREEN_WIDTH * sprite_resolution_factor;
+				const unsigned int game_height = 240 * sprite_resolution_factor;
+
+				unsigned int output_window_height;
+				if ((double)game_width / game_height >= (double)monitor_width / monitor_height)
+				{
+					output_window_height = (game_height * monitor_width) / game_width;
+				}
+				else
+				{
+					output_window_height = monitor_height;
+				}
+
+				window_upscale_factor = ((output_window_height + (game_height / 2)) / game_height) * sprite_resolution_factor;
+
+				ModLoader_PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
 			}
-			else
+
+			if (fullscreen_auto_aspect_ratio)
 			{
-				output_window_height = monitor_height;
+				// Compute best aspect ratio to fill the monitor
+				const unsigned int monitor_width = GetSystemMetrics(SM_CXSCREEN);
+				const unsigned int monitor_height = GetSystemMetrics(SM_CYSCREEN);
+
+				const unsigned int greatest_common_divisor = GetGreatestCommonDivisor(monitor_width, monitor_height);
+
+				aspect_ratio_x = monitor_width / greatest_common_divisor;
+				aspect_ratio_y = monitor_height / greatest_common_divisor;
+
+				ModLoader_PrintDebug("Auto-detected aspect ratio is %d:%d\n", aspect_ratio_x, aspect_ratio_y);
 			}
-
-			window_upscale_factor = ((output_window_height + (game_height / 2)) / game_height) * sprite_resolution_factor;
-
-			ModLoader_PrintDebug("Auto-detected window upscale factor is %d\n", window_upscale_factor);
 		}
 	}
-
-	return result;
-}
-
-void ApplyFullscreenPatches(void)
-{
-	// We can't apply the fullscreen patches until config.dat has been loaded
-	ModLoader_WriteRelativeAddress((void*)0x4124CD + 1, ActuallyApplyFullscreenPatches);
 }
