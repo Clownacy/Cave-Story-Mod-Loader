@@ -203,7 +203,7 @@ void ApplyFullscreenPatches(int window_size)
 
 			const unsigned int game_height = 240;
 
-			const unsigned int max_window_upscale_factor = (monitor_height / game_height);
+			const unsigned int max_window_upscale_factor = (monitor_height / (game_height * sprite_resolution_factor)) * sprite_resolution_factor;
 
 			// Cap window-upscale
 			if (window_upscale_factor > max_window_upscale_factor)
