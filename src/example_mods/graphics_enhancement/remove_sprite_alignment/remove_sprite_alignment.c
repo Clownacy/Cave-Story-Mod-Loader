@@ -12,6 +12,9 @@
 
 #include "../common.h"
 
+#define ConvertPixelMacro(value) ((value * 512 * window_upscale_factor) / 512)
+#define ConvertCoordMacro(value) ((value * window_upscale_factor) / 512)
+
 static void DrawColourFill_RawXY(RECT *dst_rect, int colour)
 {
 	DDBLTFX ddbltfx;
@@ -46,8 +49,8 @@ static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_S
 	RECT final_src_rect_1;
 	RECT final_dst_rect_1;
 
-	x = (x * CS_window_upscale) / 512;
-	y = (y * CS_window_upscale) / 512;
+//	x = (x * CS_window_upscale) / 512;
+//	y = (y * CS_window_upscale) / 512;
 
 	final_src_rect_1.left = new_src_rect.left;
 	final_src_rect_1.top = new_src_rect.top;
@@ -106,9 +109,9 @@ extern char BackgroundType1_Scroll_ASM;
 
 void BackgroundType1_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (int y = -((camera_y_pos / 2) % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	for (unsigned int y = -(ConvertCoordMacro(camera_y_pos / 2) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
 	{
-		for (int x = -((camera_x_pos / 2) % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		for (unsigned int x = -(ConvertCoordMacro(camera_x_pos / 2) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
@@ -131,9 +134,9 @@ extern char BackgroundType2_Scroll_ASM;
 
 void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (int y = -(camera_y_pos % (CS_background_tile_height * 0x200)); y < 240 * 0x200; y += CS_background_tile_height * 0x200)
+	for (unsigned int y = -(ConvertCoordMacro(camera_y_pos) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
 	{
-		for (int x = -(camera_x_pos % (CS_background_tile_width * 0x200)); x < SCREEN_WIDTH * 0x200; x += CS_background_tile_width * 0x200)
+		for (unsigned int x = -(ConvertCoordMacro(camera_x_pos) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
@@ -143,14 +146,67 @@ void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 __asm(
 "_DrawValueViewNewCode_ASM:\n"
 "	addl	%eax, %ecx\n"
-"	subl	$0x200*4, %ecx\n"
+"	push	%eax\n"
+"	mov	$4*0x200, %eax\n"
+"	call	_ConvertCoordASM\n"
+"	sub	%eax, %ecx\n"
+"	pop	%eax\n"
 "	ret\n"
 );
 extern char DrawValueViewNewCode_ASM;
 
 __asm(
+"_ConvertCoordASM:\n"
+"	imul	0x48F914, %eax\n"	// CS_window_upscale
+"	cdq\n"
+"	and	$0x1FF, %edx\n"
+"	add	%edx, %eax\n"
+"	sar	$9, %eax\n"
+"	ret\n"
+);
+extern char ConvertCoordASM;
+
+static void PatchCommonCoordCode(void *address)
+{
+	ModLoader_WriteCall(address, &ConvertCoordASM);
+	ModLoader_WriteNOPs(address + 5, 4);
+	ModLoader_WriteNOPs(address + 11, 3);
+	ModLoader_WriteCall(address + 17, &ConvertCoordASM);
+	ModLoader_WriteNOPs(address + 22, 7);
+}
+
+__asm(
+"_PatchCommonTileCoordCode:\n"
+"	call	_ConvertCoordASM\n"
+"	push	%eax\n"
+"	mov	%ecx, %eax\n"
+"	sal	$9, %eax\n"
+"	call	_ConvertCoordASM\n"
+"	mov	%eax, %ecx\n"
+"	pop	%eax\n"
+"	ret\n"
+);
+extern char PatchCommonTileCoordCode;
+
+__asm(
+"_PatchDrawBoss:\n"
+"	movsx	-1(%ebp), %edx\n"
+"	sal	$9, %edx\n"
+"	push	%eax\n"
+"	mov	%edx, %eax\n"
+"	call	_ConvertCoordASM\n"
+"	mov	%eax, %edx\n"
+"	pop	%eax\n"
+"	sub	%eax, %ecx\n"
+"	add	%edx, %ecx\n"
+"	ret\n"
+);
+extern char PatchDrawBoss;
+
+__asm(
 "_DrawValueViewNewCode2_ASM:\n"
 "	sal	$8, %eax\n"
+"	call	_ConvertCoordASM\n"
 "	ret\n"
 );
 extern char DrawValueViewNewCode2_ASM;
@@ -158,257 +214,235 @@ extern char DrawValueViewNewCode2_ASM;
 void RemoveSpriteAlignment(void)
 {
 	// DrawWater
-	ModLoader_WriteNOPs((void*)0x4028D2, 9);
-	ModLoader_WriteNOPs((void*)0x4028D2 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4028D2 + 17, 12);
+	PatchCommonCoordCode((void*)0x4028D2);
 
-	ModLoader_WriteWordBE((void*)0x4028F6, 0x03C8);
-	ModLoader_WriteWordBE((void*)0x4028F6 + 2, 0x894D);
-	ModLoader_WriteByte((void*)0x4028F6 + 4, 0xE8);
-	ModLoader_WriteWordBE((void*)0x4028F6 + 5, 0x817D);
-	ModLoader_WriteByte((void*)0x4028F6 + 7, 0xE8);
-	ModLoader_WriteLong((void*)0x4028F6 + 8, -32 * 512);
-	ModLoader_WriteNOPs((void*)0x4028F6 + 0xC, 9);
-	ModLoader_WriteLong((void*)0x402912, 240 * 512);
+	ModLoader_WriteCall((void*)0x4028F6, &ConvertCoordASM);
+	ModLoader_WriteWordBE((void*)0x4028F6 + 5, 0x03C8);	// add     ecx, eax
+	ModLoader_WriteWordBE((void*)0x4028F6 + 7, 0x894D);	// mov     [ebp+y_pos], ecx
+	ModLoader_WriteByte((void*)0x4028F6 + 9, 0xE8);
+	ModLoader_WriteWordBE((void*)0x4028F6 + 10, 0x817D);	// cmp     [ebp+y_pos], -32h*200h
+	ModLoader_WriteByte((void*)0x4028F6 + 12, 0xE8);
+	ModLoader_WriteLong((void*)0x4028F6 + 13, ConvertPixelMacro(-32));
+	ModLoader_WriteNOPs((void*)0x4028F6 + 17, 4);
+	ModLoader_WriteLong((void*)0x402912, ConvertPixelMacro(240));
 
-	ModLoader_WriteNOPs((void*)0x40293F, 9);
-	ModLoader_WriteNOPs((void*)0x40293F + 11, 3);
-	ModLoader_WriteNOPs((void*)0x40293F + 17, 12);
+	PatchCommonCoordCode((void*)0x40293F);
 
 	ModLoader_WriteRelativeAddress((void*)0x402974 + 1, DrawSpriteWithTransparency_RawXY);
 	ModLoader_WriteRelativeAddress((void*)0x402995 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawBullet
-	ModLoader_WriteNOPs((void*)0x403F10, 9);
-	ModLoader_WriteNOPs((void*)0x403F10 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x403F10 + 17, 12);
+	PatchCommonCoordCode((void*)0x403F10);
 
-	ModLoader_WriteNOPs((void*)0x403F33, 9);
-	ModLoader_WriteNOPs((void*)0x403F33 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x403F33 + 17, 12);
+	PatchCommonCoordCode((void*)0x403F33);
 
 	ModLoader_WriteRelativeAddress((void*)0x403F58 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// GameLoop_IslandCrash
-	ModLoader_WriteByte((void*)0x40DCED, 0x2D);
-	ModLoader_WriteLong((void*)0x40DCED + 1, (0xC * 512) - 0xC);
-	ModLoader_WriteNOPs((void*)0x40DCED + 5, 7);
+	ModLoader_WriteCall((void*)0x40DCED, &ConvertCoordASM);
+	ModLoader_WriteByte((void*)0x40DCED + 5, 0x2D);	// sub
+	ModLoader_WriteLong((void*)0x40DCED + 6, ConvertPixelMacro(0xC) - 0xC);
+	ModLoader_WriteNOPs((void*)0x40DCED + 10, 2);
 
-	ModLoader_WriteByte((void*)0x40DD00, 0x2D);
-	ModLoader_WriteLong((void*)0x40DD00 + 1, (20 * 512) - 20);
-	ModLoader_WriteNOPs((void*)0x40DD00 + 5, 7);
+	ModLoader_WriteCall((void*)0x40DD00, &ConvertCoordASM);
+	ModLoader_WriteByte((void*)0x40DD00 + 5, 0x2D);	// sub
+	ModLoader_WriteLong((void*)0x40DD00 + 6, ConvertPixelMacro(20) - 20);
+	ModLoader_WriteNOPs((void*)0x40DD00 + 10, 2);
 
 	ModLoader_WriteRelativeAddress((void*)0x40DD14 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawForegroundBack
-	ModLoader_WriteWordBE((void*)0x413C0C, 0x69C9);
-	ModLoader_WriteLongBE((void*)0x413C0C + 2, 0x00020000);
-	ModLoader_WriteLong((void*)0x413C0C + 6, 0x90909090);
-	ModLoader_WriteWord((void*)0x413C0C + 10, 0x9090);
+	ModLoader_WriteCall((void*)0x413C0C, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413C0C + 5, 7);
 
-	ModLoader_WriteWordBE((void*)0x413C27, 0x69C9);
-	ModLoader_WriteLongBE((void*)0x413C27 + 2, 0x00020000);
-	ModLoader_WriteLong((void*)0x413C27 + 6, 0x90909090);
-	ModLoader_WriteWord((void*)0x413C27 + 10, 0x9090);
+	ModLoader_WriteCall((void*)0x413C27, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413C27 + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x413C3B + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawRushingWaterParticles
-	ModLoader_WriteWordBE((void*)0x41406E, 0x69C9);
-	ModLoader_WriteLongBE((void*)0x41406E + 2, 0x00020000);
-	ModLoader_WriteLong((void*)0x41406E + 6, 0x90909090);
-	ModLoader_WriteWord((void*)0x41406E + 10, 0x9090);
+	ModLoader_WriteCall((void*)0x41406E, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x41406E + 5, 7);
 
-	ModLoader_WriteWordBE((void*)0x414089, 0x69C9);
-	ModLoader_WriteLongBE((void*)0x414089 + 2, 0x00020000);
-	ModLoader_WriteLong((void*)0x414089 + 6, 0x90909090);
-	ModLoader_WriteWord((void*)0x414089 + 10, 0x9090);
+	ModLoader_WriteCall((void*)0x414089, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x414089 + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x41409D + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawWhimsicalStar
-	ModLoader_WriteByte((void*)0x42146F, 0x2D);
-	ModLoader_WriteLong((void*)0x42146F + 1, (4 * 512) - 4);
-	ModLoader_WriteNOPs((void*)0x42146F + 5, 4);
+	ModLoader_WriteCall((void*)0x42146F, &ConvertCoordASM);
+	ModLoader_WriteByte((void*)0x42146F + 5, 0x2D);	// sub
+	ModLoader_WriteLong((void*)0x42146F + 6, ConvertPixelMacro(4) - 4);
+	ModLoader_WriteWordBE((void*)0x42146F + 10, 0x8BC8);	// mov     ecx, eax
+	ModLoader_WriteNOPs((void*)0x42146F + 12, 2);
 
-	ModLoader_WriteNOPs((void*)0x42146F + 0xB, 3);
+	ModLoader_WriteCall((void*)0x421480, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x421480 + 5, 7);
 
-	ModLoader_WriteNOPs((void*)0x421480, 0xC);
+	ModLoader_WriteCall((void*)0x42149E, &ConvertCoordASM);
+	ModLoader_WriteByte((void*)0x42149E + 5, 0x2D);	// sub
+	ModLoader_WriteLong((void*)0x42149E + 6, ConvertPixelMacro(4) - 4);
+	ModLoader_WriteWordBE((void*)0x42149E + 10, 0x8BC8);	// mov     ecx, eax
+	ModLoader_WriteNOPs((void*)0x42149E + 12, 2);
 
-	ModLoader_WriteByte((void*)0x42149E, 0x2D);
-	ModLoader_WriteLong((void*)0x42149E + 1, (4 * 512) - 4);
-	ModLoader_WriteNOPs((void*)0x42149E + 5, 4);
-
-	ModLoader_WriteNOPs((void*)0x42149E + 0xB, 3);
-
-	ModLoader_WriteNOPs((void*)0x4214AF, 0xC);
+	ModLoader_WriteCall((void*)0x4214AF, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4214AF + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x4214C6 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawBoss
 	// Y
-	ModLoader_WriteNOPs((void*)0x4728D0, 9);
+	ModLoader_WriteCall((void*)0x4728D0, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4728D0 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x4728D0 + 0xB, 3);
-	ModLoader_WriteNOPs((void*)0x4728E1, 0xC);
+	ModLoader_WriteCall((void*)0x4728E1, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4728E1 + 5, 7);
 	// X
-	ModLoader_WriteNOPs((void*)0x472902, 9);
+	ModLoader_WriteCall((void*)0x472902, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x472902 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x47290D, 3);
-	ModLoader_WriteLongBE((void*)0x472913, 0x0FBE55FF);
-	ModLoader_WriteLongBE((void*)0x472913 + 4, 0x69D20002);
-	ModLoader_WriteWordBE((void*)0x472913 + 8, 0x0000);
-	ModLoader_WriteNOPs((void*)0x472913 + 10, 2);
-	ModLoader_WriteNOPs((void*)0x472921, 4);
+	ModLoader_WriteCall((void*)0x472913, &ConvertCoordASM);
+	ModLoader_WriteCall((void*)0x472913 + 5, &PatchDrawBoss);
+	ModLoader_WriteNOPs((void*)0x472913 + 10, 10);
 
 	ModLoader_WriteRelativeAddress((void*)0x47292D + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawParticles
-	ModLoader_WriteNOPs((void*)0x40AC1E, 9);
-	ModLoader_WriteNOPs((void*)0x40AC1E + 11, 3);
-	ModLoader_WriteNOPs((void*)0x40AC1E + 17, 12);
+	PatchCommonCoordCode((void*)0x40AC1E);
 
-	ModLoader_WriteNOPs((void*)0x40AC58, 9);
-	ModLoader_WriteNOPs((void*)0x40AC58 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x40AC58 + 17, 12);
+	PatchCommonCoordCode((void*)0x40AC58);
 
 	ModLoader_WriteRelativeAddress((void*)0x40AC7D + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawValueView
 	ModLoader_WriteCall((void*)0x42647D, &DrawValueViewNewCode2_ASM);
 
-	ModLoader_WriteNOPs((void*)0x4264A2, 9);
+	ModLoader_WriteCall((void*)0x4264A2, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4264A2 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x4264A2 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4264A2 + 0x1A, 11);
-	ModLoader_WriteCall((void*)0x4264A2 + 0x1A + 11, &DrawValueViewNewCode_ASM);
-	ModLoader_WriteNOPs((void*)0x4264CF, 12);
 
-	ModLoader_WriteNOPs((void*)0x4264EC, 9);
+	ModLoader_WriteCall((void*)0x4264BC, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4264BC + 5, 6);
+	ModLoader_WriteCall((void*)0x4264BC + 0xB, &DrawValueViewNewCode_ASM);
+
+	ModLoader_WriteCall((void*)0x4264CF, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4264CF + 5, 7);
+
+	ModLoader_WriteCall((void*)0x4264EC, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4264EC + 5, 4);
 	ModLoader_WriteNOPs((void*)0x4264EC + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4264EC + 0x14, 12);
+
+	ModLoader_WriteCall((void*)0x426500, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x426500 + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x426514 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawPlayerAndWeapon
-	ModLoader_WriteLong((void*)0x4152FF + 3, -4 * 512);
-	ModLoader_WriteLong((void*)0x41532D + 3, 4 * 512);
+	ModLoader_WriteLong((void*)0x4152FF + 3, ConvertPixelMacro(-4));
+	ModLoader_WriteLong((void*)0x41532D + 3, ConvertPixelMacro(4));
 
-	ModLoader_WriteNOPs((void*)0x4153A7, 9);
-	ModLoader_WriteNOPs((void*)0x4153A7 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4153A7 + 17, 12);
+	PatchCommonCoordCode((void*)0x4153A7);
 
-	ModLoader_WriteNOPs((void*)0x4153D5, 9);
-	ModLoader_WriteNOPs((void*)0x4153D5 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4153D5 + 17, 6);
+	PatchCommonCoordCode((void*)0x4153D5);
+
 	ModLoader_WriteWordBE((void*)0x4153D5 + 23, 0x81E9);
-	ModLoader_WriteLong((void*)0x4153D5 + 25, (8 * 512) - 8);
+	ModLoader_WriteLong((void*)0x4153D5 + 25, ConvertPixelMacro(8) - 8);
 
 	ModLoader_WriteRelativeAddress((void*)0x4153FD + 1, DrawSpriteWithTransparency_RawXY);
 
-	ModLoader_WriteNOPs((void*)0x415419, 9);
-	ModLoader_WriteNOPs((void*)0x415419 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x415419 + 17, 12);
+	PatchCommonCoordCode((void*)0x415419);
 
-	ModLoader_WriteNOPs((void*)0x415447, 9);
-	ModLoader_WriteNOPs((void*)0x415447 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x415447 + 17, 12);
+	PatchCommonCoordCode((void*)0x415447);
 
 	ModLoader_WriteRelativeAddress((void*)0x41546C + 1, DrawSpriteWithTransparency_RawXY);
 
-	ModLoader_WriteNOPs((void*)0x4154E5, 9);
-	ModLoader_WriteNOPs((void*)0x4154E5 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x4154E5 + 17, 12);
+	PatchCommonCoordCode((void*)0x4154E5);
 
-	ModLoader_WriteNOPs((void*)0x415510, 9);
-	ModLoader_WriteNOPs((void*)0x415510 + 11, 3);
-	ModLoader_WriteNOPs((void*)0x415510 + 17, 12);
+	PatchCommonCoordCode((void*)0x415510);
 
 	ModLoader_WriteRelativeAddress((void*)0x415535 + 1, DrawSpriteWithTransparency_RawXY);
 
-	ModLoader_WriteNOPs((void*)0x4155CB, 9);
+	ModLoader_WriteCall((void*)0x4155CB, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4155CB + 5, 4);
 	ModLoader_WriteNOPs((void*)0x4155CB + 11, 3);
-	ModLoader_WriteWordBE((void*)0x4155CB + 20, 0x81E9);
-	ModLoader_WriteLong((void*)0x4155CB + 22, (0xC * 512) - 0xC);
-	ModLoader_WriteNOPs((void*)0x4155CB + 26, 6);
 
-	ModLoader_WriteNOPs((void*)0x4155F3, 9);
+	ModLoader_WriteWordBE((void*)0x4155CB + 20, 0x81E9);
+	ModLoader_WriteLong((void*)0x4155CB + 22, ConvertPixelMacro(0xC) - 0xC);
+	ModLoader_WriteCall((void*)0x4155CB + 26, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4155CB + 31, 1);
+
+	ModLoader_WriteCall((void*)0x4155F3, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4155F3 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x4155F3 + 11, 3);
+
 	ModLoader_WriteWordBE((void*)0x4155F3 + 20, 0x81E9);
-	ModLoader_WriteLong((void*)0x4155F3 + 22, (0xC * 512) - 0xC);
-	ModLoader_WriteNOPs((void*)0x4155F3 + 26, 6);
+	ModLoader_WriteLong((void*)0x4155F3 + 22, ConvertPixelMacro(0xC) - 0xC);
+	ModLoader_WriteCall((void*)0x4155F3 + 26, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x4155F3 + 31, 1);
 
 	ModLoader_WriteRelativeAddress((void*)0x41561B + 1, DrawSpriteWithTransparency_RawXY);
 
-	ModLoader_WriteNOPs((void*)0x415658, 9);
+	ModLoader_WriteCall((void*)0x415658, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x415658 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x415658 + 11, 3);
-	ModLoader_WriteWordBE((void*)0x415658 + 20, 0x81E9);
-	ModLoader_WriteLong((void*)0x415658 + 22, (0xC * 512) - 0xC);
-	ModLoader_WriteNOPs((void*)0x415658 + 26, 6);
 
-	ModLoader_WriteNOPs((void*)0x415680, 9);
+	ModLoader_WriteWordBE((void*)0x415658 + 20, 0x81E9);
+	ModLoader_WriteLong((void*)0x415658 + 22, ConvertPixelMacro(0xC) - 0xC);
+	ModLoader_WriteCall((void*)0x415658 + 26, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x415658 + 31, 1);
+
+	ModLoader_WriteCall((void*)0x415680, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x415680 + 5, 4);
 	ModLoader_WriteNOPs((void*)0x415680 + 11, 3);
+
 	ModLoader_WriteWordBE((void*)0x415680 + 20, 0x81E9);
-	ModLoader_WriteLong((void*)0x415680 + 22, (0xC * 512) - 0xC);
-	ModLoader_WriteNOPs((void*)0x415680 + 26, 6);
+	ModLoader_WriteLong((void*)0x415680 + 22, ConvertPixelMacro(0xC) - 0xC);
+	ModLoader_WriteCall((void*)0x415680 + 26, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x415680 + 31, 1);
 
 	ModLoader_WriteRelativeAddress((void*)0x4156A8 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawForegroundFront
 	// The level
-	ModLoader_WriteWordBE((void*)0x413DA1, 0x69C9);
-	ModLoader_WriteLong((void*)0x413DA1 + 2, 0x200);
-	ModLoader_WriteNOPs((void*)0x413DA1 + 6, 6);
+	ModLoader_WriteCall((void*)0x413DA1, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413DA1 + 5, 7);
 
-	ModLoader_WriteWordBE((void*)0x413DBC, 0x69C9);
-	ModLoader_WriteLong((void*)0x413DBC + 2, 0x200);
-	ModLoader_WriteNOPs((void*)0x413DBC + 6, 6);
+	ModLoader_WriteCall((void*)0x413DBC, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413DBC + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x413DD0 + 1, DrawSpriteWithTransparency_RawXY);
 	// Tile 67
-	ModLoader_WriteWordBE((void*)0x413DF0, 0x69C9);
-	ModLoader_WriteLong((void*)0x413DF0 + 2, 0x200);
-	ModLoader_WriteNOPs((void*)0x413DF0 + 6, 6);
+	ModLoader_WriteCall((void*)0x413DF0, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413DF0 + 5, 7);
 
-	ModLoader_WriteWordBE((void*)0x413E0B, 0x69C9);
-	ModLoader_WriteLong((void*)0x413E0B + 2, 0x200);
-	ModLoader_WriteNOPs((void*)0x413E0B + 6, 6);
+	ModLoader_WriteCall((void*)0x413E0B, &PatchCommonTileCoordCode);
+	ModLoader_WriteNOPs((void*)0x413E0B + 5, 7);
 
 	ModLoader_WriteRelativeAddress((void*)0x413E1F + 1, DrawSpriteWithTransparency_RawXY);
 
 	// DrawObjects
-	ModLoader_WriteLong((void*)0x46F983, 0x90909090);
-	ModLoader_WriteLong((void*)0x46F987, 0x90909090);
-	ModLoader_WriteByte((void*)0x46F98B, 0x90);
+	ModLoader_WriteCall((void*)0x46F983, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x46F983 + 5, 4);
+	ModLoader_WriteNOPs((void*)0x46F98E, 3);
 
-	ModLoader_WriteWord((void*)0x46F98E, 0x9090);
-	ModLoader_WriteByte((void*)0x46F990, 0x90);
+	ModLoader_WriteCall((void*)0x46F994, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x46F994 + 5, 7);
 
-	ModLoader_WriteLong((void*)0x46F994, 0x90909090);
-	ModLoader_WriteLong((void*)0x46F998, 0x90909090);
-	ModLoader_WriteLong((void*)0x46F99C, 0x90909090);
+	ModLoader_WriteCall((void*)0x46F9B5, &ConvertCoordASM);
+	ModLoader_WriteNOPs((void*)0x46F9B5 + 5, 4);
+	ModLoader_WriteNOPs((void*)0x46F9C0, 3);
 
-	ModLoader_WriteLong((void*)0x46F9B5, 0x90909090);
-	ModLoader_WriteLong((void*)0x46F9B5 + 4, 0x90909090);
-	ModLoader_WriteByte((void*)0x46F9B5 + 8, 0x90);
-
-	ModLoader_WriteWord((void*)0x46F9C0, 0x9090);
-	ModLoader_WriteByte((void*)0x46F9C0 + 2, 0x90);
-
-	ModLoader_WriteLongBE((void*)0x46F9C6, 0x0FBE55FF);
-	ModLoader_WriteLongBE((void*)0x46F9C6 + 4, 0x69D20002);
-	ModLoader_WriteWordBE((void*)0x46F9C6 + 8, 0x0000);
-	ModLoader_WriteWord((void*)0x46F9C6 + 10, 0x9090);
-	ModLoader_WriteLong((void*)0x46F9D4, 0x90909090);
+	ModLoader_WriteCall((void*)0x46F9C6, &ConvertCoordASM);
+	ModLoader_WriteCall((void*)0x46F9C6 + 5, &PatchDrawBoss);
+	ModLoader_WriteNOPs((void*)0x46F9C6 + 10, 10);
 
 	ModLoader_WriteRelativeAddress((void*)0x46F9E0 + 1, DrawSpriteWithTransparency_RawXY);
 
 	// UpdateCamera
-	// Patch out the camera bounds checks so they don't round to 0x200
-	ModLoader_WriteLong((void*)0x40EED6, 0x90909090);
-	ModLoader_WriteLong((void*)0x40EEDA, 0x90909090);
-	ModLoader_WriteLong((void*)0x40EEDE, 0x90909090);
+	// Patch out the camera bounds checks so they don't round to 0x200 (maybe investigate this)
+	ModLoader_WriteNOPs((void*)0x40EED6, 12);
 
-	ModLoader_WriteLong((void*)0x40EEF5, 0x90909090);
-	ModLoader_WriteLong((void*)0x40EEF9, 0x90909090);
-	ModLoader_WriteLong((void*)0x40EEFD, 0x90909090);
+	ModLoader_WriteNOPs((void*)0x40EEF5, 12);
 
 	// DrawBackground
 	ModLoader_WriteLong((void*)0x402809 + 4, (unsigned int)&BackgroundType1_Scroll_ASM);
