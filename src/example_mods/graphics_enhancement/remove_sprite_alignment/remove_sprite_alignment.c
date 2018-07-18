@@ -12,8 +12,8 @@
 
 #include "../common.h"
 
-#define ConvertPixelMacro(value) ((value * 512 * window_upscale_factor) / 512)
-#define ConvertCoordMacro(value) ((value * window_upscale_factor) / 512)
+#define ConvertPixelMacro(value) ((value * 512 * (int)window_upscale_factor) / 512)
+#define ConvertCoordMacro(value) ((value * (int)window_upscale_factor) / 512)
 
 static void DrawColourFill_RawXY(RECT *dst_rect, int colour)
 {
@@ -109,9 +109,9 @@ extern char BackgroundType1_Scroll_ASM;
 
 void BackgroundType1_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (unsigned int y = -(ConvertCoordMacro(camera_y_pos / 2) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
+	for (int y = -(ConvertCoordMacro(camera_y_pos / 2) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
 	{
-		for (unsigned int x = -(ConvertCoordMacro(camera_x_pos / 2) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
+		for (int x = -(ConvertCoordMacro(camera_x_pos / 2) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
@@ -134,9 +134,9 @@ extern char BackgroundType2_Scroll_ASM;
 
 void BackgroundType2_Scroll(int camera_x_pos, int camera_y_pos)
 {
-	for (unsigned int y = -(ConvertCoordMacro(camera_y_pos) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
+	for (int y = -(ConvertCoordMacro(camera_y_pos) % ConvertPixelMacro(CS_background_tile_height)); y < ConvertPixelMacro(240); y += ConvertPixelMacro(CS_background_tile_height))
 	{
-		for (unsigned int x = -(ConvertCoordMacro(camera_x_pos) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
+		for (int x = -(ConvertCoordMacro(camera_x_pos) % ConvertPixelMacro(CS_background_tile_width)); x < ConvertPixelMacro(SCREEN_WIDTH); x += ConvertPixelMacro(CS_background_tile_width))
 		{
 			DrawSpriteNoTransparency_RawXY(&CS_clip_rect_common, x, y, &(RECT){0, 0, CS_background_tile_width, CS_background_tile_height}, CS_SURFACE_ID_LEVEL_BACKGROUND);
 		}
