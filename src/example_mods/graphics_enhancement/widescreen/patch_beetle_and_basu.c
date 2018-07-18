@@ -1,32 +1,54 @@
 // Graphics enhancement mod for Freeware Cave Story
-// Copyright © 2017 Clownacy
+// Copyright © 2018 Clownacy
 
 #include "patch_beetle_and_basu.h"
 
+#include "cave_story.h"
 #include "mod_loader.h"
 
 #include "../common.h"
 
+void SpawnPoof(int x, int y)
+{
+	CS_CreateDustClouds(x, y, 0, 2);
+}
+
+__asm(
+"_SpawnPoof_ASM:\n"
+"	mov	0xC(%eax),%ecx\n"
+"	push	%ecx\n"
+"	mov	8(%eax),%ecx\n"
+"	push	%ecx\n"
+"	call	_SpawnPoof\n"
+"	add	$8,%esp\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4506B6\n"
+);
+extern char SpawnPoof_ASM;
+
+__asm(
+"_SpawnPoof2_ASM:\n"
+"	mov	0xC(%edx),%ecx\n"
+"	push	%ecx\n"
+"	mov	8(%edx),%ecx\n"
+"	push	%ecx\n"
+"	call	_SpawnPoof\n"
+"	add	$8,%esp\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4506B6\n"
+);
+extern char SpawnPoof2_ASM;
+
 void PatchBeetleAndBasu(void)
 {
 	// Beetle (object 8)
-	ModLoader_WriteLong((void*)0x427F9A + 1, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x427FB1 + 2, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x428010 + 2, ((SCREEN_WIDTH / 2) + 96) * 0x200);
-	ModLoader_WriteLong((void*)0x42802E + 2, ((SCREEN_WIDTH / 2) + 96) * 0x200);
+	ModLoader_WriteJump((void*)0x428087, &SpawnPoof_ASM);
 	// Basu (object 58)
-	ModLoader_WriteLong((void*)0x431CF2 + 1, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x431D09 + 2, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x431D93 + 1, ((SCREEN_WIDTH / 2) + 96) * 0x200);
-	ModLoader_WriteLong((void*)0x431DAF + 1, ((SCREEN_WIDTH / 2) + 96) * 0x200);
+	ModLoader_WriteJump((void*)0x431DC4, &SpawnPoof2_ASM);
 	// Beetle2 (object 210)
-	ModLoader_WriteLong((void*)0x45049A + 1, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x4504B1 + 2, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x450510 + 2, ((SCREEN_WIDTH / 2) + 96) * 0x200);
-	ModLoader_WriteLong((void*)0x45052E + 2, ((SCREEN_WIDTH / 2) + 96) * 0x200);
+	ModLoader_WriteJump((void*)0x450587, &SpawnPoof_ASM);
 	// Basu2 (object 208)
-	ModLoader_WriteLong((void*)0x44FD82 + 1, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x44FD99 + 2, (((SCREEN_WIDTH - 320) / 2) + 16) * 0x200);
-	ModLoader_WriteLong((void*)0x44FE23 + 1, ((SCREEN_WIDTH / 2) + 96) * 0x200);
-	ModLoader_WriteLong((void*)0x44FE3F + 1, ((SCREEN_WIDTH / 2) + 96) * 0x200);
+	ModLoader_WriteJump((void*)0x44FE54, &SpawnPoof2_ASM);
 }

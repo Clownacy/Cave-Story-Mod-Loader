@@ -117,6 +117,7 @@ static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_Surf
 static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, CS_SurfaceID) = (void*)0x40C5B0;
 static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void*)0x40C9E0;
 static int (* const CS_RegenerateSurfaces)(void) = (void*)0x40CB60;
+static int (* const CS_RandomNumber)(int min, int max) = (void*)0x40F350;
 static void (* const CS_DrawNumber)(int x, int y, int, int) = (void*)0x40F380;
 static void (* const CS_DrawHUD_Air)(int x, int y) = (void*)0x41A350;
 static void (* const CS_LoadOrgMusic)(const char* const) = (void*)0x41C6F0;
@@ -130,6 +131,8 @@ static void (* const CS_PlayMusic)(int music_id) = (void*)0x420EE0;
 static void (* const CS_PlayPreviousMusic)(void) = (void*)0x420F50;
 // Good name for this would be 'ExecuteTSC'
 static void (* const CS_sub_422510)(void) = (void*)0x422510;
+static void (* const CS_CreateObject)(int object_ID, int x_pos, int y_pos, int a4, int a5, int facing_right, int a7, int object_RAM_index) = (void*)0x46EFD0;
+static void (* const CS_CreateDustClouds)(int x, int y, signed int range, int count) = (void*)0x46F150;
 // Good name for this would be 'UpdateAllNPCs'
 static void (* const CS_sub_46FA00)(void) = (void*)0x46FA00;
 
