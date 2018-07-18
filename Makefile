@@ -58,6 +58,7 @@ GRAPHICS_ENHANCEMENT_FILES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_loading_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_map_screen.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_room_name_print.c \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_sand_zone_enemies.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_screen_flash.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_scrolling_clouds.c \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_teleport_screen.c \

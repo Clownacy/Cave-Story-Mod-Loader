@@ -23,6 +23,7 @@
 #include "patch_loading_screen.h"
 #include "patch_map_screen.h"
 #include "patch_room_name_print.h"
+#include "patch_sand_zone_enemies.h"
 #include "patch_screen_flash.h"
 #include "patch_scrolling_clouds.h"
 #include "patch_teleport_screen.h"
@@ -79,6 +80,7 @@ void SetWidescreen(void)
 	PatchLoadingScreen();
 	PatchMapMenu();
 	PatchRoomNamePrint();
+	PatchSandZoneEnemies();
 	PatchScreenFlash();
 	PatchScrollingClouds();
 	PatchTeleportScreen();
