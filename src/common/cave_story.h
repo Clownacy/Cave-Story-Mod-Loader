@@ -83,6 +83,7 @@ typedef struct CS_ConfigData
 #define CS_screen_primary_surface (*(IDirectDrawSurface7** const)0x49D380)
 #define CS_screen_surface (*(IDirectDrawSurface7** const)0x49D384)
 #define CS_surfaces (*(IDirectDrawSurface7*(*)[40])0x49D388)
+#define CS_fade_counter (*(int*)0x49DB38)
 #define CS_camera_x_pos (*(signed int*)0x49E1C8)
 #define CS_camera_y_pos (*(signed int*)0x49E1CC)
 #define CS_camera_x_destination (*(signed int*)0x49E1D0)
