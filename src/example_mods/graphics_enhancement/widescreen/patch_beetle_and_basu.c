@@ -23,7 +23,7 @@ __asm(
 "	add	$8,%esp\n"
 "	jmp	*1f\n"
 "1:\n"
-"	.long	0x4506B6\n"
+"	.long	0x4281B6\n"
 );
 extern char SpawnPoof_ASM;
 
@@ -37,9 +37,37 @@ __asm(
 "	add	$8,%esp\n"
 "	jmp	*1f\n"
 "1:\n"
-"	.long	0x4506B6\n"
+"	.long	0x4321E7\n"
 );
 extern char SpawnPoof2_ASM;
+
+__asm(
+"_SpawnPoof3_ASM:\n"
+"	mov	0xC(%eax),%ecx\n"
+"	push	%ecx\n"
+"	mov	8(%eax),%ecx\n"
+"	push	%ecx\n"
+"	call	_SpawnPoof\n"
+"	add	$8,%esp\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4506B6\n"
+);
+extern char SpawnPoof3_ASM;
+
+__asm(
+"_SpawnPoof4_ASM:\n"
+"	mov	0xC(%edx),%ecx\n"
+"	push	%ecx\n"
+"	mov	8(%edx),%ecx\n"
+"	push	%ecx\n"
+"	call	_SpawnPoof\n"
+"	add	$8,%esp\n"
+"	jmp	*1f\n"
+"1:\n"
+"	.long	0x4506B6\n"
+);
+extern char SpawnPoof4_ASM;
 
 void PatchBeetleAndBasu(void)
 {
@@ -48,7 +76,7 @@ void PatchBeetleAndBasu(void)
 	// Basu (object 58)
 	ModLoader_WriteJump((void*)0x431DC4, &SpawnPoof2_ASM);
 	// Beetle2 (object 210)
-	ModLoader_WriteJump((void*)0x450587, &SpawnPoof_ASM);
+	ModLoader_WriteJump((void*)0x450587, &SpawnPoof3_ASM);
 	// Basu2 (object 208)
-	ModLoader_WriteJump((void*)0x44FE54, &SpawnPoof2_ASM);
+	ModLoader_WriteJump((void*)0x44FE54, &SpawnPoof4_ASM);
 }
