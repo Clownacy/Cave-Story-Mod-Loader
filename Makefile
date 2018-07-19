@@ -129,7 +129,8 @@ OUTPUT = \
 	bin/mods/3ds_hud/3ds_hud.dll \
 	bin/mods/disable_image_protection/disable_image_protection.dll \
 	bin/mods/tsc_nonod/tsc_nonod.dll \
-	bin/mods/tsc_mbx/tsc_mbx.dll
+	bin/mods/tsc_mbx/tsc_mbx.dll \
+	bin/mods/title_background/title_background.dll
 
 all: $(OUTPUT)
 
@@ -193,6 +194,11 @@ bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_m
 	@strip $@ --strip-unneeded
 
 bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_nonod/main.c
+	@mkdir -p $(@D)
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@strip $@ --strip-unneeded
+
+bin/mods/title_background/title_background.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/title_background/main.c
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded

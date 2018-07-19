@@ -109,7 +109,7 @@ typedef struct CS_ConfigData
 #define CS_org_playlist (*(char*(*)[42])0x4981E8)
 
 // Functions
-static void (* const CS_LoadBackgroundSprite)(char *background_filename, int background_type) = (void*)0x402270;
+static void (* const CS_LoadBackgroundSprite)(const char *background_filename, int background_type) = (void*)0x402270;
 static void (* const CS_IncrementBGScroll)(void) = (void*)0x402370;
 static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void*)0x4023D0;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void*)0x402830;
@@ -121,7 +121,7 @@ static int (* const CS_RegenerateSurfaces)(void) = (void*)0x40CB60;
 static int (* const CS_RandomNumber)(int min, int max) = (void*)0x40F350;
 static void (* const CS_DrawNumber)(int x, int y, int, int) = (void*)0x40F380;
 static void (* const CS_DrawHUD_Air)(int x, int y) = (void*)0x41A350;
-static void (* const CS_LoadOrgMusic)(const char* const) = (void*)0x41C6F0;
+static void (* const CS_LoadOrgMusic)(const char *) = (void*)0x41C6F0;
 static void (* const CS_SetOrgMusicPosition)(int) = (void*)0x41C730;
 static int (* const CS_GetOrgMusicPosition)(void) = (void*)0x41C770;
 static void (* const CS_StartOrgPlayback)(void) = (void*)0x41C790;
