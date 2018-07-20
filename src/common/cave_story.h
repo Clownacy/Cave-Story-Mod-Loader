@@ -109,33 +109,33 @@ typedef struct CS_ConfigData
 #define CS_org_playlist (*(char*(*)[42])0x4981E8)
 
 // Functions
-static void (* const CS_LoadBackgroundSprite)(const char *background_filename, int background_type) = (void*)0x402270;
-static void (* const CS_IncrementBGScroll)(void) = (void*)0x402370;
-static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void*)0x4023D0;
-static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void*)0x402830;
-static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (void*)0x40AD60;
-static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_SurfaceID) = (void*)0x40C3C0;
-static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, CS_SurfaceID) = (void*)0x40C5B0;
-static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void*)0x40C9E0;
-static int (* const CS_RegenerateSurfaces)(void) = (void*)0x40CB60;
-static int (* const CS_RandomNumber)(int min, int max) = (void*)0x40F350;
-static void (* const CS_DrawNumber)(int x, int y, int, int) = (void*)0x40F380;
-static void (* const CS_DrawHUD_Air)(int x, int y) = (void*)0x41A350;
-static void (* const CS_LoadOrgMusic)(const char *) = (void*)0x41C6F0;
-static void (* const CS_SetOrgMusicPosition)(int) = (void*)0x41C730;
-static int (* const CS_GetOrgMusicPosition)(void) = (void*)0x41C770;
-static void (* const CS_StartOrgPlayback)(void) = (void*)0x41C790;
-static void (* const CS_SetOrgVolume)(int) = (void*)0x41C7C0;
-static void (* const CS_sub_41C7F0)(void) = (void*)0x41C7F0;
-static void (* const CS_FadeMusic)(void) = (void*)0x41C880;
-static void (* const CS_PlayMusic)(int music_id) = (void*)0x420EE0;
-static void (* const CS_PlayPreviousMusic)(void) = (void*)0x420F50;
+static void (* const CS_LoadBackgroundSprite)(const char *background_filename, int background_type) = (void(*)(const char*,int))0x402270;
+static void (* const CS_IncrementBGScroll)(void) = (void (*)(void))0x402370;
+static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void(*)(int,int))0x4023D0;
+static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
+static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (int(*)(CS_ConfigData*))0x40AD60;
+static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_SurfaceID) = (void(*)(RECT*,int,int,RECT*,CS_SurfaceID))0x40C3C0;
+static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, CS_SurfaceID) = (void(*)(RECT*,int,int,RECT*,CS_SurfaceID))0x40C5B0;
+static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*,int))0x40C9E0;
+static int (* const CS_RegenerateSurfaces)(void) = (int(*)(void))0x40CB60;
+static int (* const CS_RandomNumber)(int min, int max) = (int(*)(int,int))0x40F350;
+static void (* const CS_DrawNumber)(int x, int y, int, int) = (void(*)(int,int,int,int))0x40F380;
+static void (* const CS_DrawHUD_Air)(int x, int y) = (void(*)(int,int))0x41A350;
+static void (* const CS_LoadOrgMusic)(const char *) = (void(*)(const char*))0x41C6F0;
+static void (* const CS_SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
+static int (* const CS_GetOrgMusicPosition)(void) = (int(*)(void))0x41C770;
+static void (* const CS_StartOrgPlayback)(void) = (void(*)(void))0x41C790;
+static void (* const CS_SetOrgVolume)(int) = (void(*)(int))0x41C7C0;
+static void (* const CS_sub_41C7F0)(void) = (void(*)(void))0x41C7F0;
+static void (* const CS_FadeMusic)(void) = (void(*)(void))0x41C880;
+static void (* const CS_PlayMusic)(int music_id) = (void(*)(int))0x420EE0;
+static void (* const CS_PlayPreviousMusic)(void) = (void(*)(void))0x420F50;
 // Good name for this would be 'ExecuteTSC'
-static void (* const CS_sub_422510)(void) = (void*)0x422510;
-static void (* const CS_CreateObject)(int object_ID, int x_pos, int y_pos, int a4, int a5, int facing_right, int a7, int object_RAM_index) = (void*)0x46EFD0;
-static void (* const CS_CreateDustClouds)(int x, int y, signed int range, int count) = (void*)0x46F150;
+static void (* const CS_sub_422510)(void) = (void(*)(void))0x422510;
+static void (* const CS_CreateObject)(int object_ID, int x_pos, int y_pos, int a4, int a5, int facing_right, int a7, int object_RAM_index) = (void(*)(int,int,int,int,int,int,int,int))0x46EFD0;
+static void (* const CS_CreateDustClouds)(int x, int y, signed int range, int count) = (void(*)(int,int,int,int))0x46F150;
 // Good name for this would be 'UpdateAllNPCs'
-static void (* const CS_sub_46FA00)(void) = (void*)0x46FA00;
+static void (* const CS_sub_46FA00)(void) = (void(*)(void))0x46FA00;
 
 // Hookspaces & Hookjumps
 

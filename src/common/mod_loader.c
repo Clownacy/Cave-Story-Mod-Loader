@@ -1,6 +1,10 @@
 // Mod loader for Freeware Cave Story
 // Public domain
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "mod_loader.h"
 
 #include <stdbool.h>
@@ -76,3 +80,7 @@ __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Sett
 
 	InitMod();
 }
+
+#ifdef __cplusplus
+}
+#endif
