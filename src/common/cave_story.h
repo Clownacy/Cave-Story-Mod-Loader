@@ -3,10 +3,6 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <ddraw.h>
 #include <windows.h>
 
@@ -151,7 +147,3 @@ static void (* const CS_sub_46FA00)(void) = (void(*)(void))0x46FA00;
 #define CSH_tsc_end (void*) 0x425244, 12
 // Aka 4252A7, or "ParserEnd", but minus some indirection.
 #define CSJ_tsc_done 0x4225CB
-
-#ifdef __cplusplus
-}
-#endif

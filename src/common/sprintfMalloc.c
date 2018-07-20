@@ -11,7 +11,7 @@
 char* vsprintfMalloc(const char *format, va_list args)
 {
 	const int string_length = vsnprintf(NULL, 0, format, args) + 1;
-	char *string = malloc(string_length);
+	char *string = (char*)malloc(string_length);
 	vsnprintf(string, string_length, format, args);
 
 	return string;

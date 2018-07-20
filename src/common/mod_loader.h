@@ -3,10 +3,6 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 
 #include "mod_loader_hooks.h"
@@ -33,7 +29,3 @@ extern void (*ModLoader_AddStackableHook)(void * address, unsigned int length, M
 const char* ModLoader_GetSettingString(const char* const setting_name, const char* const default_string);
 int ModLoader_GetSettingInt(const char* const setting_name, const int default_int);
 bool ModLoader_GetSettingBool(const char* const setting_name, const bool default_bool);
-
-#ifdef __cplusplus
-}
-#endif
