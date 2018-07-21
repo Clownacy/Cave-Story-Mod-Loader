@@ -30,40 +30,40 @@ __stdcall void UpdateCamera_extra(const int level_width, const int level_height)
 {
 	current_level_width = level_width;
 
-	int level_width_pixels = (level_width - 1) * 16;
-
-	if (level_width_pixels > SCREEN_WIDTH)
+	if (CS_gamemode_flags & 8)	// If in credits, emulate the original camera boundaries (fixes flying Balrog scene)
 	{
-		small_room = false;
+		if (CS_camera_x_pos < 0)
+			CS_camera_x_pos = 0;
+		if (CS_camera_x_pos > (((level_width - 1) * 16) - 320) * 0x200)
+			CS_camera_x_pos = (((level_width - 1) * 16) - 320) * 0x200;
 
-		if (CS_gamemode_flags & 8)	// If in credits, emulate the original camera boundaries (fixes flying Balrog scene)
-		{
-			if (CS_camera_x_pos < 0)
-				CS_camera_x_pos = 0;
-			if (CS_camera_x_pos > (((level_width - 1) * 16) - 320) * 0x200)
-				CS_camera_x_pos = (((level_width - 1) * 16) - 320) * 0x200;
+		CS_camera_x_pos -= ((SCREEN_WIDTH - 320) / 2) * 0x200;
+	}
+	else
+	{
+		int level_width_pixels = (level_width - 1) * 16;
 
-			CS_camera_x_pos -= ((SCREEN_WIDTH - 320) / 2) * 0x200;
-		}
-		else
+		if (level_width_pixels > SCREEN_WIDTH)
 		{
+			small_room = false;
+
 			if (CS_camera_x_pos < 0)
 				CS_camera_x_pos = 0;
 			if (CS_camera_x_pos > (((level_width - 1) * 16) - SCREEN_WIDTH) * 0x200)
 				CS_camera_x_pos = (((level_width - 1) * 16) - SCREEN_WIDTH) * 0x200;
 		}
-	}
-	else
-	{
-		small_room = true;
+		else
+		{
+			small_room = true;
 
-		CS_camera_x_pos = -(((SCREEN_WIDTH - level_width_pixels) / 2) * 0x200);
-	}
+			CS_camera_x_pos = -(((SCREEN_WIDTH - level_width_pixels) / 2) * 0x200);
+		}
 
-	if (CS_camera_y_pos < 0)
-		CS_camera_y_pos = 0;
-	if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
-		CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
+		if (CS_camera_y_pos < 0)
+			CS_camera_y_pos = 0;
+		if (CS_camera_y_pos > (((level_height - 1) * 16) - 240) * 0x200)
+			CS_camera_y_pos = (((level_height - 1) * 16) - 240) * 0x200;
+	}
 }
 
 
