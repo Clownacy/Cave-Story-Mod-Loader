@@ -59,15 +59,26 @@ static void PrintToFile(const char* const format, va_list args, const char* cons
 
 __declspec(dllexport) void PrintMessageBoxError(const char* const format, ...)
 {
-	va_list args;
+	va_list args, args_copy;
 	va_start(args, format);
 
 	if (console_enabled)
-		vprintf(format, args);
+	{
+		va_copy(args_copy, args);
+		vprintf(format, args_copy);
+		va_end(args_copy);
+	}
 
-	PrintToFile(format, args, ERROR_PATH);
+	va_copy(args_copy, args);
+	PrintToFile(format, args_copy, ERROR_PATH);
+	va_end(args_copy);
+
 	if (logging_enabled)
-		PrintToFile(format, args, DEBUG_PATH);
+	{
+		va_copy(args_copy, args);
+		PrintToFile(format, args_copy, DEBUG_PATH);
+		va_end(args_copy);
+	}
 
 	char *message = vsprintfMalloc(format, args);
 	MessageBox(NULL, message, "Mod Loader error", 0);
@@ -78,13 +89,20 @@ __declspec(dllexport) void PrintMessageBoxError(const char* const format, ...)
 
 __declspec(dllexport) void PrintError(const char* const format, ...)
 {
-	va_list args;
+	va_list args, args_copy;
 	va_start(args, format);
 
 	if (console_enabled)
-		vprintf(format, args);
+	{
+		va_copy(args_copy, args);
+		vprintf(format, args_copy);
+		va_end(args_copy);
+	}
 
-	PrintToFile(format, args, ERROR_PATH);
+	va_copy(args_copy, args);
+	PrintToFile(format, args_copy, ERROR_PATH);
+	va_end(args_copy);
+
 	if (logging_enabled)
 		PrintToFile(format, args, DEBUG_PATH);
 
@@ -93,11 +111,15 @@ __declspec(dllexport) void PrintError(const char* const format, ...)
 
 __declspec(dllexport) void PrintDebug(const char* const format, ...)
 {
-	va_list args;
+	va_list args, args_copy;
 	va_start(args, format);
 
 	if (console_enabled)
-		vprintf(format, args);
+	{
+		va_copy(args_copy, args);
+		vprintf(format, args_copy);
+		va_end(args_copy);
+	}
 
 	if (logging_enabled)
 		PrintToFile(format, args, DEBUG_PATH);
