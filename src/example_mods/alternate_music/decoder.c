@@ -16,6 +16,9 @@
 #ifdef USE_VORBISFILE
 #include "decoder_vorbisfile.h"
 #endif
+#ifdef USE_IVORBISFILE
+#include "decoder_ivorbisfile.h"
+#endif
 #ifdef USE_FLAC
 #include "decoder_flac.h"
 #endif
@@ -84,6 +87,9 @@ static const struct
 } backends[] = {
 #ifdef USE_VORBISFILE
 	{&DecoderBackend_Vorbisfile, true, true},
+#endif
+#ifdef USE_IVORBISFILE
+	{&DecoderBackend_IVorbisfile, true, true},
 #endif
 #ifdef USE_FLAC
 	{&DecoderBackend_FLAC, true, true},
