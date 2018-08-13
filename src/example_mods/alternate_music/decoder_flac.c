@@ -14,7 +14,7 @@
 #include "memory_file.h"
 
 #undef MIN
-#define MIN(a, b) (a < b ? a : b)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 typedef struct DecoderFLAC
 {
