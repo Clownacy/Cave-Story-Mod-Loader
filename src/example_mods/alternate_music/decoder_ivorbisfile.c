@@ -49,6 +49,7 @@ static const ov_callbacks ov_callback_memory = {
 DecoderIVorbisfile* Decoder_IVorbisfile_Open(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *info, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
+	(void)format;
 
 	DecoderIVorbisfile *this = malloc(sizeof(DecoderIVorbisfile));
 
@@ -63,7 +64,7 @@ DecoderIVorbisfile* Decoder_IVorbisfile_Open(const char *file_path, bool loop, D
 			vorbis_info *v_info = ov_info(&this->vorbis_file, -1);
 
 			this->channel_count = v_info->channels;
-			this->bytes_per_frame = v_info->channels * DECODER_GET_FORMAT_SIZE(format);
+			this->bytes_per_frame = v_info->channels * DECODER_GET_FORMAT_SIZE(DECODER_FORMAT_S16);
 
 			info->sample_rate = v_info->rate;
 			info->channel_count = v_info->channels;
