@@ -95,6 +95,13 @@ typedef struct CS_ConfigData
 #define CS_gamepad_enabled (*(int*)0x49E45C)
 #define CS_level_width (*(unsigned short*)0x49E586)
 #define CS_level_height (*(unsigned short*)0x49E588)
+#define CS_quote_display_flags (*(char*)0x49E638)
+#define CS_quote_facing_right (*(BOOL*)0x49E640)
+#define CS_quote_x_pos (*(int*)0x49E654)
+#define CS_quote_y_pos (*(int*)0x49E658)
+#define CS_quote_frame_id (*(int*)0x49E678)
+#define CS_quote_sprite_half_width (*(int*)0x49E68C)
+#define CS_quote_sprite_half_height (*(int*)0x49E690)
 #define CS_music_fade_flag (*(int*)0x4A4E10)
 #define CS_current_room (*(int*)0x4A57F0)
 #define CS_current_music (*(int*)0x4A57F4)
@@ -110,12 +117,15 @@ static void (* const CS_IncrementBGScroll)(void) = (void (*)(void))0x402370;
 static void (* const CS_DrawBackground)(int camera_x_pos, int camera_y_pos) = (void(*)(int,int))0x4023D0;
 static void (* const CS_DrawWater)(int x_pos, int y_pos) = (void(*)(int,int))0x402830;
 static int (* const CS_LoadConfigFile)(CS_ConfigData *config_memory) = (int(*)(CS_ConfigData*))0x40AD60;
-static void (* const CS_DrawSprite_WithTransparency)(RECT*,int,int,RECT*,CS_SurfaceID) = (void(*)(RECT*,int,int,RECT*,CS_SurfaceID))0x40C3C0;
-static void (* const CS_DrawSprite_NoTransparency)(RECT*, int, int, RECT*, CS_SurfaceID) = (void(*)(RECT*,int,int,RECT*,CS_SurfaceID))0x40C5B0;
+static BOOL (* const CS_DrawWindow)(HWND hWnd) = (BOOL(*)(HWND))0x40B340;
+static void (* const CS_DrawSprite_WithTransparency)(const RECT*,int,int,const RECT*,CS_SurfaceID) = (void(*)(const RECT*,int,int,const RECT*,CS_SurfaceID))0x40C3C0;
+static void (* const CS_DrawSprite_NoTransparency)(const RECT*, int, int, const RECT*, CS_SurfaceID) = (void(*)(const RECT*,int,int,const RECT*,CS_SurfaceID))0x40C5B0;
 static void (* const CS_DrawColourFill)(RECT *dst_rect, int colour) = (void(*)(RECT*,int))0x40C9E0;
 static int (* const CS_RegenerateSurfaces)(void) = (int(*)(void))0x40CB60;
+static BOOL (* const CS_InitCredits)(void) = (BOOL(*)(void))0x40D440;
 static int (* const CS_RandomNumber)(int min, int max) = (int(*)(int,int))0x40F350;
 static void (* const CS_DrawNumber)(int x, int y, int, int) = (void(*)(int,int,int,int))0x40F380;
+static void (* const CS_DrawPlayerAndWeapon)(int camera_x, int camera_y) = (void(*)(int,int))0x415250;
 static void (* const CS_DrawHUD_Air)(int x, int y) = (void(*)(int,int))0x41A350;
 static void (* const CS_LoadOrgMusic)(const char *) = (void(*)(const char*))0x41C6F0;
 static void (* const CS_SetOrgMusicPosition)(int) = (void(*)(int))0x41C730;
