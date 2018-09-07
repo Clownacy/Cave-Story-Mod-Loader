@@ -214,6 +214,11 @@ void ApplyFullscreenPatches(int window_size)
 			}
 			else
 			{
+				window_upscale_factor -= window_upscale_factor % sprite_resolution_factor;
+
+				if (window_upscale_factor == 0)
+					window_upscale_factor = sprite_resolution_factor;	// We've already guaranteed that it can at least do this
+
 				if (fullscreen_auto_window_upscale || window_upscale_factor > max_window_upscale_factor)
 					window_upscale_factor = max_window_upscale_factor;
 
