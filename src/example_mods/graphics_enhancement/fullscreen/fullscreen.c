@@ -203,38 +203,45 @@ void ApplyFullscreenPatches(int window_size)
 
 			const unsigned int game_height = 240;
 
-			const unsigned int max_window_upscale_factor = (monitor_height * sprite_resolution_factor) / (game_height * sprite_resolution_factor);
+			// Trunciate the value so it's a multiple of sprite_resolution_factor
+			const unsigned int max_window_upscale_factor = (monitor_height / (game_height * sprite_resolution_factor)) * sprite_resolution_factor;
 
 			// Cap window-upscale
-			if (window_upscale_factor > max_window_upscale_factor)
-				window_upscale_factor = max_window_upscale_factor;
-
-			if (fullscreen_auto_window_upscale)
-				window_upscale_factor = max_window_upscale_factor;
-
-			// Calculate maximum aspect-ratio width
-			unsigned int max_aspect_ratio_x = (monitor_width / window_upscale_factor) * window_upscale_factor;
-			unsigned int max_aspect_ratio_y = game_height * window_upscale_factor;
-
-			const unsigned int greatest_common_divisor = GetGreatestCommonDivisor(max_aspect_ratio_x, max_aspect_ratio_y);
-
-			max_aspect_ratio_x /= greatest_common_divisor;
-			max_aspect_ratio_y /= greatest_common_divisor;
-
-			// Cap aspect ratio width
-			if ((double)aspect_ratio_x / aspect_ratio_y >= (double)max_aspect_ratio_x / max_aspect_ratio_y)
+			if (max_window_upscale_factor == 0)
 			{
-				aspect_ratio_x = max_aspect_ratio_x;
-				aspect_ratio_y = max_aspect_ratio_y;
+				ModLoader_PrintErrorMessageBox("sprite_resolution_factor is too high for your monitor in integer-scaling mode.\n\nfullscreen_integer_scaling has been disabled.");
+				fullscreen_integer_scaling = false;
 			}
-
-			if (fullscreen_auto_aspect_ratio)
+			else
 			{
-				aspect_ratio_x = max_aspect_ratio_x;
-				aspect_ratio_y = max_aspect_ratio_y;
+				if (fullscreen_auto_window_upscale || window_upscale_factor > max_window_upscale_factor)
+					window_upscale_factor = max_window_upscale_factor;
+
+				// Calculate maximum aspect-ratio width
+				unsigned int max_aspect_ratio_x = (monitor_width / window_upscale_factor) * window_upscale_factor;
+				unsigned int max_aspect_ratio_y = game_height * window_upscale_factor;
+
+				const unsigned int greatest_common_divisor = GetGreatestCommonDivisor(max_aspect_ratio_x, max_aspect_ratio_y);
+
+				max_aspect_ratio_x /= greatest_common_divisor;
+				max_aspect_ratio_y /= greatest_common_divisor;
+
+				// Cap aspect ratio width
+				if ((double)aspect_ratio_x / aspect_ratio_y >= (double)max_aspect_ratio_x / max_aspect_ratio_y)
+				{
+					aspect_ratio_x = max_aspect_ratio_x;
+					aspect_ratio_y = max_aspect_ratio_y;
+				}
+
+				if (fullscreen_auto_aspect_ratio)
+				{
+					aspect_ratio_x = max_aspect_ratio_x;
+					aspect_ratio_y = max_aspect_ratio_y;
+				}
 			}
 		}
-		else
+
+		if (!fullscreen_integer_scaling)
 		{
 			if (fullscreen_auto_window_upscale)
 			{
