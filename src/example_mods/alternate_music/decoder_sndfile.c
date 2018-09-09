@@ -74,9 +74,8 @@ DecoderSndfile* Decoder_Sndfile_Open(const char *file_path, bool loop, DecoderFo
 
 		if (this->sndfile)
 		{
-			// Set scaling to prevent weird clipping
 			if (format == DECODER_FORMAT_S16)
-				sf_command(this->sndfile, SFC_SET_SCALE_FLOAT_INT_READ, NULL, SF_TRUE);
+				sf_command(this->sndfile, SFC_SET_CLIPPING, NULL, SF_TRUE);
 
 			this->loop = loop;
 			this->format = format;
