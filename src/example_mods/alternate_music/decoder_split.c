@@ -53,7 +53,10 @@ static void SplitFileExtension(const char *path, char **path_no_extension, char 
 	}
 
 	if (extension)
-		*extension = strdup(dot);
+	{
+		*extension = malloc(strlen(dot) + 1);
+		strcpy(*extension, dot);
+	}
 }
 
 static int LoadFiles(const char *file_path, bool loop, DecoderFormat format, DecoderInfo *out_info, LinkedBackend *linked_backend, void *decoders[2])
