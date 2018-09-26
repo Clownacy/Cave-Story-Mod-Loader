@@ -1,14 +1,14 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "decoder_ivorbisfile.h"
+#include "ivorbisfile.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 
 #include <tremor/ivorbisfile.h>
 
-#include "decoder_common.h"
+#include "common.h"
 #include "memory_file.h"
 
 typedef struct DecoderIVorbisfile

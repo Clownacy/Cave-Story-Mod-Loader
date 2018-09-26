@@ -1,7 +1,7 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "decoder_flac.h"
+#include "flac.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -10,7 +10,7 @@
 
 #include <FLAC/stream_decoder.h>
 
-#include "decoder_common.h"
+#include "common.h"
 #include "memory_file.h"
 
 #undef MIN

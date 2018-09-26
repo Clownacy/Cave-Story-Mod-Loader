@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-#include "decoder_common.h"
+#include "decoders/common.h"
 
 typedef struct Decoder Decoder;
 

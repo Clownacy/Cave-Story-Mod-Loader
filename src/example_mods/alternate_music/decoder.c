@@ -8,28 +8,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "decoder_common.h"
-#include "decoder_predecode.h"
-#include "decoder_split.h"
-#include "memory_file.h"
+#include "decoders/common.h"
+#include "decoders/predecode.h"
+#include "decoders/split.h"
 
 #ifdef USE_VORBISFILE
-#include "decoder_vorbisfile.h"
+#include "decoders/vorbisfile.h"
 #endif
 #ifdef USE_IVORBISFILE
-#include "decoder_ivorbisfile.h"
+#include "decoders/ivorbisfile.h"
 #endif
 #ifdef USE_FLAC
-#include "decoder_flac.h"
+#include "decoders/flac.h"
 #endif
 #ifdef USE_SNDFILE
-#include "decoder_sndfile.h"
+#include "decoders/sndfile.h"
 #endif
 #ifdef USE_OPENMPT
-#include "decoder_openmpt.h"
+#include "decoders/openmpt.h"
 #endif
 #ifdef USE_SPC
-#include "decoder_spc.h"
+#include "decoders/spc.h"
 #endif
 
 typedef struct Decoder

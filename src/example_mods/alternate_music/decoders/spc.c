@@ -1,16 +1,16 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "decoder_spc.h"
+#include "spc.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "snes_spc/snes_spc-0.9.0/spc.h"
+#include "snes_spc-0.9.0/snes_spc/spc.h"
 
-#include "decoder_common.h"
+#include "common.h"
 
 typedef struct DecoderSPC
 {

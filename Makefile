@@ -71,10 +71,10 @@ ALT_MUSIC_PATH = $(MODS_PATH)/alternate_music
 ALT_MUSIC_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc.c \
 	$(ALT_MUSIC_PATH)/decoder.c \
-	$(ALT_MUSIC_PATH)/decoder_predecode.c \
-	$(ALT_MUSIC_PATH)/decoder_split.c \
+	$(ALT_MUSIC_PATH)/decoders/predecode.c \
+	$(ALT_MUSIC_PATH)/decoders/split.c \
 	$(ALT_MUSIC_PATH)/main.c \
-	$(ALT_MUSIC_PATH)/memory_file.c \
+	$(ALT_MUSIC_PATH)/decoders/memory_file.c \
 	$(ALT_MUSIC_PATH)/playlist.c
 
 LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
@@ -83,37 +83,37 @@ LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 
 ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoder_vorbisfile.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/vorbisfile.c
 ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
 ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoder_flac.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/flac.c
 ALT_MUSIC_CFLAGS += -DUSE_FLAC
 ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_SNDFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoder_sndfile.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/sndfile.c
 ALT_MUSIC_CFLAGS += -DUSE_SNDFILE
 ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_OPENMPT), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoder_openmpt.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/openmpt.c
 ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
 ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/backend_mini_al.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/mini_al.c
 else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/backend_SDL2.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/SDL2.c
 ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
 ALT_MUSIC_LIBS += $(SDL2_LIBS)
 else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/backend_cubeb.c
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/cubeb.c
 ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
 endif
 

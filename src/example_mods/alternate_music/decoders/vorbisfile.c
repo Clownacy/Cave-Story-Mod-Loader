@@ -1,14 +1,14 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "decoder_vorbisfile.h"
+#include "vorbisfile.h"
 
 #include <stddef.h>
 #include <stdlib.h>
 
 #include <vorbis/vorbisfile.h>
 
-#include "decoder_common.h"
+#include "common.h"
 #include "memory_file.h"
 
 typedef struct DecoderVorbisfile

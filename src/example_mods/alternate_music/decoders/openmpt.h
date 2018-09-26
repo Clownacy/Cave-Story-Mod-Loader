@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-#include "decoder_common.h"
+#include "common.h"
 
 typedef struct DecoderOpenMPT DecoderOpenMPT;
 

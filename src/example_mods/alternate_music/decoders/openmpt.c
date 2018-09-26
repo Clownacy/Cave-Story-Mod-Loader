@@ -1,7 +1,7 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "decoder_openmpt.h"
+#include "openmpt.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -10,7 +10,7 @@
 
 #include <libopenmpt/libopenmpt.h>
 
-#include "decoder_common.h"
+#include "common.h"
 
 #define SAMPLE_RATE 48000
 #define CHANNEL_COUNT 2

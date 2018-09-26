@@ -8,7 +8,7 @@
 #include "mod_loader.h"
 #include "sprintfMalloc.h"
 
-#include "backend.h"
+#include "playback.h"
 #include "decoder.h"
 #include "playlist.h"
 
