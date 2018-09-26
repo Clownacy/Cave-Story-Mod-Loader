@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "snes_spc/spc.h"
+#include "snes_spc/snes_spc-0.9.0/spc.h"
 
 #include "decoder_common.h"
 
