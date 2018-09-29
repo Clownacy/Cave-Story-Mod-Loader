@@ -1,5 +1,10 @@
+# ====================
+# Global
+# ====================
+
 MOD_LOADER_VERSION = v1.5.0.1
-COMMON_PATH = src/common
+COMMON_PATH = common
+MODS_PATH = example_mods
 
 ALT_MUSIC_USE_VORBISFILE = true
 ALT_MUSIC_USE_FLAC = true
@@ -9,113 +14,14 @@ ALT_MUSIC_USE_OPENMPT = true
 ALT_MUSIC_BACKEND = mini_al
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident
-ALL_CFLAGS = -I$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
+ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 
 SDL2_CFLAGS = $(shell sdl2-config --cflags)
 SDL2_LIBS = $(shell sdl2-config --static-libs)
 
-MOD_LOADER_HELPER_OBJECT = bin/mod_loader_helper.o
-
-MOD_LOADER_PATH = src/mod_loader
-MOD_LOADER_SOURCES = \
-	$(COMMON_PATH)/sprintfMalloc.c \
-	$(MOD_LOADER_PATH)/fix_door_bug.c \
-	$(MOD_LOADER_PATH)/hooks.c \
-	$(MOD_LOADER_PATH)/inih/ini.c \
-	$(MOD_LOADER_PATH)/log.c \
-	$(MOD_LOADER_PATH)/main.c \
-	$(MOD_LOADER_PATH)/mod_list.c \
-	$(MOD_LOADER_PATH)/patch.c \
-	$(MOD_LOADER_PATH)/redirect_org_files.c \
-	$(MOD_LOADER_PATH)/settings.c
-
-MODS_PATH = src/example_mods
-
-GRAPHICS_ENHANCEMENT_PATH = $(MODS_PATH)/graphics_enhancement
-GRAPHICS_ENHANCEMENT_FILES = \
-	$(GRAPHICS_ENHANCEMENT_PATH)/common.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/main.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/60fps/60fps.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/fullscreen/fullscreen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/remove_sprite_alignment/remove_sprite_alignment.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/upscale_window/upscale_window.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/black_bars.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/drawsprite1_centred.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/fix_subforeground_bug.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_beetle_and_basu.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_boss_explosion.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_boss_health.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_bute.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_camera.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_credits.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_exit_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fade.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fps_counter.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_gaudi.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_inventory_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_island_crash.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_loading_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_map_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_room_name_print.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_sand_zone_enemies.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_screen_flash.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_scrolling_clouds.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_teleport_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_text_box.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_tile_drawers.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen.c \
-	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen.c
-
-ALT_MUSIC_PATH = $(MODS_PATH)/alternate_music
-ALT_MUSIC_SOURCES = \
-	$(COMMON_PATH)/sprintfMalloc.c \
-	$(ALT_MUSIC_PATH)/decoder.c \
-	$(ALT_MUSIC_PATH)/decoders/predecode.c \
-	$(ALT_MUSIC_PATH)/decoders/split.c \
-	$(ALT_MUSIC_PATH)/main.c \
-	$(ALT_MUSIC_PATH)/decoders/memory_file.c \
-	$(ALT_MUSIC_PATH)/playlist.c
-
-LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
-LIBFLAC_LIBS = -lFLAC -logg
-LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
-LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
-
-ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/vorbisfile.c
-ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
-ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
-endif
-
-ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/flac.c
-ALT_MUSIC_CFLAGS += -DUSE_FLAC
-ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
-endif
-
-ifeq ($(ALT_MUSIC_USE_SNDFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/sndfile.c
-ALT_MUSIC_CFLAGS += -DUSE_SNDFILE
-ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
-endif
-
-ifeq ($(ALT_MUSIC_USE_OPENMPT), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/openmpt.c
-ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
-ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
-endif
-
-ifeq ($(ALT_MUSIC_BACKEND), mini_al)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/mini_al.c
-else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/SDL2.c
-ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
-ALT_MUSIC_LIBS += $(SDL2_LIBS)
-else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/cubeb.c
-ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
-endif
+obj/%.o: src/%.c
+	@mkdir -p $(@D)
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -c
 
 OUTPUT = \
 	bin/dsound.dll \
@@ -135,79 +41,314 @@ OUTPUT = \
 
 all: $(OUTPUT)
 
-$(MOD_LOADER_HELPER_OBJECT): $(COMMON_PATH)/mod_loader.c
-	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -c
+clean:
+	@rm -rf obj
+	@rm -f $(OUTPUT)
 
-bin/dsound.dll: src/mod_loader_bootstrapper/main.c $(COMMON_PATH)/sprintfMalloc.c
+# ====================
+# Mod loader
+# ====================
+
+MOD_LOADER_PATH = mod_loader
+MOD_LOADER_SOURCES = \
+	$(COMMON_PATH)/sprintfMalloc \
+	$(MOD_LOADER_PATH)/fix_door_bug \
+	$(MOD_LOADER_PATH)/hooks \
+	$(MOD_LOADER_PATH)/inih/ini \
+	$(MOD_LOADER_PATH)/log \
+	$(MOD_LOADER_PATH)/main \
+	$(MOD_LOADER_PATH)/mod_list \
+	$(MOD_LOADER_PATH)/patch \
+	$(MOD_LOADER_PATH)/redirect_org_files \
+	$(MOD_LOADER_PATH)/settings
+MOD_LOADER_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(MOD_LOADER_SOURCES)))
+
+obj/$(MOD_LOADER_PATH)/inih/ini.o: src/$(MOD_LOADER_PATH)/inih/ini.c
+	@mkdir -p $(@D)
+	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 -o $@ $^ $(LDFLAGS) $(LIBS) -c
+
+bin/mods/mod_loader.dll: $(MOD_LOADER_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/mod_loader.dll: $(MOD_LOADER_SOURCES)
+# ====================
+# Bootstrapper
+# ====================
+
+BOOTSTRAPPER_PATH = mod_loader_bootstrapper
+BOOTSTRAPPER_SOURCES = \
+	$(COMMON_PATH)/sprintfMalloc \
+	$(BOOTSTRAPPER_PATH)/main
+BOOTSTRAPPER_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(BOOTSTRAPPER_SOURCES)))
+
+bin/dsound.dll: $(BOOTSTRAPPER_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/alternate_music/alternate_music.dll: $(MOD_LOADER_HELPER_OBJECT) $(ALT_MUSIC_SOURCES)
+# ====================
+# Graphics enhancement
+# ====================
+
+GRAPHICS_ENHANCEMENT_PATH = $(MODS_PATH)/graphics_enhancement
+GRAPHICS_ENHANCEMENT_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(GRAPHICS_ENHANCEMENT_PATH)/common \
+	$(GRAPHICS_ENHANCEMENT_PATH)/main \
+	$(GRAPHICS_ENHANCEMENT_PATH)/60fps/60fps \
+	$(GRAPHICS_ENHANCEMENT_PATH)/fullscreen/fullscreen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/remove_sprite_alignment/remove_sprite_alignment \
+	$(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution \
+	$(GRAPHICS_ENHANCEMENT_PATH)/upscale_window/upscale_window \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/black_bars \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/drawsprite1_centred \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/fix_subforeground_bug \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_beetle_and_basu \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_boss_explosion \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_boss_health \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_bute \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_camera \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_credits \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_exit_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fade \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_fps_counter \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_gaudi \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_inventory_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_island_crash \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_loading_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_map_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_room_name_print \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_sand_zone_enemies \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_screen_flash \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_scrolling_clouds \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_teleport_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_text_box \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_tile_drawers \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen \
+	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen
+GRAPHICS_ENHANCEMENT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(GRAPHICS_ENHANCEMENT_SOURCES)))
+
+bin/mods/graphics_enhancement/graphics_enhancement.dll: $(GRAPHICS_ENHANCEMENT_OBJECTS)
+	@mkdir -p $(@D)
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@strip $@ --strip-unneeded
+
+# ====================
+# Alternate music
+# ====================
+
+ALT_MUSIC_PATH = $(MODS_PATH)/alternate_music
+ALT_MUSIC_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(COMMON_PATH)/sprintfMalloc \
+	$(ALT_MUSIC_PATH)/decoder \
+	$(ALT_MUSIC_PATH)/decoders/predecode \
+	$(ALT_MUSIC_PATH)/decoders/split \
+	$(ALT_MUSIC_PATH)/main \
+	$(ALT_MUSIC_PATH)/decoders/memory_file \
+	$(ALT_MUSIC_PATH)/playlist
+
+LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
+LIBFLAC_LIBS = -lFLAC -logg
+LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
+LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
+
+ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/vorbisfile
+ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
+ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
+endif
+
+ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/flac
+ALT_MUSIC_CFLAGS += -DUSE_FLAC
+ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
+endif
+
+ifeq ($(ALT_MUSIC_USE_SNDFILE), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/sndfile
+ALT_MUSIC_CFLAGS += -DUSE_SNDFILE
+ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
+endif
+
+ifeq ($(ALT_MUSIC_USE_OPENMPT), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/openmpt
+ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
+ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
+endif
+
+ifeq ($(ALT_MUSIC_BACKEND), mini_al)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/mini_al
+else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/SDL2
+ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
+ALT_MUSIC_LIBS += $(SDL2_LIBS)
+else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/cubeb
+ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
+endif
+
+ALT_MUSIC_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))
+
+obj/$(ALT_MUSIC_PATH)/%.o: src/$(ALT_MUSIC_PATH)/%.c
+	@mkdir -p $(@D)
+	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(ALT_MUSIC_LIBS) $(LIBS) -c
+
+bin/mods/alternate_music/alternate_music.dll: $(ALT_MUSIC_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(ALT_MUSIC_LIBS) $(LIBS)
 	@strip $@ --strip-unneeded
 
-bin/mods/sdl_controller_input/sdl_controller_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/sdl_controller_input/main.c $(COMMON_PATH)/sprintfMalloc.c
+# ====================
+# SDL controller input
+# ====================
+
+SDL_CONTROLLER_INPUT_PATH = $(MODS_PATH)/sdl_controller_input
+SDL_CONTROLLER_INPUT_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(COMMON_PATH)/sprintfMalloc \
+	$(SDL_CONTROLLER_INPUT_PATH)/main
+SDL_CONTROLLER_INPUT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(SDL_CONTROLLER_INPUT_SOURCES)))
+
+bin/mods/sdl_controller_input/sdl_controller_input.dll: $(SDL_CONTROLLER_INPUT_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(SDL2_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(SDL2_LIBS) $(LIBS)
 	@strip $@ --strip-unneeded
 
-bin/mods/wasd_input/wasd_input.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/wasd_input/main.c
+# ====================
+# WASD input
+# ====================
+
+WASD_INPUT_PATH = $(MODS_PATH)/wasd_input
+WASD_INPUT_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(WASD_INPUT_PATH)/main
+WASD_INPUT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(WASD_INPUT_SOURCES)))
+
+bin/mods/wasd_input/wasd_input.dll: $(WASD_INPUT_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/ikachan_cursor/ikachan_cursor.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ikachan_cursor/main.c
+# ====================
+# Ikachan cursor
+# ====================
+
+IKACHAN_CURSOR_PATH = $(MODS_PATH)/ikachan_cursor
+IKACHAN_CURSOR_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(IKACHAN_CURSOR_PATH)/main
+IKACHAN_CURSOR_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(IKACHAN_CURSOR_SOURCES)))
+
+bin/mods/ikachan_cursor/ikachan_cursor.dll: $(IKACHAN_CURSOR_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/debug_save/debug_save.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/debug_save/main.c
+# ====================
+# Debug save
+# ====================
+
+DEBUG_SAVE_PATH = $(MODS_PATH)/debug_save
+DEBUG_SAVE_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(DEBUG_SAVE_PATH)/main
+DEBUG_SAVE_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(DEBUG_SAVE_SOURCES)))
+
+bin/mods/debug_save/debug_save.dll: $(DEBUG_SAVE_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/graphics_enhancement/graphics_enhancement.dll: $(MOD_LOADER_HELPER_OBJECT) $(GRAPHICS_ENHANCEMENT_FILES)
+# ====================
+# 3DS HUD
+# ====================
+
+3DS_HUD_PATH = $(MODS_PATH)/3ds_hud
+3DS_HUD_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(3DS_HUD_PATH)/main
+3DS_HUD_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(3DS_HUD_SOURCES)))
+
+bin/mods/3ds_hud/3ds_hud.dll: $(3DS_HUD_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/3ds_hud/3ds_hud.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/3ds_hud/main.c
+# ====================
+# Disable image protection
+# ====================
+
+DISABLE_IMAGE_PROTECTION_PATH = $(MODS_PATH)/disable_image_protection
+DISABLE_IMAGE_PROTECTION_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(DISABLE_IMAGE_PROTECTION_PATH)/main
+DISABLE_IMAGE_PROTECTION_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(DISABLE_IMAGE_PROTECTION_SOURCES)))
+
+bin/mods/disable_image_protection/disable_image_protection.dll: $(DISABLE_IMAGE_PROTECTION_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/disable_image_protection/disable_image_protection.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/disable_image_protection/main.c
+# ====================
+# TSC MBX
+# ====================
+
+TSC_MBX_PATH = $(MODS_PATH)/tsc_mbx
+TSC_MBX_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(TSC_MBX_PATH)/main
+TSC_MBX_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TSC_MBX_SOURCES)))
+
+bin/mods/tsc_mbx/tsc_mbx.dll: $(TSC_MBX_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/tsc_mbx/tsc_mbx.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_mbx/main.c
+# ====================
+# TSC no-NOD
+# ====================
+
+TSC_NONOD_PATH = $(MODS_PATH)/tsc_mbx
+TSC_NONOD_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(TSC_NONOD_PATH)/main
+TSC_NONOD_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TSC_NONOD_SOURCES)))
+
+bin/mods/tsc_nonod/tsc_nonod.dll: $(TSC_NONOD_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/tsc_nonod/tsc_nonod.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/tsc_nonod/main.c
+# ====================
+# Title background
+# ====================
+
+TITLE_BACKGROUND_PATH = $(MODS_PATH)/title_background
+TITLE_BACKGROUND_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(TITLE_BACKGROUND_PATH)/main
+TITLE_BACKGROUND_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TITLE_BACKGROUND_SOURCES)))
+
+bin/mods/title_background/title_background.dll: $(TITLE_BACKGROUND_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
 
-bin/mods/title_background/title_background.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/title_background/main.c
+# ====================
+# Ghost mode
+# ====================
+
+GHOST_MODE_PATH = $(MODS_PATH)/ghost_mode
+GHOST_MODE_SOURCES = \
+	$(COMMON_PATH)/mod_loader \
+	$(GHOST_MODE_PATH)/main \
+	$(GHOST_MODE_PATH)/in \
+	$(GHOST_MODE_PATH)/out
+GHOST_MODE_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(GHOST_MODE_SOURCES)))
+
+bin/mods/ghost_mode/ghost_mode.dll: $(GHOST_MODE_OBJECTS)
 	@mkdir -p $(@D)
 	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
 	@strip $@ --strip-unneeded
-
-bin/mods/ghost_mode/ghost_mode.dll: $(MOD_LOADER_HELPER_OBJECT) src/example_mods/ghost_mode/main.c src/example_mods/ghost_mode/in.c src/example_mods/ghost_mode/out.c
-	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
-	@strip $@ --strip-unneeded
-
-clean:
-	@rm -f $(MOD_LOADER_HELPER_OBJECT) $(OUTPUT)
