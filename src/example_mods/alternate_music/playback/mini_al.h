@@ -1,5 +1,5 @@
 // Audio playback and capture library. Public domain. See "unlicense" statement at the end of this file.
-// mini_al - v0.8.6 - 2018-08-26
+// mini_al - v0.8.9 - 2018-09-28
 //
 // David Reid - davidreidsoftware@gmail.com
 
@@ -200,9 +200,8 @@
 //
 // #define MAL_BASE_BUFFER_SIZE_IN_MILLISECONDS_LOW_LATENCY
 // #define MAL_BASE_BUFFER_SIZE_IN_MILLISECONDS_CONSERVATIVE
-//   When a buffer size of 0 is specified when a device is initialized it will default to a buffer of this size (depending
-//   on the chosen performance profile) multiplied by a weight which is calculated at run-time. These can be increased or
-//   decreased depending on your specific requirements.
+//   When a buffer size of 0 is specified when a device is initialized it will default to a buffer of this size, depending
+//   on the chosen performance profile. These can be increased or decreased depending on your specific requirements.
 //
 // #define MAL_NO_DECODING
 //   Disables the decoding APIs.
@@ -255,7 +254,7 @@ extern "C" {
 // Platform/backend detection.
 #ifdef _WIN32
     #define MAL_WIN32
-    #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY_PHONE_APP)
+    #if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP || WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)
         #define MAL_WIN32_UWP
     #else
         #define MAL_WIN32_DESKTOP
@@ -354,9 +353,6 @@ typedef void* mal_handle;
 typedef void* mal_ptr;
 typedef void (* mal_proc)(void);
 
-typedef struct mal_context mal_context;
-typedef struct mal_device mal_device;
-
 #if defined(_MSC_VER) && !defined(_WCHAR_T_DEFINED)
 typedef mal_uint16 wchar_t;
 #endif
@@ -411,6 +407,8 @@ typedef mal_uint16 wchar_t;
 #define MAL_LOG_LEVEL           MAL_LOG_LEVEL_ERROR
 #endif
 
+typedef struct mal_context mal_context;
+typedef struct mal_device mal_device;
 
 typedef mal_uint8 mal_channel;
 #define MAL_CHANNEL_NONE                                0
@@ -9474,7 +9472,6 @@ mal_result mal_context_init__winmm(mal_context* pContext)
 ///////////////////////////////////////////////////////////////////////////////
 #ifdef MAL_HAS_ALSA
 
-#include <alsa/asoundlib.h>
 #ifdef MAL_NO_RUNTIME_LINKING
 #include <alsa/asoundlib.h>
 typedef snd_pcm_uframes_t                       mal_snd_pcm_uframes_t;
@@ -19728,7 +19725,7 @@ mal_result mal_device_init__sdl(mal_context* pContext, mal_device_type type, con
 
     // SDL wants the buffer size to be a power of 2. The SDL_AudioSpec property for this is only a Uint16, so we need
     // to explicitly clamp this because it will be easy to overflow.
-    mal_uint32 bufferSize = pConfig->bufferSizeInFrames;
+    mal_uint32 bufferSize = pDevice->bufferSizeInFrames;
     if (bufferSize > 32768) {
         bufferSize = 32768;
     } else {
@@ -19763,7 +19760,7 @@ mal_result mal_device_init__sdl(mal_context* pContext, mal_device_type type, con
 
         pDevice->sdl.deviceID = ((MAL_PFN_SDL_OpenAudioDevice)pDevice->pContext->sdl.SDL_OpenAudioDevice)(pDeviceName, isCapture, &desiredSpec, &obtainedSpec, MAL_SDL_AUDIO_ALLOW_ANY_CHANGE);
         if (pDevice->sdl.deviceID == 0) {
-            return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "Failed to open SDL device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
+            return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "Failed to open SDL2 device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
         }
     } else
 #endif
@@ -19781,10 +19778,12 @@ mal_result mal_device_init__sdl(mal_context* pContext, mal_device_type type, con
             desiredSpec.format  = MAL_AUDIO_S16;
         }
 
-        pDevice->sdl.deviceID = ((MAL_PFN_SDL_OpenAudio)pDevice->pContext->sdl.SDL_OpenAudio)(&desiredSpec, &obtainedSpec);
-        if (pDevice->sdl.deviceID != 0) {
-            return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "Failed to open SDL device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
+        int deviceID = ((MAL_PFN_SDL_OpenAudio)pDevice->pContext->sdl.SDL_OpenAudio)(&desiredSpec, &obtainedSpec);
+        if (deviceID < 0) {
+            return mal_post_error(pDevice, MAL_LOG_LEVEL_ERROR, "Failed to open SDL1 device.", MAL_FAILED_TO_OPEN_BACKEND_DEVICE);
         }
+
+        pDevice->sdl.deviceID = (mal_uint32)deviceID;
     }
 
     pDevice->internalFormat     = mal_format_from_sdl(obtainedSpec.format);
@@ -28298,6 +28297,16 @@ mal_uint64 mal_sine_wave_read_ex(mal_sine_wave* pSineWave, mal_uint64 frameCount
 
 // REVISION HISTORY
 // ================
+//
+// v0.8.9 - 2018-09-28
+//   - Fix a bug with the SDL backend where device initialization fails.
+//
+// v0.8.8 - 2018-09-14
+//   - Fix Linux build with the ALSA backend.
+//   - Minor documentation fix.
+//
+// v0.8.7 - 2018-09-12
+//   - Fix a bug with UWP detection.
 //
 // v0.8.6 - 2018-08-26
 //   - Automatically switch the internal device when the default device is unplugged. Note that this is still in the

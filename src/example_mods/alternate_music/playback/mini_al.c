@@ -16,6 +16,8 @@
 #define MAL_NO_PULSEAUDIO
 #define MAL_NO_JACK
 #define MAL_NO_COREAUDIO
+#define MAL_NO_SNDIO
+#define MAL_NO_AUDIO4
 #define MAL_NO_OSS
 #define MAL_NO_OPENSL
 #define MAL_NO_OPENAL
