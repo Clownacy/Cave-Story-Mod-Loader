@@ -27,6 +27,7 @@ static BackendStream *stream;
 static unsigned int stream_sample_rate;
 static unsigned int stream_channel_count;
 static BackendFormat stream_format;
+static unsigned int stream_pause_count;
 
 static bool setting_preload;
 static bool setting_predecode;
@@ -156,14 +157,16 @@ static void UnloadSong(Song *song)
 
 static void PauseSong(void)
 {
-	if (!Backend_PauseStream(stream))
-		ModLoader_PrintError("ogg_music: Could not pause the stream\n");
+	if (stream_pause_count++ == 0)
+		if (!Backend_PauseStream(stream))
+			ModLoader_PrintError("ogg_music: Could not pause the stream\n");
 }
 
 static void ResumeSong(void)
 {
-	if (!Backend_ResumeStream(stream))
-		ModLoader_PrintError("ogg_music: Could not resume the stream\n");
+	if (--stream_pause_count == 0)
+		if (!Backend_ResumeStream(stream))
+			ModLoader_PrintError("ogg_music: Could not resume the stream\n");
 }
 
 static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format)
@@ -238,6 +241,7 @@ static bool PlayOggMusic(const int song_id)
 					current_song.decoder = decoder;
 					current_song.decoder_info = playlist_entry->decoder_info;
 
+					stream_pause_count = 1;
 					ResumeSong();
 
 					success = true;
@@ -320,6 +324,7 @@ static void PlayPreviousMusic_new(void)
 
 		RefreshStream(current_song.decoder_info.sample_rate, current_song.decoder_info.channel_count, current_song.decoder_info.format);
 
+		stream_pause_count = 1;
 		ResumeSong();
 	}
 	else
