@@ -1,3 +1,2 @@
-bin/mod_loader_helper.o
+obj
 *.dll
-*.patch
