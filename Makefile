@@ -16,8 +16,8 @@ ALT_MUSIC_USE_PXTONE = true
 # Can be 'mini_al', 'SDL2', or 'Cubeb'
 ALT_MUSIC_BACKEND = mini_al
 
-CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident
-CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident
+CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident -MMD -MP -MF $@.d
+CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident -MMD -MP -MF $@.d
 ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CXXFLAGS)
 
@@ -26,7 +26,7 @@ SDL2_LIBS = $(shell sdl2-config --static-libs)
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ -c
+	@$(CC) $(ALL_CFLAGS) $< -o $@ -c
 
 OUTPUT = \
 	bin/dsound.dll \
@@ -67,14 +67,16 @@ MOD_LOADER_SOURCES = \
 	$(MOD_LOADER_PATH)/redirect_org_files \
 	$(MOD_LOADER_PATH)/settings
 MOD_LOADER_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(MOD_LOADER_SOURCES)))
+MOD_LOADER_DEPENDENCIES = $(addsuffix .d, $(MOD_LOADER_OBJECTS))
+include $(wildcard $(MOD_LOADER_DEPENDENCIES))
 
 obj/$(MOD_LOADER_PATH)/inih/ini.o: src/$(MOD_LOADER_PATH)/inih/ini.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 -o $@ $^ -c
+	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 $^ -o $@ -c
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -86,10 +88,12 @@ BOOTSTRAPPER_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc \
 	$(BOOTSTRAPPER_PATH)/main
 BOOTSTRAPPER_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(BOOTSTRAPPER_SOURCES)))
+BOOTSTRAPPER_DEPENDENCIES = $(addsuffix .d, $(BOOTSTRAPPER_OBJECTS))
+include $(wildcard $(BOOTSTRAPPER_DEPENDENCIES))
 
 bin/dsound.dll: $(BOOTSTRAPPER_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -133,10 +137,12 @@ GRAPHICS_ENHANCEMENT_SOURCES = \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/patch_title_screen \
 	$(GRAPHICS_ENHANCEMENT_PATH)/widescreen/widescreen
 GRAPHICS_ENHANCEMENT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(GRAPHICS_ENHANCEMENT_SOURCES)))
+GRAPHICS_ENHANCEMENT_DEPENDENCIES = $(addsuffix .d, $(GRAPHICS_ENHANCEMENT_OBJECTS))
+include $(wildcard $(GRAPHICS_ENHANCEMENT_DEPENDENCIES))
 
 bin/mods/graphics_enhancement/graphics_enhancement.dll: $(GRAPHICS_ENHANCEMENT_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -206,10 +212,12 @@ ALT_MUSIC_SPC_SOURCES = \
 	SPC_DSP \
 	SPC_Filter
 ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/, $(addsuffix .o, $(ALT_MUSIC_SPC_SOURCES)))
+ALT_MUSIC_SPC_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_SPC_OBJECTS))
+include $(wildcard $(ALT_MUSIC_SPC_DEPENDENCIES))
 
 obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.o: src/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(ALL_CXXFLAGS) -Wno-implicit-fallthrough -Wno-array-bounds -o $@ $^ -c
+	@$(CXX) $(ALL_CXXFLAGS) -Wno-implicit-fallthrough -Wno-array-bounds $< -o $@ -c
 endif
 
 ifeq ($(ALT_MUSIC_USE_PXTONE), true)
@@ -241,10 +249,12 @@ ALT_MUSIC_PXTONE_SOURCES = \
 	pxtoneNoise \
 	shim
 ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/pxtone/, $(addsuffix .o, $(ALT_MUSIC_PXTONE_SOURCES)))
+ALT_MUSIC_PXTONE_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_PXTONE_OBJECTS))
+include $(wildcard $(ALT_MUSIC_PXTONE_DEPENDENCIES))
 
 obj/$(ALT_MUSIC_PATH)/decoders/pxtone/%.o: src/$(ALT_MUSIC_PATH)/decoders/pxtone/%.cpp
 	@mkdir -p $(@D)
-	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing -o $@ $^ -c
+	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing $< -o $@ -c
 endif
 
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
@@ -259,14 +269,16 @@ ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
 endif
 
 ALT_MUSIC_OBJECTS += $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))
+ALT_MUSIC_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_OBJECTS))
+include $(wildcard $(ALT_MUSIC_DEPENDENCIES))
 
 obj/$(ALT_MUSIC_PATH)/%.o: src/$(ALT_MUSIC_PATH)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -c
+	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) $< -o $@ -c
 
 bin/mods/alternate_music/alternate_music.dll: $(ALT_MUSIC_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(ALT_MUSIC_LIBS) $(LIBS)
+	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) $^ $(LDFLAGS) $(ALT_MUSIC_LIBS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -279,10 +291,12 @@ SDL_CONTROLLER_INPUT_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc \
 	$(SDL_CONTROLLER_INPUT_PATH)/main
 SDL_CONTROLLER_INPUT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(SDL_CONTROLLER_INPUT_SOURCES)))
+SDL_CONTROLLER_INPUT_DEPENDENCIES = $(addsuffix .d, $(SDL_CONTROLLER_INPUT_OBJECTS))
+include $(wildcard $(SDL_CONTROLLER_INPUT_DEPENDENCIES))
 
 bin/mods/sdl_controller_input/sdl_controller_input.dll: $(SDL_CONTROLLER_INPUT_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(SDL2_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -shared $(LDFLAGS) $(SDL2_LIBS) $(LIBS)
+	@$(CC) $(SDL2_CFLAGS) $(ALL_CFLAGS) $^ $(LDFLAGS) $(SDL2_LIBS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -294,10 +308,12 @@ WASD_INPUT_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(WASD_INPUT_PATH)/main
 WASD_INPUT_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(WASD_INPUT_SOURCES)))
+WASD_INPUT_DEPENDENCIES = $(addsuffix .d, $(WASD_INPUT_OBJECTS))
+include $(wildcard $(WASD_INPUT_DEPENDENCIES))
 
 bin/mods/wasd_input/wasd_input.dll: $(WASD_INPUT_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -309,10 +325,12 @@ IKACHAN_CURSOR_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(IKACHAN_CURSOR_PATH)/main
 IKACHAN_CURSOR_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(IKACHAN_CURSOR_SOURCES)))
+IKACHAN_CURSOR_DEPENDENCIES = $(addsuffix .d, $(IKACHAN_CURSOR_OBJECTS))
+include $(wildcard $(IKACHAN_CURSOR_DEPENDENCIES))
 
 bin/mods/ikachan_cursor/ikachan_cursor.dll: $(IKACHAN_CURSOR_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -324,10 +342,12 @@ DEBUG_SAVE_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(DEBUG_SAVE_PATH)/main
 DEBUG_SAVE_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(DEBUG_SAVE_SOURCES)))
+DEBUG_SAVE_DEPENDENCIES = $(addsuffix .d, $(DEBUG_SAVE_OBJECTS))
+include $(wildcard $(DEBUG_SAVE_DEPENDENCIES))
 
 bin/mods/debug_save/debug_save.dll: $(DEBUG_SAVE_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -339,10 +359,12 @@ bin/mods/debug_save/debug_save.dll: $(DEBUG_SAVE_OBJECTS)
 	$(COMMON_PATH)/mod_loader \
 	$(3DS_HUD_PATH)/main
 3DS_HUD_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(3DS_HUD_SOURCES)))
+3DS_HUD_DEPENDENCIES = $(addsuffix .d, $(3DS_HUD_OBJECTS))
+include $(wildcard $(3DS_HUD_DEPENDENCIES))
 
 bin/mods/3ds_hud/3ds_hud.dll: $(3DS_HUD_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -354,10 +376,12 @@ DISABLE_IMAGE_PROTECTION_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(DISABLE_IMAGE_PROTECTION_PATH)/main
 DISABLE_IMAGE_PROTECTION_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(DISABLE_IMAGE_PROTECTION_SOURCES)))
+DISABLE_IMAGE_DEPENDENCIES = $(addsuffix .d, $(DISABLE_IMAGE_OBJECTS))
+include $(wildcard $(DISABLE_IMAGE_DEPENDENCIES))
 
 bin/mods/disable_image_protection/disable_image_protection.dll: $(DISABLE_IMAGE_PROTECTION_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -369,10 +393,12 @@ TSC_MBX_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(TSC_MBX_PATH)/main
 TSC_MBX_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TSC_MBX_SOURCES)))
+TSC_MBX_DEPENDENCIES = $(addsuffix .d, $(TSC_MBX_OBJECTS))
+include $(wildcard $(TSC_MBX_DEPENDENCIES))
 
 bin/mods/tsc_mbx/tsc_mbx.dll: $(TSC_MBX_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -384,10 +410,12 @@ TSC_NONOD_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(TSC_NONOD_PATH)/main
 TSC_NONOD_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TSC_NONOD_SOURCES)))
+TSC_NONOD_DEPENDENCIES = $(addsuffix .d, $(TSC_NONOD_OBJECTS))
+include $(wildcard $(TSC_NONOD_DEPENDENCIES))
 
 bin/mods/tsc_nonod/tsc_nonod.dll: $(TSC_NONOD_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -399,10 +427,12 @@ TITLE_BACKGROUND_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(TITLE_BACKGROUND_PATH)/main
 TITLE_BACKGROUND_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(TITLE_BACKGROUND_SOURCES)))
+TITLE_BACKGROUND_DEPENDENCIES = $(addsuffix .d, $(TITLE_BACKGROUND_OBJECTS))
+include $(wildcard $(TITLE_BACKGROUND_DEPENDENCIES))
 
 bin/mods/title_background/title_background.dll: $(TITLE_BACKGROUND_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
 
 # ====================
@@ -416,8 +446,10 @@ GHOST_MODE_SOURCES = \
 	$(GHOST_MODE_PATH)/in \
 	$(GHOST_MODE_PATH)/out
 GHOST_MODE_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(GHOST_MODE_SOURCES)))
+GHOST_MODE_DEPENDENCIES = $(addsuffix .d, $(GHOST_MODE_OBJECTS))
+include $(wildcard $(GHOST_MODE_DEPENDENCIES))
 
 bin/mods/ghost_mode/ghost_mode.dll: $(GHOST_MODE_OBJECTS)
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -shared
+	@$(CC) $(ALL_CFLAGS) $^ $(LDFLAGS) $(LIBS) -o $@ -shared
 	@strip $@ --strip-unneeded
