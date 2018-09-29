@@ -7,21 +7,26 @@ COMMON_PATH = common
 MODS_PATH = example_mods
 
 ALT_MUSIC_USE_VORBISFILE = true
+ALT_MUSIC_USE_IVORBISFILE = false
 ALT_MUSIC_USE_FLAC = true
 ALT_MUSIC_USE_SNDFILE = false
 ALT_MUSIC_USE_OPENMPT = true
+ALT_MUSIC_USE_SPC = false
+ALT_MUSIC_USE_PXTONE = true
 # Can be 'mini_al', 'SDL2', or 'Cubeb'
 ALT_MUSIC_BACKEND = mini_al
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident
+CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident
 ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
+ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CXXFLAGS)
 
 SDL2_CFLAGS = $(shell sdl2-config --cflags)
 SDL2_LIBS = $(shell sdl2-config --static-libs)
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) -c
+	@$(CC) $(ALL_CFLAGS) -o $@ $^ -c
 
 OUTPUT = \
 	bin/dsound.dll \
@@ -65,7 +70,7 @@ MOD_LOADER_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(MOD_LOADER_SOURCES)))
 
 obj/$(MOD_LOADER_PATH)/inih/ini.o: src/$(MOD_LOADER_PATH)/inih/ini.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 -o $@ $^ $(LDFLAGS) $(LIBS) -c
+	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 -o $@ $^ -c
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_OBJECTS)
 	@mkdir -p $(@D)
@@ -150,14 +155,23 @@ ALT_MUSIC_SOURCES = \
 	$(ALT_MUSIC_PATH)/playlist
 
 LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
+LIBIVORBISFILE_LIBS = -lvorbisidec -lvorbis -logg
 LIBFLAC_LIBS = -lFLAC -logg
 LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
+SPC_LIBS = -lstdc++
+PXTONE_LIBS = 
 
-ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalsefalse)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/vorbisfile
 ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
 ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
+endif
+
+ifeq ($(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/ivorbisfile
+ALT_MUSIC_CFLAGS += -DUSE_IVORBISFILE
+ALT_MUSIC_LIBS += $(LIBIVORBISFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
@@ -178,6 +192,61 @@ ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
 ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
 endif
 
+ifeq ($(ALT_MUSIC_USE_SPC), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/spc
+ALT_MUSIC_CFLAGS += -DUSE_SPC
+ALT_MUSIC_LIBS += $(SPC_LIBS)
+
+ALT_MUSIC_SPC_SOURCES = \
+	dsp \
+	SNES_SPC \
+	SNES_SPC_misc \
+	SNES_SPC_state \
+	spc \
+	SPC_DSP \
+	SPC_Filter
+ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/, $(addsuffix .o, $(ALT_MUSIC_SPC_SOURCES)))
+
+obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.o: src/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.cpp
+	@mkdir -p $(@D)
+	@$(CXX) $(ALL_CXXFLAGS) -Wno-implicit-fallthrough -Wno-array-bounds -o $@ $^ -c
+endif
+
+ifeq ($(ALT_MUSIC_USE_PXTONE), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/pxtone
+ALT_MUSIC_CFLAGS += -DUSE_PXTONE
+ALT_MUSIC_LIBS += $(PXTONE_LIBS)
+
+ALT_MUSIC_PXTONE_SOURCES = \
+	pxtnDelay \
+	pxtnDescriptor \
+	pxtnError \
+	pxtnEvelist \
+	pxtnMaster \
+	pxtnMem \
+	pxtnOverDrive \
+	pxtnPulse_Frequency \
+	pxtnPulse_Noise \
+	pxtnPulse_NoiseBuilder \
+	pxtnPulse_Oggv \
+	pxtnPulse_Oscillator \
+	pxtnPulse_PCM \
+	pxtnService \
+	pxtnService_moo \
+	pxtnText \
+	pxtnUnit \
+	pxtnWoice \
+	pxtnWoice_io \
+	pxtnWoicePTV \
+	pxtoneNoise \
+	shim
+ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/pxtone/, $(addsuffix .o, $(ALT_MUSIC_PXTONE_SOURCES)))
+
+obj/$(ALT_MUSIC_PATH)/decoders/pxtone/%.o: src/$(ALT_MUSIC_PATH)/decoders/pxtone/%.cpp
+	@mkdir -p $(@D)
+	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing -o $@ $^ -c
+endif
+
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/mini_al
 else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
@@ -189,11 +258,11 @@ ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/cubeb
 ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
 endif
 
-ALT_MUSIC_OBJECTS = $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))
+ALT_MUSIC_OBJECTS += $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))
 
 obj/$(ALT_MUSIC_PATH)/%.o: src/$(ALT_MUSIC_PATH)/%.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ $(LDFLAGS) $(ALT_MUSIC_LIBS) $(LIBS) -c
+	@$(CC) $(ALT_MUSIC_CFLAGS) $(ALL_CFLAGS) -o $@ $^ -c
 
 bin/mods/alternate_music/alternate_music.dll: $(ALT_MUSIC_OBJECTS)
 	@mkdir -p $(@D)

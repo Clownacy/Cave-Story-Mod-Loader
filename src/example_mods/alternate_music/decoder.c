@@ -30,6 +30,9 @@
 #ifdef USE_SPC
 #include "decoders/spc.h"
 #endif
+#ifdef USE_PXTONE
+#include "decoders/pxtone.h"
+#endif
 
 typedef struct Decoder
 {
@@ -101,6 +104,9 @@ static const struct
 #endif
 #ifdef USE_SPC
 	{&DecoderBackend_SPC, false, false},
+#endif
+#ifdef USE_PXTONE
+	{&DecoderBackend_Pxtone, false, false},
 #endif
 };
 
