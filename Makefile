@@ -72,7 +72,7 @@ PACKAGED_FILES = \
 
 package: $(addprefix bin/, $(PACKAGED_FILES)) $(OUTPUT)
 	@rm -f CS-Mod-Loader-$(MOD_LOADER_VERSION).zip
-	@cd bin && zip -9lr ../CS-Mod-Loader-$(MOD_LOADER_VERSION).zip $(PACKAGED_FILES)
+	@cd bin && zip -9lrq ../CS-Mod-Loader-$(MOD_LOADER_VERSION).zip $(PACKAGED_FILES)
 
 # ====================
 # Mod loader
