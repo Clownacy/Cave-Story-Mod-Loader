@@ -51,9 +51,28 @@ clean:
 	@rm -f $(OUTPUT)
 	@rm -f CS-Mod-Loader-$(MOD_LOADER_VERSION).zip
 
-package: $(OUTPUT)
+PACKAGED_FILES = \
+	dsound.dll \
+	readme-mod-loader.txt \
+	mods/LICENSE.txt \
+	mods/mod_loader.dll \
+	mods/mods.txt \
+	mods/readme.txt \
+	mods/settings.ini \
+	mods/alternate_music \
+	mods/alternate_music \
+	mods/sdl_controller_input \
+	mods/wasd_input \
+	mods/ikachan_cursor \
+	mods/debug_save \
+	mods/graphics_enhancement \
+	mods/3ds_hud \
+	mods/disable_image_protection \
+	mods/title_background
+
+package: $(addprefix bin/, $(PACKAGED_FILES)) $(OUTPUT)
 	@rm -f CS-Mod-Loader-$(MOD_LOADER_VERSION).zip
-	@cd bin && zip -9rl ../CS-Mod-Loader-$(MOD_LOADER_VERSION).zip *
+	@cd bin && zip -9lr ../CS-Mod-Loader-$(MOD_LOADER_VERSION).zip $(PACKAGED_FILES)
 
 # ====================
 # Mod loader
