@@ -48,6 +48,9 @@ bool ModLoader_GetSettingBool(const char* const setting_name, const bool default
 	return GetSettingBool(setting_name, default_bool, settings);
 }
 
+#ifdef __cplusplus
+extern "C"
+#endif
 __declspec(dllexport) void ModEntry(const HMODULE mod_loader_hmodule, const Settings* const settings_p, const char* const path_to_dll)
 {
 	settings = settings_p;
