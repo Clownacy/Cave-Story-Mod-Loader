@@ -49,6 +49,11 @@ all: $(OUTPUT)
 clean:
 	@rm -rf obj
 	@rm -f $(OUTPUT)
+	@rm -f CS-Mod-Loader-$(MOD_LOADER_VERSION).zip
+
+package: $(OUTPUT)
+	@rm -f CS-Mod-Loader-$(MOD_LOADER_VERSION).zip
+	@cd bin && zip -9rl ../CS-Mod-Loader-$(MOD_LOADER_VERSION).zip *
 
 # ====================
 # Mod loader
