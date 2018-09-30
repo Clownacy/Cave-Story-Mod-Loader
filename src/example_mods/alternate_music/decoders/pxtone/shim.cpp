@@ -39,7 +39,7 @@ extern "C" pxtnService* Pxtone_Open(const char *file_path, bool loop)
 				if (loop)
 					prep.flags |= pxtnVOMITPREPFLAG_loop;
 				prep.start_pos_float = 0;
-				prep.master_volume = 1.50f;
+				prep.master_volume = 0.80f;
 
 				if( pxtn->moo_preparation( &prep ) )
 				{
@@ -65,7 +65,7 @@ extern "C" void Pxtone_Rewind(pxtnService *pxtn, bool loop)
 	if (loop)
 		prep.flags |= pxtnVOMITPREPFLAG_loop;
 	prep.start_pos_float = 0;
-	prep.master_volume = 1.50f;
+	prep.master_volume = 0.80f;
 
 	pxtn->moo_preparation( &prep );
 }
