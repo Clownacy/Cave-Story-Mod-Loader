@@ -2,11 +2,7 @@ This mod enables playback of music files in various formats, including Ogg Vorbi
 XM, IT, and MOD.
 
 This mod also comes with example playlist data, allowing drag-and-drop compatibility with
-Cave Story+'s soundtracks:
-
-The WiiWare/New soundtrack's 'Ogg' folder goes in the 'Cave Story WiiWare' folder,
-the Cave Story 3D/Remastered soundtrack's 'Ogg11' folder goes in the 'Cave Story 3D' folder,
-and the Famitracks soundtrack's 'ogg17' folder goes in the 'Cave Story Famitrack' folder.
+the New, Remastered, Famitracks, Ridiculon, and SNES soundtracks:
 
 To specify which soundtrack to use, change the 'playlist' option in the 'settings.ini' file.
 
