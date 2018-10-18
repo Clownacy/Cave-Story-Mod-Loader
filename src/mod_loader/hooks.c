@@ -16,10 +16,10 @@ typedef struct HookTableSubEntry
 typedef struct HookTableEntry
 {
 	// Intercepted point A
-	void * address;
+	char * address;
 	unsigned int length;
 	char * hookspace; // Backup of code
-	void * hookcore; // Hook setup/teardown code
+	char * hookcore; // Hook setup/teardown code
 	int stage2; // Boolean
 	HookTableSubEntry * targets;
 	struct HookTableEntry * next;
@@ -28,7 +28,7 @@ typedef struct HookTableEntry
 static HookTableEntry * ht_first_entry = 0;
 
 // NOTE: PLEASE KEEP UP TO DATE WITH mod_loader_hook.h CPU REGISTERS STUFF.
-static char ht_global_hookcore[] = {
+static unsigned char ht_global_hookcore[] = {
  // Critical Offsets
 #define HT_HOOKCORE_PUSHADDR 2
 #define HT_HOOKCORE_NEXUSCALL 8

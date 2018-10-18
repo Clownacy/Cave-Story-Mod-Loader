@@ -89,13 +89,13 @@ BOOLEAN WINAPI DllMain(IN HINSTANCE hDllHandle, IN DWORD nReason, IN LPVOID Rese
 
 	if (nReason == DLL_PROCESS_ATTACH)
 	{
-		if (!memcmp((void*)0x412429, (char[]){0xA1, 0x20, 0x8B, 0x49, 0x00}, 5))	// Make sure this is the right EXE (or that the code hasn't been tampered with)
+		if (!memcmp((void*)0x412429, (unsigned char[]){0xA1, 0x20, 0x8B, 0x49, 0x00}, 5))	// Make sure this is the right EXE (or that the code hasn't been tampered with)
 		{
 			// Write a call to ASM_LoadDLLModLoader to 0x412429
 			const HANDLE handle = GetCurrentProcess();
 			const unsigned int relative_address = (unsigned int)&ASM_LoadDLLModLoader - (0x412429 + 5);
 			WriteProcessMemory(handle, (void*)0x412429, &(unsigned char){0xE8}, 1, NULL);
-			WriteProcessMemory(handle, (void*)0x412429 + 1, &relative_address, 4, NULL);
+			WriteProcessMemory(handle, (void*)(0x412429 + 1), &relative_address, 4, NULL);
 		}
 	}
 

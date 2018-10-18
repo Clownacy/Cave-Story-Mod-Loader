@@ -26,7 +26,7 @@ static void WriteData(void* const address, const void* const value, const unsign
 
 __declspec(dllexport) void WriteRelativeAddress(void* const address, const void* const new_destination)
 {
-	const unsigned int relative_address = (unsigned int)new_destination - ((unsigned int)address + 4);
+	const unsigned int relative_address = (unsigned int)new_destination - ((unsigned int)((char*)address + 4));
 	WriteData(address, &relative_address, 4);
 }
 
@@ -60,18 +60,18 @@ __declspec(dllexport) void WriteLongBE(void* const address, const unsigned int v
 __declspec(dllexport) void WriteJump(void* const address, const void* const new_destination)
 {
 	WriteByte(address, 0xE9);
-	WriteRelativeAddress(address + 1, new_destination);
+	WriteRelativeAddress((char*)address + 1, new_destination);
 }
 
 __declspec(dllexport) void WriteCall(void* const address, const void* const new_destination)
 {
 	WriteByte(address, 0xE8);
-	WriteRelativeAddress(address + 1, new_destination);
+	WriteRelativeAddress((char*)address + 1, new_destination);
 }
 
 __declspec(dllexport) void WriteNOPs(void* const address, const unsigned int count)
 {
-	void *current_address = address;
+	char *current_address = address;
 
 	for (unsigned int i = 0; i < count / 4; ++i)
 	{

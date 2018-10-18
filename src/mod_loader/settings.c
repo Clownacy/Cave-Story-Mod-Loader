@@ -14,12 +14,12 @@
 #include "log.h"
 #include "sprintfMalloc.h"
 
-typedef struct Setting
+struct Setting
 {
 	const char *name;
 	const char *value;
 	struct Setting *next;
-} Setting;
+};
 
 Setting *mod_loader_settings;
 
