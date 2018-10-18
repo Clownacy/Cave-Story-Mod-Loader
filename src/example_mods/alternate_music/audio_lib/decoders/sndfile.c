@@ -26,7 +26,7 @@ typedef struct Decoder_Sndfile
 	MemoryFile *file;
 	SNDFILE *sndfile;
 	DecoderFormat format;
-	unsigned int bytes_per_frame;
+	unsigned int channel_count;
 } Decoder_Sndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
@@ -110,11 +110,11 @@ Decoder_Sndfile* Decoder_Sndfile_Create(DecoderData_Sndfile *data, DecoderInfo *
 		decoder->data = data;
 		decoder->sndfile = sndfile;
 		decoder->file = file;
-		decoder->bytes_per_frame = sf_info.channels * sizeof(float);
+		decoder->channel_count = sf_info.channels;
 
 		info->sample_rate = sf_info.samplerate;
 		info->channel_count = sf_info.channels;
-		info->decoded_size = sf_info.frames * decoder->bytes_per_frame;
+		info->decoded_size = sf_info.frames * sf_info.channels * sizeof(float);
 		info->format = DECODER_FORMAT_F32;
 	}
 	else
@@ -140,13 +140,15 @@ void Decoder_Sndfile_Rewind(Decoder_Sndfile *decoder)
 	sf_seek(decoder->sndfile, 0, SEEK_SET);
 }
 
-unsigned long Decoder_Sndfile_GetSamples(Decoder_Sndfile *decoder, void *buffer, unsigned long frames_to_do)
+unsigned long Decoder_Sndfile_GetSamples(Decoder_Sndfile *decoder, void *output_buffer_void, unsigned long frames_to_do)
 {
+	float *output_buffer = output_buffer_void;
+
 	unsigned long frames_done_total = 0;
 
 	for (;;)
 	{
-		frames_done_total += sf_readf_float(decoder->sndfile, buffer + (frames_done_total * decoder->bytes_per_frame), frames_to_do - frames_done_total);
+		frames_done_total += sf_readf_float(decoder->sndfile, output_buffer + (frames_done_total * decoder->channel_count), frames_to_do - frames_done_total);
 
 		if (frames_done_total == frames_to_do || !decoder->data->loops)
 			break;

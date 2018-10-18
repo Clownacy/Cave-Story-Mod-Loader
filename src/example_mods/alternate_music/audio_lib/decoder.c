@@ -35,6 +35,16 @@
 #include "decoders/pxtone.h"
 #endif
 
+#define BACKEND_FUNCTIONS(name) \
+{ \
+	(void*(*)(const char*,bool,LinkedBackend*))Decoder_##name##_LoadData, \
+	(void(*)(void*))Decoder_##name##_UnloadData, \
+	(void*(*)(void*,DecoderInfo*))Decoder_##name##_Create, \
+	(void(*)(void*))Decoder_##name##_Destroy, \
+	(void(*)(void*))Decoder_##name##_Rewind, \
+	(unsigned long(*)(void*,void*,unsigned long))Decoder_##name##_GetSamples \
+}
+
 typedef struct DecoderData
 {
 	LinkedBackend *linked_backend;
@@ -55,102 +65,25 @@ static const struct
 	bool can_be_split;
 } backends[] = {
 #ifdef USE_VORBISFILE
-	{
-		(const char*[]){".ogg", NULL},
-		{
-			(void*)Decoder_Vorbisfile_LoadData,
-			(void*)Decoder_Vorbisfile_UnloadData,
-			(void*)Decoder_Vorbisfile_Create,
-			(void*)Decoder_Vorbisfile_Destroy,
-			(void*)Decoder_Vorbisfile_Rewind,
-			(void*)Decoder_Vorbisfile_GetSamples
-		},
-		true, true
-	},
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(Vorbisfile), true, true},
 #endif
 #ifdef USE_IVORBISFILE
-	{
-		(const char*[]){".ogg", NULL},
-		{
-			(void*)Decoder_IVorbisfile_LoadData,
-			(void*)Decoder_IVorbisfile_UnloadData,
-			(void*)Decoder_IVorbisfile_Create,
-			(void*)Decoder_IVorbisfile_Destroy,
-			(void*)Decoder_IVorbisfile_Rewind,
-			(void*)Decoder_IVorbisfile_GetSamples
-		},
-		true, true
-	},
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(IVorbisfile), true, true},
 #endif
 #ifdef USE_FLAC
-	{
-		(const char*[]){".flac", NULL},
-		{
-			(void*)Decoder_FLAC_LoadData,
-			(void*)Decoder_FLAC_UnloadData,
-			(void*)Decoder_FLAC_Create,
-			(void*)Decoder_FLAC_Destroy,
-			(void*)Decoder_FLAC_Rewind,
-			(void*)Decoder_FLAC_GetSamples
-		},
-		true, true
-	},
+	{(const char*[]){".flac", NULL}, BACKEND_FUNCTIONS(FLAC), true, true},
 #endif
 #ifdef USE_SNDFILE
-	{
-		(const char*[]){".ogg", ".flac", ".wav", ".aiff", NULL},
-		{
-			(void*)Decoder_Sndfile_LoadData,
-			(void*)Decoder_Sndfile_UnloadData,
-			(void*)Decoder_Sndfile_Create,
-			(void*)Decoder_Sndfile_Destroy,
-			(void*)Decoder_Sndfile_Rewind,
-			(void*)Decoder_Sndfile_GetSamples
-		},
-		true, true
-	},
+	{(const char*[]){".ogg", ".flac", ".wav", ".aiff", NULL}, BACKEND_FUNCTIONS(Sndfile), true, true},
 #endif
 #ifdef USE_OPENMPT
-	{
-		(const char*[]){".mod", ".s3m", ".xm", ".it", ".mptm", NULL},
-		{
-			(void*)Decoder_OpenMPT_LoadData,
-			(void*)Decoder_OpenMPT_UnloadData,
-			(void*)Decoder_OpenMPT_Create,
-			(void*)Decoder_OpenMPT_Destroy,
-			(void*)Decoder_OpenMPT_Rewind,
-			(void*)Decoder_OpenMPT_GetSamples
-		},
-		false, false
-	},
+	{(const char*[]){".mod", ".s3m", ".xm", ".it", ".mptm", NULL}, BACKEND_FUNCTIONS(OpenMPT), false, false},
 #endif
 #ifdef USE_SPC
-	{
-		(const char*[]){".spc", NULL},
-		{
-			(void*)Decoder_SPC_LoadData,
-			(void*)Decoder_SPC_UnloadData,
-			(void*)Decoder_SPC_Create,
-			(void*)Decoder_SPC_Destroy,
-			(void*)Decoder_SPC_Rewind,
-			(void*)Decoder_SPC_GetSamples
-		},
-		false, false
-	},
+	{(const char*[]){".spc", NULL}, BACKEND_FUNCTIONS(SPC), false, false},
 #endif
 #ifdef USE_PXTONE
-	{
-		(const char*[]){".ptcop", ".pttune", NULL},
-		{
-			(void*)Decoder_Pxtone_LoadData,
-			(void*)Decoder_Pxtone_UnloadData,
-			(void*)Decoder_Pxtone_Create,
-			(void*)Decoder_Pxtone_Destroy,
-			(void*)Decoder_Pxtone_Rewind,
-			(void*)Decoder_Pxtone_GetSamples
-		},
-		false, false
-	},
+	{(const char*[]){".ptcop", ".pttune", NULL}, BACKEND_FUNCTIONS(Pxtone), false, false},
 #endif
 };
 
@@ -163,14 +96,7 @@ static void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_b
 
 	if (predecode)
 	{
-		static const DecoderBackend backend = {
-			(void*)Decoder_Predecode_LoadData,
-			(void*)Decoder_Predecode_UnloadData,
-			(void*)Decoder_Predecode_Create,
-			(void*)Decoder_Predecode_Destroy,
-			(void*)Decoder_Predecode_Rewind,
-			(void*)Decoder_Predecode_GetSamples
-		};
+		static const DecoderBackend backend = BACKEND_FUNCTIONS(Predecode);
 
 		last_backend = linked_backend;
 		linked_backend = malloc(sizeof(LinkedBackend));
@@ -180,14 +106,7 @@ static void* TryOpen(const DecoderBackend *backend, LinkedBackend **out_linked_b
 
 	if (split)
 	{
-		static const DecoderBackend backend = {
-			(void*)Decoder_Split_LoadData,
-			(void*)Decoder_Split_UnloadData,
-			(void*)Decoder_Split_Create,
-			(void*)Decoder_Split_Destroy,
-			(void*)Decoder_Split_Rewind,
-			(void*)Decoder_Split_GetSamples
-		};
+		static const DecoderBackend backend = BACKEND_FUNCTIONS(Split);
 
 		last_backend = linked_backend;
 		linked_backend = malloc(sizeof(LinkedBackend));

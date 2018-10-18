@@ -12,7 +12,7 @@ typedef struct BackendStream BackendStream;
 
 bool Backend_Init(void);
 void Backend_Deinit(void);
-BackendStream* Backend_CreateStream(unsigned long (*callback)(void*, void*, unsigned long), void *user_data);
+BackendStream* Backend_CreateStream(void (*callback)(void*, void*, unsigned long), void *user_data);
 bool Backend_DestroyStream(BackendStream *stream);
 bool Backend_SetVolume(BackendStream *stream, float volume);
 bool Backend_PauseStream(BackendStream *stream);

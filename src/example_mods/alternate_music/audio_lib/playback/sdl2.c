@@ -7,11 +7,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <SDL2/SDL.h>
+#include "SDL.h"
 
 typedef struct BackendStream
 {
-	unsigned long (*user_callback)(void*, void*, unsigned long);
+	void (*user_callback)(void*, void*, unsigned long);
 	void *user_data;
 
 	SDL_AudioDeviceID device;
@@ -20,22 +20,19 @@ typedef struct BackendStream
 	unsigned int bytes_per_frame;
 } BackendStream;
 
-static void Callback(void *user_data, unsigned char *output_buffer, int bytes_to_do)
+static void Callback(void *user_data, Uint8 *output_buffer_uint8, int bytes_to_do)
 {
-	BackendStream *stream = (BackendStream*)user_data;
+	BackendStream *stream = user_data;
+	const unsigned long frames_to_do = bytes_to_do / stream->bytes_per_frame;
+	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = (float(*)[frames_to_do][STREAM_CHANNEL_COUNT])output_buffer_uint8;
 
-	const unsigned long bytes_done = stream->user_callback(stream->user_data, output_buffer, bytes_to_do / stream->bytes_per_frame) * stream->bytes_per_frame;
+	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
 
 	// Handle volume in software, since SDL2's API doesn't have volume control
-	float *output_buffer_float = (float*)output_buffer;
 	if (stream->volume != 1.0f)
-		for (unsigned int i = 0; i < bytes_done / sizeof(float); ++i)
-			*output_buffer_float++ *= stream->volume;
-
-	const unsigned long bytes_to_clear = bytes_to_do - bytes_done;
-
-	if (bytes_to_clear)
-		memset(output_buffer_float, 0, bytes_to_clear);
+		for (unsigned long i = 0; i < frames_to_do; ++i)
+			for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
+				(*output_buffer)[i][j] *= stream->volume;
 }
 
 bool Backend_Init(void)
@@ -50,7 +47,7 @@ void Backend_Deinit(void)
 	SDL_Quit();
 }
 
-BackendStream* Backend_CreateStream(unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
@@ -59,7 +56,7 @@ BackendStream* Backend_CreateStream(unsigned long (*user_callback)(void*, void*,
 	want.freq = STREAM_SAMPLE_RATE;
 	want.format = AUDIO_F32;
 	want.channels = STREAM_CHANNEL_COUNT;
-	want.samples = 4096;
+	want.samples = (STREAM_SAMPLE_RATE * 25) / 1000;
 	want.callback = Callback;
 	want.userdata = stream;
 
@@ -98,7 +95,7 @@ bool Backend_DestroyStream(BackendStream *stream)
 bool Backend_SetVolume(BackendStream *stream, float volume)
 {
 	if (stream)
-		stream->volume = volume;
+		stream->volume = volume * volume;
 
 	return true;
 }

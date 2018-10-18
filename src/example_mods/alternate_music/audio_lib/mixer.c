@@ -40,7 +40,7 @@ static Channel* FindChannel(Mixer_SoundInstanceID instance)
 	return NULL;
 }
 
-static unsigned long CallbackStream(void *user_data, void *output_buffer_void, unsigned long frames_to_do)
+static void CallbackStream(void *user_data, void *output_buffer_void, unsigned long frames_to_do)
 {
 	(void)user_data;
 
@@ -100,8 +100,6 @@ static unsigned long CallbackStream(void *user_data, void *output_buffer_void, u
 		channel_pointer = &(*channel_pointer)->next;
 	}
 	pthread_mutex_unlock(&mutex);
-
-	return frames_to_do;
 }
 
 static mal_uint32 CallbackDSP(mal_dsp *dsp, mal_uint32 frames_to_do, void *output_buffer, void *user_data)

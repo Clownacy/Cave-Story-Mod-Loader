@@ -11,26 +11,27 @@
 
 typedef struct BackendStream
 {
-	unsigned long (*user_callback)(void*, void*, unsigned long);
+	void (*user_callback)(void*, void*, unsigned long);
 	void *user_data;
 
 	mal_device device;
 	float volume;
 } BackendStream;
 
-static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *output_buffer)
+static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *output_buffer_void)
 {
-	BackendStream *stream = (BackendStream*)device->pUserData;
+	BackendStream *stream = device->pUserData;
+	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = (float(*)[frames_to_do][STREAM_CHANNEL_COUNT])output_buffer_void;
 
-	const mal_uint32 frames_done = stream->user_callback(stream->user_data, output_buffer, frames_to_do);
+	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
 
-	// Handle volume in software, since mini_al's API doesn't have volume control
-	float *output_buffer_float = output_buffer;
+	// Handle volume in software, since SDL2's API doesn't have volume control
 	if (stream->volume != 1.0f)
-		for (unsigned int i = 0; i < frames_done * STREAM_CHANNEL_COUNT; ++i)
-			*output_buffer_float++ *= stream->volume;
+		for (unsigned long i = 0; i < frames_to_do; ++i)
+			for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
+				(*output_buffer)[i][j] *= stream->volume;
 
-	return frames_done;
+	return frames_to_do;
 }
 
 bool Backend_Init(void)
@@ -43,7 +44,7 @@ void Backend_Deinit(void)
 	
 }
 
-BackendStream* Backend_CreateStream(unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
 	mal_device_config config = mal_device_config_init_playback(mal_format_f32, STREAM_CHANNEL_COUNT, STREAM_SAMPLE_RATE, Callback);
 
@@ -79,7 +80,7 @@ bool Backend_DestroyStream(BackendStream *stream)
 bool Backend_SetVolume(BackendStream *stream, float volume)
 {
 	if (stream)
-		stream->volume = volume;
+		stream->volume = volume * volume;
 
 	return true;
 }

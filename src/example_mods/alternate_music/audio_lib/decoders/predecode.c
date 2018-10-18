@@ -83,8 +83,10 @@ void Decoder_Predecode_Rewind(Decoder_Predecode *decoder)
 	MemoryFile_fseek(decoder->data->file, 0, SEEK_SET);
 }
 
-unsigned long Decoder_Predecode_GetSamples(Decoder_Predecode *decoder, void *output_buffer, unsigned long frames_to_do)
+unsigned long Decoder_Predecode_GetSamples(Decoder_Predecode *decoder, void *output_buffer_void, unsigned long frames_to_do)
 {
+	unsigned char *output_buffer = output_buffer_void;
+
 	unsigned long bytes_to_do = frames_to_do * decoder->data->size_of_frame;
 
 	unsigned long bytes_done_total = 0;

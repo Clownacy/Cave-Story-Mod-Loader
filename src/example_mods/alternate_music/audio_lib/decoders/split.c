@@ -168,8 +168,10 @@ void Decoder_Split_Rewind(Decoder_Split *this)
 		this->data->backend->Rewind(this->subdecoders[i]);
 }
 
-unsigned long Decoder_Split_GetSamples(Decoder_Split *this, void *output_buffer, unsigned long frames_to_do)
+unsigned long Decoder_Split_GetSamples(Decoder_Split *this, void *output_buffer_void, unsigned long frames_to_do)
 {
+	unsigned char *output_buffer = output_buffer_void;
+
 	unsigned long frames_done_total = 0;
 
 	for (unsigned long frames_done; frames_done_total != frames_to_do; frames_done_total += frames_done)

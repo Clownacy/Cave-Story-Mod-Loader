@@ -14,7 +14,7 @@
 
 typedef struct BackendStream
 {
-	unsigned long (*user_callback)(void*, void*, unsigned long);
+	void (*user_callback)(void*, void*, unsigned long);
 	void *user_data;
 
 	cubeb_stream *cubeb_stream_pointer;
@@ -29,7 +29,9 @@ static long DataCallback(cubeb_stream *c_stream, void *user_data, void const *in
 
 	BackendStream *stream = (BackendStream*)user_data;
 
-	return stream->user_callback(stream->user_data, output_buffer, frames_to_do);
+	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
+
+	return frames_to_do;
 }
 
 static void StateCallback(cubeb_stream *stream, void *user_data, cubeb_state state)
@@ -53,7 +55,7 @@ void Backend_Deinit(void)
 	cubeb_destroy(cubeb_context);
 }
 
-BackendStream* Backend_CreateStream(unsigned long (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
 	BackendStream *stream = NULL;
 
@@ -113,7 +115,7 @@ bool Backend_SetVolume(BackendStream *stream, float volume)
 	bool success = true;
 
 	if (stream)
-		success = cubeb_stream_set_volume(stream->cubeb_stream_pointer, volume) == CUBEB_OK;
+		success = cubeb_stream_set_volume(stream->cubeb_stream_pointer, volume * volume) == CUBEB_OK;
 
 	return success;
 }
