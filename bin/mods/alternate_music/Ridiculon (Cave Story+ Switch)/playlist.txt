@@ -22,20 +22,20 @@ ogg_ridic/access.ogg, loop
 ogg_ridic/ironh.ogg, loop
 ogg_ridic/grand.ogg, loop
 ogg_ridic/curly.ogg, loop
-ogg17/oside.ogg, loop
-ogg17/requiem.ogg, loop
-ogg17/wanpak2.ogg, loop
-ogg17/quiet.ogg, loop
-ogg17/lastcave.ogg, loop
-ogg17/balcony.ogg, loop
-ogg17/lastbtl.ogg, loop
-ogg17/lastbt3.ogg, loop
-ogg17/ending.ogg, loop
-ogg17/zonbie.ogg, loop
-ogg17/bdown.ogg, loop
-ogg17/hell.ogg, loop
-ogg17/jenka2.ogg, loop
-ogg17/marine.ogg, loop
-ogg17/ballos.ogg, loop
-ogg17/toroko.ogg
-ogg17/white.ogg, loop
+ogg_ridic/oside.ogg, loop
+ogg_ridic/requiem.ogg, loop
+ogg_ridic/wanpak2.ogg, loop
+ogg_ridic/quiet.ogg, loop
+ogg_ridic/lastcave.ogg, loop
+ogg_ridic/balcony.ogg, loop
+ogg_ridic/lastbtl.ogg, loop
+ogg_ridic/lastbt3.ogg, loop
+ogg_ridic/ending.ogg, loop
+ogg_ridic/zonbie.ogg, loop
+ogg_ridic/bdown.ogg, loop
+ogg_ridic/hell.ogg, loop
+ogg_ridic/jenka2.ogg, loop
+ogg_ridic/marine.ogg, loop
+ogg_ridic/ballos.ogg, loop
+ogg_ridic/toroko.ogg
+ogg_ridic/white.ogg, loop
