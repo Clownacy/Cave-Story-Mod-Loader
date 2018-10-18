@@ -5,15 +5,14 @@
 
 #include <stdbool.h>
 
-#include "decoder.h"
+#include "audio_lib/mixer.h"
 
 typedef struct PlaylistEntry
 {
 	const char *name;
 	bool loop;
 	bool is_org;
-	Decoder *decoder;
-	DecoderInfo decoder_info;
+	Mixer_Sound *sound;
 } PlaylistEntry;
 
 PlaylistEntry* GetFirstPlaylistEntry(void);

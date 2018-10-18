@@ -6,136 +6,29 @@
 
 #include "cave_story.h"
 #include "mod_loader.h"
-#include "sprintfMalloc.h"
 
-#include "playback.h"
-#include "decoder.h"
 #include "playlist.h"
+#include "audio_lib/mixer.h"
 
 typedef struct Song
 {
-	Decoder *decoder;
-	DecoderInfo decoder_info;
+	Mixer_SoundInstanceID instance;
+	Mixer_Sound *sound;
 	bool is_org;
-
-	bool fade_in_active;
-	bool fade_out_active;
-	unsigned int fade_counter;
 } Song;
-
-static BackendStream *stream;
-static unsigned int stream_sample_rate;
-static unsigned int stream_channel_count;
-static BackendFormat stream_format;
-static unsigned int stream_pause_count;
 
 static bool setting_preload;
 static bool setting_predecode;
 static bool setting_fade_in_previous_song;
 static float setting_volume;
 
-static const Song blank_song;
-
 static Song current_song;
 static Song previous_song;
-
-static unsigned long StreamCallbackF32(void *user_data, void *output_buffer, unsigned long bytes_to_do)
-{
-	Song *song = user_data;
-
-	const unsigned long bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
-
-	if (song->fade_out_active)
-	{
-		const unsigned int channel_count = song->decoder_info.channel_count;
-		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 5;
-
-		float *output_buffer_float = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(float); ++i)
-		{
-			const float volume = song->fade_counter / (float)fade_counter_max;
-
-			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_float++ *= volume * volume;
-
-			if (song->fade_counter)
-				--song->fade_counter;
-		}
-	}
-	else if (song->fade_in_active)
-	{
-		const unsigned int channel_count = song->decoder_info.channel_count;
-		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 2;
-
-		float *output_buffer_float = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(float); ++i)
-		{
-			const float volume = song->fade_counter / (float)fade_counter_max;
-
-			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_float++ *= volume * volume;
-
-			if (++song->fade_counter == fade_counter_max)
-			{
-				song->fade_in_active = false;
-				break;
-			}
-		}
-	}
-
-	return bytes_done;
-}
-static unsigned long StreamCallbackS16(void *user_data, void *output_buffer, unsigned long bytes_to_do)
-{
-	Song *song = user_data;
-
-	const unsigned long bytes_done = Decoder_GetSamples(song->decoder, output_buffer, bytes_to_do);
-
-	if (song->fade_out_active)
-	{
-		const unsigned int channel_count = song->decoder_info.channel_count;
-		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 5;
-
-		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
-		{
-			const float volume = song->fade_counter / (float)fade_counter_max;
-
-			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_short++ *= volume * volume;
-
-			if (song->fade_counter)
-				--song->fade_counter;
-		}
-	}
-	else if (song->fade_in_active)
-	{
-		const unsigned int channel_count = song->decoder_info.channel_count;
-		const unsigned int fade_counter_max = song->decoder_info.sample_rate * 2;
-
-		short *output_buffer_short = output_buffer;
-		for (unsigned int i = 0; i < bytes_done / channel_count / sizeof(short); ++i)
-		{
-			const float volume = song->fade_counter / (float)fade_counter_max;
-
-			for (unsigned int i = 0; i < channel_count; ++i)
-				*output_buffer_short++ *= volume * volume;
-
-			if (++song->fade_counter == fade_counter_max)
-			{
-				song->fade_in_active = false;
-				break;
-			}
-		}
-	}
-
-	return bytes_done;
-}
 
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->decoder = Decoder_Open(playlist_entry->name, playlist_entry->loop, &playlist_entry->decoder_info, setting_predecode);
+		playlist_entry->sound = Mixer_LoadSound(playlist_entry->name, playlist_entry->loop, setting_predecode);
 }
 
 static void PreloadSongs(void)
@@ -146,61 +39,10 @@ static void PreloadSongs(void)
 
 static void UnloadSong(Song *song)
 {
-	if (song->decoder)
-	{
-		if (setting_preload)
-			Decoder_Rewind(song->decoder);
-		else
-			Decoder_Close(song->decoder);
-	}
-}
+	Mixer_StopSound(song->instance);
 
-static void PauseSong(void)
-{
-	if (stream_pause_count++ == 0)
-		if (!Backend_PauseStream(stream))
-			ModLoader_PrintError("ogg_music: Could not pause the stream\n");
-}
-
-static void ResumeSong(void)
-{
-	if (--stream_pause_count == 0)
-		if (!Backend_ResumeStream(stream))
-			ModLoader_PrintError("ogg_music: Could not resume the stream\n");
-}
-
-static bool RefreshStream(unsigned int sample_rate, unsigned int channel_count, BackendFormat format)
-{
-	bool success = true;
-
-	if (stream_sample_rate != sample_rate || stream_channel_count != channel_count || stream_format != format)
-	{
-		stream_sample_rate = sample_rate;
-		stream_channel_count = channel_count;
-		stream_format = format;
-
-		if (stream && !Backend_DestroyStream(stream))
-		{
-			ModLoader_PrintError("ogg_music: Could not destroy the stream\n");
-			success = false;
-		}
-		else
-		{
-			stream = Backend_CreateStream(sample_rate, channel_count, format, format == BACKEND_FORMAT_F32 ? StreamCallbackF32 : StreamCallbackS16, &current_song);
-
-			if (stream == NULL)
-			{
-				ModLoader_PrintError("ogg_music: Could not create the stream\n");
-				success = false;
-			}
-			else
-			{
-				Backend_SetVolume(stream, setting_volume);
-			}
-		}
-	}
-
-	return success;
+	if (!setting_preload)
+		Mixer_UnloadSound(song->sound);
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -214,39 +56,20 @@ static bool PlayOggMusic(const int song_id)
 		if (!setting_preload)
 			LoadSong(playlist_entry);
 
-		Decoder *decoder = playlist_entry->decoder;
+		Mixer_Sound *sound = playlist_entry->sound;
 
-		if (decoder)
+		if (sound)
 		{
-			const unsigned int sample_rate = playlist_entry->decoder_info.sample_rate;
-			const unsigned int channel_count = playlist_entry->decoder_info.channel_count;
+			current_song.sound = sound;
+			current_song.instance = Mixer_PlaySound(sound);
+			Mixer_SetSoundVolume(current_song.instance, setting_volume);
+			Mixer_UnpauseSound(current_song.instance);
 
-			if (channel_count != 1 && channel_count != 2)
-			{
-				// Unsupported channel count
-				ModLoader_PrintError("ogg_music: Unsupported channel count (%d)\n", channel_count);
-
-				if (!setting_preload)
-					Decoder_Close(decoder);
-			}
-			else
-			{
-				if (!RefreshStream(sample_rate, channel_count, playlist_entry->decoder_info.format))
-				{
-					if (!setting_preload)
-						Decoder_Close(decoder);
-				}
-				else
-				{
-					current_song.decoder = decoder;
-					current_song.decoder_info = playlist_entry->decoder_info;
-
-					stream_pause_count = 1;
-					ResumeSong();
-
-					success = true;
-				}
-			}
+			success = true;
+		}
+		else
+		{
+			ModLoader_PrintError("ogg_music: Could not load sound\n");
 		}
 	}
 
@@ -278,10 +101,10 @@ static void PlayMusic_new(const int music_id)
 	{
 		CS_previous_music = CS_current_music;
 
-		PauseSong();
+		Mixer_PauseSound(current_song.instance);
 		UnloadSong(&previous_song);
 		previous_song = current_song;
-		current_song = blank_song;
+		current_song = (Song){};
 
 		if (music_id != 0 && PlayOggMusic(music_id - 1))
 		{
@@ -298,18 +121,14 @@ static void PlayMusic_new(const int music_id)
 			current_song.is_org = true;
 		}
 		CS_current_music = music_id;
-
-		current_song.fade_out_active = false;
-		current_song.fade_in_active = false;
 	}
 }
 
 static void PlayPreviousMusic_new(void)
 {
-	PauseSong();
 	UnloadSong(&current_song);
 	current_song = previous_song;
-	previous_song = blank_song;
+	previous_song = (Song){};
 
 	if (!current_song.is_org)
 	{
@@ -317,15 +136,9 @@ static void PlayPreviousMusic_new(void)
 		PlayOrgMusic(0);
 
 		if (setting_fade_in_previous_song)
-		{
-			current_song.fade_counter = 0;
-			current_song.fade_in_active = true;
-		}
+			Mixer_FadeInSound(current_song.instance, 2 * 1000);
 
-		RefreshStream(current_song.decoder_info.sample_rate, current_song.decoder_info.channel_count, current_song.decoder_info.format);
-
-		stream_pause_count = 1;
-		ResumeSong();
+		Mixer_UnpauseSound(current_song.instance);
 	}
 	else
 	{
@@ -333,27 +146,24 @@ static void PlayPreviousMusic_new(void)
 		PlayPreviousOrgMusic();
 	}
 	CS_current_music = CS_previous_music;
-
-	current_song.fade_out_active = false;
 }
 
 static void WindowFocusGained_new(void)
 {
-	ResumeSong();
+	Mixer_Unpause();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void WindowFocusLost_new(void)
 {
-	PauseSong();
+	Mixer_Pause();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
-	current_song.fade_counter = (current_song.decoder_info.sample_rate * 5) - 1;
-	current_song.fade_out_active = true;
+	Mixer_FadeOutSound(current_song.instance, 5 * 1000);
 }
 
 void InitMod(void)
@@ -364,15 +174,13 @@ void InitMod(void)
 	const bool setting_pause_when_focus_lost = ModLoader_GetSettingBool("pause_when_focus_lost", true);
 
 	int volume = ModLoader_GetSettingInt("volume", 100);
-	if (volume > 100)
-		volume = 100;
-	else if (volume < 0)
+	if (volume < 0)
 		volume = 0;
 	setting_volume = volume / 100.0f;
 
 	if (InitPlaylist())
 	{
-		if (Backend_Init())
+		if (Mixer_Init())
 		{
 			if (setting_preload)
 				PreloadSongs();

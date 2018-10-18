@@ -177,12 +177,15 @@ ALT_MUSIC_PATH = $(MODS_PATH)/alternate_music
 ALT_MUSIC_SOURCES = \
 	$(COMMON_PATH)/mod_loader \
 	$(COMMON_PATH)/sprintfMalloc \
-	$(ALT_MUSIC_PATH)/decoder \
-	$(ALT_MUSIC_PATH)/decoders/predecode \
-	$(ALT_MUSIC_PATH)/decoders/split \
 	$(ALT_MUSIC_PATH)/main \
-	$(ALT_MUSIC_PATH)/decoders/memory_file \
-	$(ALT_MUSIC_PATH)/playlist
+	$(ALT_MUSIC_PATH)/playlist \
+	$(ALT_MUSIC_PATH)/audio_lib/mini_al \
+	$(ALT_MUSIC_PATH)/audio_lib/mixer \
+	$(ALT_MUSIC_PATH)/audio_lib/decoder \
+	$(ALT_MUSIC_PATH)/audio_lib/decoders/predecode \
+	$(ALT_MUSIC_PATH)/audio_lib/decoders/split \
+	$(ALT_MUSIC_PATH)/audio_lib/decoders/memory_file \
+	$(ALT_MUSIC_PATH)/audio_lib/decoders/misc_utilities
 
 LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
 LIBIVORBISFILE_LIBS = -lvorbisidec -lvorbis -logg
@@ -193,37 +196,37 @@ SPC_LIBS = -lstdc++
 PXTONE_LIBS = 
 
 ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalsefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/vorbisfile
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/vorbisfile
 ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
 ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/ivorbisfile
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/ivorbisfile
 ALT_MUSIC_CFLAGS += -DUSE_IVORBISFILE
 ALT_MUSIC_LIBS += $(LIBIVORBISFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/flac
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/flac
 ALT_MUSIC_CFLAGS += -DUSE_FLAC
 ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_SNDFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/sndfile
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/sndfile
 ALT_MUSIC_CFLAGS += -DUSE_SNDFILE
 ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_OPENMPT), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/openmpt
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/openmpt
 ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
 ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_SPC), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/spc
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/spc
 ALT_MUSIC_CFLAGS += -DUSE_SPC
 ALT_MUSIC_LIBS += $(SPC_LIBS)
 
@@ -235,17 +238,17 @@ ALT_MUSIC_SPC_SOURCES = \
 	spc \
 	SPC_DSP \
 	SPC_Filter
-ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/, $(addsuffix .o, $(ALT_MUSIC_SPC_SOURCES)))
+ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/snes_spc-0.9.0/snes_spc/, $(addsuffix .o, $(ALT_MUSIC_SPC_SOURCES)))
 ALT_MUSIC_SPC_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_SPC_OBJECTS))
 include $(wildcard $(ALT_MUSIC_SPC_DEPENDENCIES))
 
-obj/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.o: src/$(ALT_MUSIC_PATH)/decoders/snes_spc-0.9.0/snes_spc/%.cpp
+obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/snes_spc-0.9.0/snes_spc/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/snes_spc-0.9.0/snes_spc/%.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(ALL_CXXFLAGS) -Wno-implicit-fallthrough -Wno-array-bounds $< -o $@ -c
 endif
 
 ifeq ($(ALT_MUSIC_USE_PXTONE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/decoders/pxtone
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone
 ALT_MUSIC_CFLAGS += -DUSE_PXTONE
 ALT_MUSIC_LIBS += $(PXTONE_LIBS)
 
@@ -272,23 +275,24 @@ ALT_MUSIC_PXTONE_SOURCES = \
 	pxtnWoicePTV \
 	pxtoneNoise \
 	shim
-ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/decoders/pxtone/, $(addsuffix .o, $(ALT_MUSIC_PXTONE_SOURCES)))
+ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone/, $(addsuffix .o, $(ALT_MUSIC_PXTONE_SOURCES)))
 ALT_MUSIC_PXTONE_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_PXTONE_OBJECTS))
 include $(wildcard $(ALT_MUSIC_PXTONE_DEPENDENCIES))
 
-obj/$(ALT_MUSIC_PATH)/decoders/pxtone/%.o: src/$(ALT_MUSIC_PATH)/decoders/pxtone/%.cpp
+obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone/%.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing $< -o $@ -c
 endif
 
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/mini_al
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/mini_al
+ALT_MUSIC_CFLAGS += -DMINI_AL_ENABLE_DEVICE_IO
 else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/SDL2
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/SDL2
 ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
 ALT_MUSIC_LIBS += $(SDL2_LIBS)
 else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/playback/cubeb
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/cubeb
 ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
 endif
 
