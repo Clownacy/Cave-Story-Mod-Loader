@@ -13,7 +13,7 @@ ALT_MUSIC_USE_SNDFILE = false
 ALT_MUSIC_USE_OPENMPT = true
 ALT_MUSIC_USE_SPC = false
 ALT_MUSIC_USE_PXTONE = true
-# Can be 'mini_al', 'SDL2', or 'Cubeb'
+# Can be 'mini_al', 'SDL2', 'Cubeb', or 'PortAudio'
 ALT_MUSIC_BACKEND = mini_al
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident -MMD -MP -MF $@.d
@@ -96,7 +96,7 @@ include $(wildcard $(MOD_LOADER_DEPENDENCIES))
 
 obj/$(MOD_LOADER_PATH)/inih/ini.o: src/$(MOD_LOADER_PATH)/inih/ini.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 $^ -o $@ -c
+	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 $< -o $@ -c
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_OBJECTS)
 	@mkdir -p $(@D)
@@ -193,7 +193,7 @@ LIBFLAC_LIBS = -lFLAC -logg
 LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 SPC_LIBS = -lstdc++
-PXTONE_LIBS = 
+PXTONE_LIBS = -lstdc++
 
 ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalsefalse)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/vorbisfile
@@ -294,6 +294,9 @@ ALT_MUSIC_LIBS += $(SDL2_LIBS)
 else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/cubeb
 ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
+else ifeq ($(ALT_MUSIC_BACKEND), PortAudio)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/portaudio
+ALT_MUSIC_LIBS += -lportaudio -lsetupapi -lole32 -lwinmm
 endif
 
 ALT_MUSIC_OBJECTS += $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))

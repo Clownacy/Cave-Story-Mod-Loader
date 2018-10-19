@@ -53,6 +53,10 @@ bool Backend_Init(void)
 void Backend_Deinit(void)
 {
 	cubeb_destroy(cubeb_context);
+
+#ifdef _WIN32
+	CoUninitialize();
+#endif
 }
 
 BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)

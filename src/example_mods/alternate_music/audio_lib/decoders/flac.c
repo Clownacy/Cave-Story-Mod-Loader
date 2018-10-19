@@ -266,8 +266,10 @@ void Decoder_FLAC_Rewind(Decoder_FLAC *decoder)
 	FLAC__stream_decoder_seek_absolute(decoder->stream_decoder, 0);
 }
 
-unsigned long Decoder_FLAC_GetSamples(Decoder_FLAC *decoder, void *buffer, unsigned long frames_to_do)
+unsigned long Decoder_FLAC_GetSamples(Decoder_FLAC *decoder, void *buffer_void, unsigned long frames_to_do)
 {
+	unsigned char *buffer = buffer_void;
+
 	unsigned long frames_done_total = 0;
 
 	while (frames_done_total != frames_to_do)

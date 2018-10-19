@@ -131,8 +131,10 @@ void Decoder_IVorbisfile_Rewind(Decoder_IVorbisfile *decoder)
 	ov_time_seek(&decoder->vorbis_file, 0);
 }
 
-unsigned long Decoder_IVorbisfile_GetSamples(Decoder_IVorbisfile *decoder, void *buffer, unsigned long frames_to_do)
+unsigned long Decoder_IVorbisfile_GetSamples(Decoder_IVorbisfile *decoder, void *buffer_void, unsigned long frames_to_do)
 {
+	char *buffer = buffer_void;
+
 	const unsigned long bytes_to_do = frames_to_do * decoder->bytes_per_frame;
 
 	unsigned long bytes_done_total = 0;
