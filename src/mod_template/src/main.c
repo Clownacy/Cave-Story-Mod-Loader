@@ -39,7 +39,7 @@ void InitMod(void)
 	ModLoader_PrintErrorMessageBox("test error");
 
 	// Rename the config file to something else
-	ModLoader_WriteLong((void*)0x40AD84 + 2, (unsigned long)"configuration.bin");
+	ModLoader_WriteLong((void*)(0x40AD84 + 2), (unsigned long)"configuration.bin");
 
 	// Hijack the set-window-name function, and replace it with our own
 	ModLoader_WriteJump((void*)0x412320, (void*)SetWindowName);
