@@ -34,6 +34,9 @@
 #ifdef USE_PXTONE
 #include "decoders/pxtone.h"
 #endif
+#ifdef USE_XMPLITE
+#include "decoders/xmp-lite.h"
+#endif
 
 #define BACKEND_FUNCTIONS(name) \
 { \
@@ -84,6 +87,9 @@ static const struct
 #endif
 #ifdef USE_PXTONE
 	{(const char*[]){".ptcop", ".pttune", NULL}, BACKEND_FUNCTIONS(Pxtone), false, false},
+#endif
+#ifdef USE_XMPLITE
+	{(const char*[]){".mod", ".s3m", ".xm", ".it", NULL}, BACKEND_FUNCTIONS(XMPLite), false, false},
 #endif
 };
 

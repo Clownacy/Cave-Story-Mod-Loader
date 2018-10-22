@@ -10,9 +10,10 @@ ALT_MUSIC_USE_VORBISFILE = true
 ALT_MUSIC_USE_IVORBISFILE = false
 ALT_MUSIC_USE_FLAC = true
 ALT_MUSIC_USE_SNDFILE = false
-ALT_MUSIC_USE_OPENMPT = true
+ALT_MUSIC_USE_OPENMPT = false
 ALT_MUSIC_USE_SPC = false
 ALT_MUSIC_USE_PXTONE = true
+ALT_MUSIC_USE_XMPLITE = true
 # Can be 'mini_al', 'SDL2', 'Cubeb', or 'PortAudio'
 ALT_MUSIC_BACKEND = mini_al
 
@@ -194,20 +195,21 @@ LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 SPC_LIBS = -lstdc++
 PXTONE_LIBS = -lstdc++
+LIBXMPLITE_LIBS = -lxmp-lite
 
-ifeq ($(ALT_MUSIC_USE_VORBISFILE)$(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalsefalse)
+ifeq ($(ALT_MUSIC_USE_VORBISFILE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/vorbisfile
 ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
 ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_IVORBISFILE)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ifeq ($(ALT_MUSIC_USE_IVORBISFILE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/ivorbisfile
 ALT_MUSIC_CFLAGS += -DUSE_IVORBISFILE
 ALT_MUSIC_LIBS += $(LIBIVORBISFILE_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_FLAC)$(ALT_MUSIC_USE_SNDFILE), truefalse)
+ifeq ($(ALT_MUSIC_USE_FLAC), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/flac
 ALT_MUSIC_CFLAGS += -DUSE_FLAC
 ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
@@ -282,6 +284,12 @@ include $(wildcard $(ALT_MUSIC_PXTONE_DEPENDENCIES))
 obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone/%.cpp
 	@mkdir -p $(@D)
 	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing $< -o $@ -c
+endif
+
+ifeq ($(ALT_MUSIC_USE_XMPLITE), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/xmp-lite
+ALT_MUSIC_CFLAGS += -DUSE_XMPLITE
+ALT_MUSIC_LIBS += $(LIBXMPLITE_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
