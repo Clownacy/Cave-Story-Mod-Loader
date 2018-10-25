@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "pxtone/shim.h"
+#include "libs/pxtone/shim.h"
 
 #include "common.h"
 

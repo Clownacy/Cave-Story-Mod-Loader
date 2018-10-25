@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "snes_spc-0.9.0/snes_spc/spc.h"
+#include "libs/snes_spc-0.9.0/snes_spc/spc.h"
 
 #include "common.h"
 #include "memory_file.h"

@@ -19,11 +19,17 @@
 #ifdef USE_IVORBISFILE
 #include "decoders/ivorbisfile.h"
 #endif
+#ifdef USE_STB_VORBIS
+#include "decoders/stb_vorbis.h"
+#endif
 #ifdef USE_FLAC
 #include "decoders/flac.h"
 #endif
 #ifdef USE_SNDFILE
 #include "decoders/sndfile.h"
+#endif
+#ifdef USE_XMPLITE
+#include "decoders/xmp-lite.h"
 #endif
 #ifdef USE_OPENMPT
 #include "decoders/openmpt.h"
@@ -33,9 +39,6 @@
 #endif
 #ifdef USE_PXTONE
 #include "decoders/pxtone.h"
-#endif
-#ifdef USE_XMPLITE
-#include "decoders/xmp-lite.h"
 #endif
 
 #define BACKEND_FUNCTIONS(name) \
@@ -73,6 +76,9 @@ static const struct
 #ifdef USE_IVORBISFILE
 	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(IVorbisfile), true, true},
 #endif
+#ifdef USE_STB_VORBIS
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(STBVorbis), true, true},
+#endif
 #ifdef USE_FLAC
 	{(const char*[]){".flac", NULL}, BACKEND_FUNCTIONS(FLAC), true, true},
 #endif
@@ -82,14 +88,14 @@ static const struct
 #ifdef USE_OPENMPT
 	{(const char*[]){".mod", ".s3m", ".xm", ".it", ".mptm", NULL}, BACKEND_FUNCTIONS(OpenMPT), false, false},
 #endif
+#ifdef USE_XMPLITE
+	{(const char*[]){".mod", ".s3m", ".xm", ".it", NULL}, BACKEND_FUNCTIONS(XMPLite), false, false},
+#endif
 #ifdef USE_SPC
 	{(const char*[]){".spc", NULL}, BACKEND_FUNCTIONS(SPC), false, false},
 #endif
 #ifdef USE_PXTONE
 	{(const char*[]){".ptcop", ".pttune", NULL}, BACKEND_FUNCTIONS(Pxtone), false, false},
-#endif
-#ifdef USE_XMPLITE
-	{(const char*[]){".mod", ".s3m", ".xm", ".it", NULL}, BACKEND_FUNCTIONS(XMPLite), false, false},
 #endif
 };
 
