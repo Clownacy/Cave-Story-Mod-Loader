@@ -10,6 +10,8 @@
 
 #include "../common.h"
 
+static bool simple_cloud_background;
+
 static void DrawSkyRow(const int scroll_type)
 {
 	RECT src_rect_sky = {0, 0, 320, 88};
@@ -23,17 +25,25 @@ static void DrawSkyRow(const int scroll_type)
 
 	RECT src_rect_current;
 	int width_current;
-	if (scroll_type == 6)
+	if (simple_cloud_background)
 	{
-		// bkMoon
-		src_rect_current = src_rect_no_moon;
-		width_current = moon_width;
+		src_rect_current = src_rect_sky;
+		width_current = sky_width;
 	}
-	else// if (scroll_type == 7)
+	else
 	{
-		// bkFog
-		src_rect_current = src_rect_no_sun;
-		width_current = sun_width;
+		if (scroll_type == 6)
+		{
+			// bkMoon
+			src_rect_current = src_rect_no_moon;
+			width_current = moon_width;
+		}
+		else// if (scroll_type == 7)
+		{
+			// bkFog
+			src_rect_current = src_rect_no_sun;
+			width_current = sun_width;
+		}
 	}
 
 	for (int i = (((SCREEN_WIDTH - sky_width) / 2) - width_current); (i + width_current) > 0; i -= width_current)
@@ -95,6 +105,8 @@ extern char ScrollClouds_asm;
 
 void PatchScrollingClouds(void)
 {
+	simple_cloud_background = ModLoader_GetSettingBool("simple_cloud_background", false);
+
 	ModLoader_WriteLong((void*)0x402809 + (4 * 6), (int)&ScrollClouds_asm);
 	ModLoader_WriteLong((void*)0x402809 + (4 * 7), (int)&ScrollClouds_asm);
 }
