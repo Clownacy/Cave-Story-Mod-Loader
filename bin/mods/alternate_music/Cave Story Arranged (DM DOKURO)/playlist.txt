@@ -1,0 +1,41 @@
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 10 Mischievous Robot.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 09 Safety.ogg, loop
+dummy, org
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 07 Gravity.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 12 On To Grasstown.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 14 Meltdown 2.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 13 Eyes of Flame.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 03 Gestation.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 04 Mimiga Town.ogg, loop
+dummy, org
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 06 Balrog's Theme.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 08 Cemetery.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 05 Plant.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 11 Pulse.ogg, loop
+dummy, org
+dummy, org
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 15 Tyrant.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 16 Run!.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 17 Jenka 1.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 19 Labyrinth Fight.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 02 Access.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 21 Oppression.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 20 Geothermal.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 27 Cave Story.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 25 Moonsong.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 26 Hero's End.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 24 Scorching Back.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 23 Quiet.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 28 Last Cave.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 30 Balcony.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 31 Charge.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 33 Last Battle.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 38 The Way Back Home.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 32 Zombie.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 34 Break Down.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 35 Running Hell.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 18 Jenka 2.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 22 Living Waterway.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 36 Seal Chamber.ogg, loop
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 41 Toroko's Theme.ogg
+files/DM DOKURO - DM DOKURO Presents- Cave Story Arranged - 42 White.ogg, loop
