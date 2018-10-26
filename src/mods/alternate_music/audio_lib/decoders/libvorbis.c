@@ -1,7 +1,7 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "vorbisfile.h"
+#include "libvorbis.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -12,19 +12,19 @@
 #include "common.h"
 #include "memory_file.h"
 
-typedef struct DecoderData_Vorbisfile
+typedef struct DecoderData_libVorbis
 {
 	unsigned char *file_buffer;
 	size_t file_size;
 	bool loops;
-} DecoderData_Vorbisfile;
+} DecoderData_libVorbis;
 
-typedef struct Decoder_Vorbisfile
+typedef struct Decoder_libVorbis
 {
-	DecoderData_Vorbisfile *data;
+	DecoderData_libVorbis *data;
 	OggVorbis_File vorbis_file;
 	unsigned int channel_count;
-} Decoder_Vorbisfile;
+} Decoder_libVorbis;
 
 static size_t MemoryFile_fread_wrapper(void *output, size_t size, size_t count, void *file)
 {
@@ -53,18 +53,18 @@ static const ov_callbacks ov_callback_memory = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderData_Vorbisfile* Decoder_Vorbisfile_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libVorbis* Decoder_libVorbis_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
-	DecoderData_Vorbisfile *data = NULL;
+	DecoderData_libVorbis *data = NULL;
 
 	size_t file_size;
 	unsigned char *file_buffer = MemoryFile_fopen_to(file_path, &file_size);
 
 	if (file_buffer)
 	{
-		data = malloc(sizeof(DecoderData_Vorbisfile));
+		data = malloc(sizeof(DecoderData_libVorbis));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
 		data->loops = loops;
@@ -73,7 +73,7 @@ DecoderData_Vorbisfile* Decoder_Vorbisfile_LoadData(const char *file_path, bool 
 	return data;
 }
 
-void Decoder_Vorbisfile_UnloadData(DecoderData_Vorbisfile *data)
+void Decoder_libVorbis_UnloadData(DecoderData_libVorbis *data)
 {
 	if (data)
 	{
@@ -82,9 +82,9 @@ void Decoder_Vorbisfile_UnloadData(DecoderData_Vorbisfile *data)
 	}
 }
 
-Decoder_Vorbisfile* Decoder_Vorbisfile_Create(DecoderData_Vorbisfile *data, DecoderInfo *info)
+Decoder_libVorbis* Decoder_libVorbis_Create(DecoderData_libVorbis *data, DecoderInfo *info)
 {
-	Decoder_Vorbisfile *this = NULL;
+	Decoder_libVorbis *this = NULL;
 
 	if (data && data->file_buffer)
 	{
@@ -94,7 +94,7 @@ Decoder_Vorbisfile* Decoder_Vorbisfile_Create(DecoderData_Vorbisfile *data, Deco
 
 		if (ov_open_callbacks(memory_file, &vorbis_file, NULL, 0, ov_callback_memory) == 0)
 		{
-			this = malloc(sizeof(Decoder_Vorbisfile));
+			this = malloc(sizeof(Decoder_libVorbis));
 
 			vorbis_info *v_info = ov_info(&vorbis_file, -1);
 
@@ -116,7 +116,7 @@ Decoder_Vorbisfile* Decoder_Vorbisfile_Create(DecoderData_Vorbisfile *data, Deco
 	return this;
 }
 
-void Decoder_Vorbisfile_Destroy(Decoder_Vorbisfile *this)
+void Decoder_libVorbis_Destroy(Decoder_libVorbis *this)
 {
 	if (this)
 	{
@@ -125,12 +125,12 @@ void Decoder_Vorbisfile_Destroy(Decoder_Vorbisfile *this)
 	}
 }
 
-void Decoder_Vorbisfile_Rewind(Decoder_Vorbisfile *this)
+void Decoder_libVorbis_Rewind(Decoder_libVorbis *this)
 {
 	ov_time_seek(&this->vorbis_file, 0);
 }
 
-static unsigned long ReadFloats(Decoder_Vorbisfile *this, float *buffer, unsigned long frames_to_do)
+static unsigned long ReadFloats(Decoder_libVorbis *this, float *buffer, unsigned long frames_to_do)
 {
 	float **float_buffer;
 	long frames_read = ov_read_float(&this->vorbis_file, &float_buffer, frames_to_do, NULL);
@@ -142,7 +142,7 @@ static unsigned long ReadFloats(Decoder_Vorbisfile *this, float *buffer, unsigne
 	return frames_read;
 }
 
-unsigned long Decoder_Vorbisfile_GetSamples(Decoder_Vorbisfile *this, void *buffer_void, unsigned long frames_to_do)
+unsigned long Decoder_libVorbis_GetSamples(Decoder_libVorbis *this, void *buffer_void, unsigned long frames_to_do)
 {
 	float *buffer = buffer_void;
 
@@ -155,7 +155,7 @@ unsigned long Decoder_Vorbisfile_GetSamples(Decoder_Vorbisfile *this, void *buff
 		if (frames_done == 0)
 		{
 			if (this->data->loops)
-				Decoder_Vorbisfile_Rewind(this);
+				Decoder_libVorbis_Rewind(this);
 			else
 				break;
 		}

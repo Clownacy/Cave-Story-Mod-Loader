@@ -24,32 +24,32 @@
 #include "common.h"
 #include "memory_file.h"
 
-typedef struct DecoderData_STBVorbis
+typedef struct DecoderData_STB_Vorbis
 {
 	unsigned char *file_buffer;
 	size_t file_size;
 	bool loops;
-} DecoderData_STBVorbis;
+} DecoderData_STB_Vorbis;
 
-typedef struct Decoder_STBVorbis
+typedef struct Decoder_STB_Vorbis
 {
-	DecoderData_STBVorbis *data;
+	DecoderData_STB_Vorbis *data;
 	stb_vorbis *instance;
 	unsigned int channel_count;
-} Decoder_STBVorbis;
+} Decoder_STB_Vorbis;
 
-DecoderData_STBVorbis* Decoder_STBVorbis_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_STB_Vorbis* Decoder_STB_Vorbis_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
-	DecoderData_STBVorbis *data = NULL;
+	DecoderData_STB_Vorbis *data = NULL;
 
 	size_t file_size;
 	unsigned char *file_buffer = MemoryFile_fopen_to(file_path, &file_size);
 
 	if (file_buffer)
 	{
-		data = malloc(sizeof(DecoderData_STBVorbis));
+		data = malloc(sizeof(DecoderData_STB_Vorbis));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
 		data->loops = loops;
@@ -58,7 +58,7 @@ DecoderData_STBVorbis* Decoder_STBVorbis_LoadData(const char *file_path, bool lo
 	return data;
 }
 
-void Decoder_STBVorbis_UnloadData(DecoderData_STBVorbis *data)
+void Decoder_STB_Vorbis_UnloadData(DecoderData_STB_Vorbis *data)
 {
 	if (data)
 	{
@@ -67,9 +67,9 @@ void Decoder_STBVorbis_UnloadData(DecoderData_STBVorbis *data)
 	}
 }
 
-Decoder_STBVorbis* Decoder_STBVorbis_Create(DecoderData_STBVorbis *data, DecoderInfo *info)
+Decoder_STB_Vorbis* Decoder_STB_Vorbis_Create(DecoderData_STB_Vorbis *data, DecoderInfo *info)
 {
-	Decoder_STBVorbis *this = NULL;
+	Decoder_STB_Vorbis *this = NULL;
 
 	if (data && data->file_buffer)
 	{
@@ -77,7 +77,7 @@ Decoder_STBVorbis* Decoder_STBVorbis_Create(DecoderData_STBVorbis *data, Decoder
 
 		if (instance)
 		{
-			this = malloc(sizeof(Decoder_STBVorbis));
+			this = malloc(sizeof(Decoder_STB_Vorbis));
 
 			const stb_vorbis_info vorbis_info = stb_vorbis_get_info(instance);
 
@@ -95,7 +95,7 @@ Decoder_STBVorbis* Decoder_STBVorbis_Create(DecoderData_STBVorbis *data, Decoder
 	return this;
 }
 
-void Decoder_STBVorbis_Destroy(Decoder_STBVorbis *this)
+void Decoder_STB_Vorbis_Destroy(Decoder_STB_Vorbis *this)
 {
 	if (this)
 	{
@@ -104,12 +104,12 @@ void Decoder_STBVorbis_Destroy(Decoder_STBVorbis *this)
 	}
 }
 
-void Decoder_STBVorbis_Rewind(Decoder_STBVorbis *this)
+void Decoder_STB_Vorbis_Rewind(Decoder_STB_Vorbis *this)
 {
 	stb_vorbis_seek_start(this->instance);
 }
 
-unsigned long Decoder_STBVorbis_GetSamples(Decoder_STBVorbis *this, void *buffer_void, unsigned long frames_to_do)
+unsigned long Decoder_STB_Vorbis_GetSamples(Decoder_STB_Vorbis *this, void *buffer_void, unsigned long frames_to_do)
 {
 	float *buffer = buffer_void;
 
@@ -122,7 +122,7 @@ unsigned long Decoder_STBVorbis_GetSamples(Decoder_STBVorbis *this, void *buffer
 		if (frames_done == 0)
 		{
 			if (this->data->loops)
-				Decoder_STBVorbis_Rewind(this);
+				Decoder_STB_Vorbis_Rewind(this);
 			else
 				break;
 		}

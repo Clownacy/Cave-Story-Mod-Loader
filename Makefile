@@ -6,14 +6,14 @@ MOD_LOADER_VERSION = v1.5.2
 COMMON_PATH = common
 MODS_PATH = mods
 
-ALT_MUSIC_USE_VORBISFILE = false
-ALT_MUSIC_USE_IVORBISFILE = false
+ALT_MUSIC_USE_LIBVORBIS = false
+ALT_MUSIC_USE_TREMOR = false
 ALT_MUSIC_USE_STB_VORBIS = true
-ALT_MUSIC_USE_FLAC = true
-ALT_MUSIC_USE_SNDFILE = false
-ALT_MUSIC_USE_OPENMPT = false
-ALT_MUSIC_USE_XMPLITE = true
-ALT_MUSIC_USE_SPC = false
+ALT_MUSIC_USE_LIBFLAC = true
+ALT_MUSIC_USE_LIBSNDFILE = false
+ALT_MUSIC_USE_LIBOPENMPT = false
+ALT_MUSIC_USE_LIBXMPLITE = true
+ALT_MUSIC_USE_SNES_SPC = false
 ALT_MUSIC_USE_PXTONE = true
 # Can be 'mini_al', 'SDL2', 'Cubeb', or 'PortAudio'
 ALT_MUSIC_BACKEND = mini_al
@@ -189,26 +189,26 @@ ALT_MUSIC_SOURCES = \
 	$(ALT_MUSIC_PATH)/audio_lib/decoders/memory_file \
 	$(ALT_MUSIC_PATH)/audio_lib/decoders/misc_utilities
 
-LIBVORBISFILE_LIBS = -lvorbisfile -lvorbis -logg
-LIBIVORBISFILE_LIBS = -lvorbisidec -lvorbis -logg
+LIBVORBIS_LIBS = -lvorbisfile -lvorbis -logg
+TREMOR_LIBS = -lvorbisidec -logg
 STB_VORBIS_LIBS = 
 LIBFLAC_LIBS = -lFLAC -logg
 LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 LIBXMPLITE_LIBS = -lxmp-lite
-SPC_LIBS = -lstdc++
+SNES_SPC_LIBS = -lstdc++
 PXTONE_LIBS = -lstdc++
 
-ifeq ($(ALT_MUSIC_USE_VORBISFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/vorbisfile
-ALT_MUSIC_CFLAGS += -DUSE_VORBISFILE
-ALT_MUSIC_LIBS += $(LIBVORBISFILE_LIBS)
+ifeq ($(ALT_MUSIC_USE_LIBVORBIS), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libvorbis
+ALT_MUSIC_CFLAGS += -DUSE_LIBVORBIS
+ALT_MUSIC_LIBS += $(LIBVORBIS_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_IVORBISFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/ivorbisfile
-ALT_MUSIC_CFLAGS += -DUSE_IVORBISFILE
-ALT_MUSIC_LIBS += $(LIBIVORBISFILE_LIBS)
+ifeq ($(ALT_MUSIC_USE_TREMOR), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/tremor
+ALT_MUSIC_CFLAGS += -DUSE_TREMOR
+ALT_MUSIC_LIBS += $(TREMOR_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_STB_VORBIS), true)
@@ -217,34 +217,34 @@ ALT_MUSIC_CFLAGS += -DUSE_STB_VORBIS
 ALT_MUSIC_LIBS += $(STB_VORBIS_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_FLAC), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/flac
-ALT_MUSIC_CFLAGS += -DUSE_FLAC
+ifeq ($(ALT_MUSIC_USE_LIBFLAC), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libflac
+ALT_MUSIC_CFLAGS += -DUSE_LIBFLAC
 ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_SNDFILE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/sndfile
-ALT_MUSIC_CFLAGS += -DUSE_SNDFILE
+ifeq ($(ALT_MUSIC_USE_LIBSNDFILE), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libsndfile
+ALT_MUSIC_CFLAGS += -DUSE_LIBSNDFILE
 ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_OPENMPT), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/openmpt
-ALT_MUSIC_CFLAGS += -DUSE_OPENMPT
+ifeq ($(ALT_MUSIC_USE_LIBOPENMPT), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libopenmpt
+ALT_MUSIC_CFLAGS += -DUSE_LIBOPENMPT
 ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_XMPLITE), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/xmp-lite
-ALT_MUSIC_CFLAGS += -DUSE_XMPLITE
+ifeq ($(ALT_MUSIC_USE_LIBXMPLITE), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libxmp-lite
+ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE
 ALT_MUSIC_LIBS += $(LIBXMPLITE_LIBS)
 endif
 
-ifeq ($(ALT_MUSIC_USE_SPC), true)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/spc
-ALT_MUSIC_CFLAGS += -DUSE_SPC
-ALT_MUSIC_LIBS += $(SPC_LIBS)
+ifeq ($(ALT_MUSIC_USE_SNES_SPC), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/snes_spc
+ALT_MUSIC_CFLAGS += -DUSE_SNES_SPC
+ALT_MUSIC_LIBS += $(SNES_SPC_LIBS)
 
 ALT_MUSIC_SPC_SOURCES = \
 	dsp \
@@ -304,7 +304,7 @@ ifeq ($(ALT_MUSIC_BACKEND), mini_al)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/mini_al
 ALT_MUSIC_CFLAGS += -DMINI_AL_ENABLE_DEVICE_IO
 else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/SDL2
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/sdl2
 ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
 ALT_MUSIC_LIBS += $(SDL2_LIBS)
 else ifeq ($(ALT_MUSIC_BACKEND), Cubeb)

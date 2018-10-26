@@ -1,7 +1,7 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "flac.h"
+#include "libflac.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,16 +16,16 @@
 #undef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-typedef struct DecoderData_FLAC
+typedef struct DecoderData_libFLAC
 {
 	unsigned char *file_buffer;
 	size_t file_size;
 	bool loops;
-} DecoderData_FLAC;
+} DecoderData_libFLAC;
 
-typedef struct Decoder_FLAC
+typedef struct Decoder_libFLAC
 {
-	DecoderData_FLAC *data;
+	DecoderData_libFLAC *data;
 
 	MemoryFile *file;
 	FLAC__StreamDecoder *stream_decoder;
@@ -40,13 +40,13 @@ typedef struct Decoder_FLAC
 	unsigned char *block_buffer;
 	unsigned long block_buffer_index;
 	unsigned long block_buffer_size;
-} Decoder_FLAC;
+} Decoder_libFLAC;
 
 static FLAC__StreamDecoderReadStatus MemoryFile_fread_wrapper(const FLAC__StreamDecoder *decoder, FLAC__byte *output, size_t *count, void *user)
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	FLAC__StreamDecoderReadStatus status = FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
 
@@ -62,7 +62,7 @@ static FLAC__StreamDecoderSeekStatus MemoryFile_fseek_wrapper(const FLAC__Stream
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	return MemoryFile_fseek(this->file, offset, SEEK_SET) != 0 ? FLAC__STREAM_DECODER_SEEK_STATUS_ERROR : FLAC__STREAM_DECODER_SEEK_STATUS_OK;
 }
@@ -71,7 +71,7 @@ static FLAC__StreamDecoderTellStatus MemoryFile_ftell_wrapper(const FLAC__Stream
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	*offset = MemoryFile_ftell(this->file);
 
@@ -82,7 +82,7 @@ static FLAC__StreamDecoderLengthStatus MemoryFile_GetSize(const FLAC__StreamDeco
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	const long old_offset = MemoryFile_ftell(this->file);
 
@@ -98,7 +98,7 @@ static FLAC__bool MemoryFile_EOF(const FLAC__StreamDecoder *decoder, void *user)
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	const long offset = MemoryFile_ftell(this->file);
 
@@ -114,7 +114,7 @@ static FLAC__StreamDecoderWriteStatus WriteCallback(const FLAC__StreamDecoder *d
 {
 	(void)decoder;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	FLAC__int32 *block_buffer_pointer = (FLAC__int32*)this->block_buffer;
 	for (unsigned int i = 0; i < frame->header.blocksize; ++i)
@@ -142,7 +142,7 @@ static FLAC__StreamDecoderWriteStatus WriteCallback(const FLAC__StreamDecoder *d
 static void MetadataCallback(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *user)
 {
 	(void)decoder;
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	this->info->sample_rate = metadata->data.stream_info.sample_rate;
 	this->info->channel_count = this->channel_count = metadata->data.stream_info.channels;
@@ -162,23 +162,23 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 	(void)decoder;
 	(void)status;
 
-	Decoder_FLAC *this = user;
+	Decoder_libFLAC *this = user;
 
 	this->error = true;
 }
 
-DecoderData_FLAC* Decoder_FLAC_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libFLAC* Decoder_libFLAC_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
-	DecoderData_FLAC *data = NULL;
+	DecoderData_libFLAC *data = NULL;
 
 	size_t file_size;
 	unsigned char *file_buffer = MemoryFile_fopen_to(file_path, &file_size);
 
 	if (file_buffer)
 	{
-		data = malloc(sizeof(DecoderData_FLAC));
+		data = malloc(sizeof(DecoderData_libFLAC));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
 		data->loops = loops;
@@ -187,7 +187,7 @@ DecoderData_FLAC* Decoder_FLAC_LoadData(const char *file_path, bool loops, Linke
 	return data;
 }
 
-void Decoder_FLAC_UnloadData(DecoderData_FLAC *data)
+void Decoder_libFLAC_UnloadData(DecoderData_libFLAC *data)
 {
 	if (data)
 	{
@@ -196,9 +196,9 @@ void Decoder_FLAC_UnloadData(DecoderData_FLAC *data)
 	}
 }
 
-Decoder_FLAC* Decoder_FLAC_Create(DecoderData_FLAC *data, DecoderInfo *info)
+Decoder_libFLAC* Decoder_libFLAC_Create(DecoderData_libFLAC *data, DecoderInfo *info)
 {
-	Decoder_FLAC *decoder = malloc(sizeof(Decoder_FLAC));
+	Decoder_libFLAC *decoder = malloc(sizeof(Decoder_libFLAC));
 
 	decoder->stream_decoder = FLAC__stream_decoder_new();
 
@@ -249,7 +249,7 @@ Decoder_FLAC* Decoder_FLAC_Create(DecoderData_FLAC *data, DecoderInfo *info)
 	return decoder;
 }
 
-void Decoder_FLAC_Destroy(Decoder_FLAC *decoder)
+void Decoder_libFLAC_Destroy(Decoder_libFLAC *decoder)
 {
 	if (decoder)
 	{
@@ -261,12 +261,12 @@ void Decoder_FLAC_Destroy(Decoder_FLAC *decoder)
 	}
 }
 
-void Decoder_FLAC_Rewind(Decoder_FLAC *decoder)
+void Decoder_libFLAC_Rewind(Decoder_libFLAC *decoder)
 {
 	FLAC__stream_decoder_seek_absolute(decoder->stream_decoder, 0);
 }
 
-unsigned long Decoder_FLAC_GetSamples(Decoder_FLAC *decoder, void *buffer_void, unsigned long frames_to_do)
+unsigned long Decoder_libFLAC_GetSamples(Decoder_libFLAC *decoder, void *buffer_void, unsigned long frames_to_do)
 {
 	unsigned char *buffer = buffer_void;
 
@@ -282,7 +282,7 @@ unsigned long Decoder_FLAC_GetSamples(Decoder_FLAC *decoder, void *buffer_void, 
 			{
 				if (decoder->data->loops)
 				{
-					Decoder_FLAC_Rewind(decoder);
+					Decoder_libFLAC_Rewind(decoder);
 					continue;
 				}
 				else

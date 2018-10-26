@@ -13,29 +13,29 @@
 #include "decoders/predecode.h"
 #include "decoders/split.h"
 
-#ifdef USE_VORBISFILE
-#include "decoders/vorbisfile.h"
+#ifdef USE_LIBVORBIS
+#include "decoders/libvorbis.h"
 #endif
-#ifdef USE_IVORBISFILE
-#include "decoders/ivorbisfile.h"
+#ifdef USE_TREMOR
+#include "decoders/tremor.h"
 #endif
 #ifdef USE_STB_VORBIS
 #include "decoders/stb_vorbis.h"
 #endif
-#ifdef USE_FLAC
-#include "decoders/flac.h"
+#ifdef USE_LIBFLAC
+#include "decoders/libflac.h"
 #endif
-#ifdef USE_SNDFILE
-#include "decoders/sndfile.h"
+#ifdef USE_LIBSNDFILE
+#include "decoders/libsndfile.h"
 #endif
-#ifdef USE_XMPLITE
-#include "decoders/xmp-lite.h"
+#ifdef USE_LIBXMPLITE
+#include "decoders/libxmp-lite.h"
 #endif
-#ifdef USE_OPENMPT
-#include "decoders/openmpt.h"
+#ifdef USE_LIBOPENMPT
+#include "decoders/libopenmpt.h"
 #endif
-#ifdef USE_SPC
-#include "decoders/spc.h"
+#ifdef USE_SNES_SPC
+#include "decoders/snes_spc.h"
 #endif
 #ifdef USE_PXTONE
 #include "decoders/pxtone.h"
@@ -70,29 +70,29 @@ static const struct
 	bool can_be_predecoded;
 	bool can_be_split;
 } backends[] = {
-#ifdef USE_VORBISFILE
-	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(Vorbisfile), true, true},
+#ifdef USE_LIBVORBIS
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(libVorbis), true, true},
 #endif
-#ifdef USE_IVORBISFILE
-	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(IVorbisfile), true, true},
+#ifdef USE_TREMOR
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(Tremor), true, true},
 #endif
 #ifdef USE_STB_VORBIS
-	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(STBVorbis), true, true},
+	{(const char*[]){".ogg", NULL}, BACKEND_FUNCTIONS(STB_Vorbis), true, true},
 #endif
-#ifdef USE_FLAC
-	{(const char*[]){".flac", NULL}, BACKEND_FUNCTIONS(FLAC), true, true},
+#ifdef USE_LIBFLAC
+	{(const char*[]){".flac", NULL}, BACKEND_FUNCTIONS(libFLAC), true, true},
 #endif
-#ifdef USE_SNDFILE
-	{(const char*[]){".ogg", ".flac", ".wav", ".aiff", NULL}, BACKEND_FUNCTIONS(Sndfile), true, true},
+#ifdef USE_LIBSNDFILE
+	{(const char*[]){".ogg", ".flac", ".wav", ".aiff", NULL}, BACKEND_FUNCTIONS(libSndfile), true, true},
 #endif
-#ifdef USE_OPENMPT
-	{(const char*[]){".mod", ".s3m", ".xm", ".it", ".mptm", NULL}, BACKEND_FUNCTIONS(OpenMPT), false, false},
+#ifdef USE_LIBOPENMPT
+	{(const char*[]){".mod", ".s3m", ".xm", ".it", ".mptm", NULL}, BACKEND_FUNCTIONS(libOpenMPT), false, false},
 #endif
-#ifdef USE_XMPLITE
-	{(const char*[]){".mod", ".s3m", ".xm", ".it", NULL}, BACKEND_FUNCTIONS(XMPLite), false, false},
+#ifdef USE_LIBXMPLITE
+	{(const char*[]){".mod", ".s3m", ".xm", ".it", NULL}, BACKEND_FUNCTIONS(libXMPLite), false, false},
 #endif
-#ifdef USE_SPC
-	{(const char*[]){".spc", NULL}, BACKEND_FUNCTIONS(SPC), false, false},
+#ifdef USE_SNES_SPC
+	{(const char*[]){".spc", NULL}, BACKEND_FUNCTIONS(SNES_SPC), false, false},
 #endif
 #ifdef USE_PXTONE
 	{(const char*[]){".ptcop", ".pttune", NULL}, BACKEND_FUNCTIONS(Pxtone), false, false},

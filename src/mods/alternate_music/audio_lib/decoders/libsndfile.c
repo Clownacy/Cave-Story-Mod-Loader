@@ -1,7 +1,7 @@
 // Alternate music mod for 2004 Cave Story
 // Copyright © 2018 Clownacy
 
-#include "sndfile.h"
+#include "libsndfile.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -13,21 +13,21 @@
 #include "common.h"
 #include "memory_file.h"
 
-typedef struct DecoderData_Sndfile
+typedef struct DecoderData_libSndfile
 {
 	unsigned char *file_buffer;
 	size_t file_size;
 	bool loops;
-} DecoderData_Sndfile;
+} DecoderData_libSndfile;
 
-typedef struct Decoder_Sndfile
+typedef struct Decoder_libSndfile
 {
-	DecoderData_Sndfile *data;
+	DecoderData_libSndfile *data;
 	MemoryFile *file;
 	SNDFILE *sndfile;
 	DecoderFormat format;
 	unsigned int channel_count;
-} Decoder_Sndfile;
+} Decoder_libSndfile;
 
 static sf_count_t MemoryFile_fread_wrapper(void *output, sf_count_t count, void *user)
 {
@@ -64,18 +64,18 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderData_Sndfile* Decoder_Sndfile_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libSndfile* Decoder_libSndfile_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
-	DecoderData_Sndfile *data = NULL;
+	DecoderData_libSndfile *data = NULL;
 
 	size_t file_size;
 	unsigned char *file_buffer = MemoryFile_fopen_to(file_path, &file_size);
 
 	if (file_buffer)
 	{
-		data = malloc(sizeof(DecoderData_Sndfile));
+		data = malloc(sizeof(DecoderData_libSndfile));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
 		data->loops = loops;
@@ -84,7 +84,7 @@ DecoderData_Sndfile* Decoder_Sndfile_LoadData(const char *file_path, bool loops,
 	return data;
 }
 
-void Decoder_Sndfile_UnloadData(DecoderData_Sndfile *data)
+void Decoder_libSndfile_UnloadData(DecoderData_libSndfile *data)
 {
 	if (data)
 	{
@@ -93,9 +93,9 @@ void Decoder_Sndfile_UnloadData(DecoderData_Sndfile *data)
 	}
 }
 
-Decoder_Sndfile* Decoder_Sndfile_Create(DecoderData_Sndfile *data, DecoderInfo *info)
+Decoder_libSndfile* Decoder_libSndfile_Create(DecoderData_libSndfile *data, DecoderInfo *info)
 {
-	Decoder_Sndfile *decoder = NULL;
+	Decoder_libSndfile *decoder = NULL;
 
 	MemoryFile *file = MemoryFile_fopen_from(data->file_buffer, data->file_size, false);
 
@@ -106,7 +106,7 @@ Decoder_Sndfile* Decoder_Sndfile_Create(DecoderData_Sndfile *data, DecoderInfo *
 
 	if (sndfile)
 	{
-		decoder = malloc(sizeof(Decoder_Sndfile));
+		decoder = malloc(sizeof(Decoder_libSndfile));
 		decoder->data = data;
 		decoder->sndfile = sndfile;
 		decoder->file = file;
@@ -125,7 +125,7 @@ Decoder_Sndfile* Decoder_Sndfile_Create(DecoderData_Sndfile *data, DecoderInfo *
 	return decoder;
 }
 
-void Decoder_Sndfile_Destroy(Decoder_Sndfile *decoder)
+void Decoder_libSndfile_Destroy(Decoder_libSndfile *decoder)
 {
 	if (decoder)
 	{
@@ -135,12 +135,12 @@ void Decoder_Sndfile_Destroy(Decoder_Sndfile *decoder)
 	}
 }
 
-void Decoder_Sndfile_Rewind(Decoder_Sndfile *decoder)
+void Decoder_libSndfile_Rewind(Decoder_libSndfile *decoder)
 {
 	sf_seek(decoder->sndfile, 0, SEEK_SET);
 }
 
-unsigned long Decoder_Sndfile_GetSamples(Decoder_Sndfile *decoder, void *output_buffer_void, unsigned long frames_to_do)
+unsigned long Decoder_libSndfile_GetSamples(Decoder_libSndfile *decoder, void *output_buffer_void, unsigned long frames_to_do)
 {
 	float *output_buffer = output_buffer_void;
 
@@ -153,7 +153,7 @@ unsigned long Decoder_Sndfile_GetSamples(Decoder_Sndfile *decoder, void *output_
 		if (frames_done_total == frames_to_do || !decoder->data->loops)
 			break;
 
-		Decoder_Sndfile_Rewind(decoder);
+		Decoder_libSndfile_Rewind(decoder);
 	}
 
 	return frames_done_total;
