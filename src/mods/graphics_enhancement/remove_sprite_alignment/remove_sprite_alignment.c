@@ -12,10 +12,7 @@
 
 #include "../common.h"
 
-#define ConvertPixelMacro(value) ((value * 512 * (int)window_upscale_factor) / 512)
-#define ConvertCoordMacro(value) ((value * (int)window_upscale_factor) / 512)
-
-static void DrawColourFill_RawXY(RECT *dst_rect, int colour)
+void DrawColourFill_RawXY(RECT *dst_rect, int colour)
 {
 	DDBLTFX ddbltfx;
 	memset(&ddbltfx, 0, sizeof(ddbltfx));
@@ -52,6 +49,12 @@ static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_S
 //	x = (x * CS_window_upscale) / 512;
 //	y = (y * CS_window_upscale) / 512;
 
+	if (!remove_sprite_alignment)
+	{
+		x -= x % CS_window_upscale;
+		y -= y % CS_window_upscale;
+	}
+
 	final_src_rect_1.left = new_src_rect.left;
 	final_src_rect_1.top = new_src_rect.top;
 	final_src_rect_1.right = new_src_rect.right;
@@ -83,12 +86,12 @@ static void DrawSprite_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_S
 	CS_screen_surface->lpVtbl->Blt(CS_screen_surface, &final_dst_rect_1, CS_surfaces[surface_id], &final_src_rect_1, transparency? 0x1008000 : 0x1000000, 0);
 }
 
-static void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
+void DrawSpriteWithTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
 {
 	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, true);
 }
 
-static void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
+void DrawSpriteNoTransparency_RawXY(RECT *clip_rect, int x, int y, RECT *src_rect, CS_SurfaceID surface_id)
 {
 	DrawSprite_RawXY(clip_rect, x, y, src_rect, surface_id, false);
 }

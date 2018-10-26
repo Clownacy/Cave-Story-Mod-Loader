@@ -11,6 +11,7 @@ extern bool fullscreen_auto_window_upscale;
 extern bool fullscreen_vsync;
 extern bool fullscreen_integer_scaling;
 extern bool sixty_fps;
+extern bool remove_sprite_alignment;
 extern unsigned int aspect_ratio_x;
 extern unsigned int aspect_ratio_y;
 extern unsigned int window_upscale_factor;

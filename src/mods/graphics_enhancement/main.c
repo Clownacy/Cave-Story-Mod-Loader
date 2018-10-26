@@ -58,7 +58,7 @@ static int DoTheRest(CS_ConfigData *config)
 	if (window_upscale_factor != 2)
 		UpscaleWindow();
 
-	if (ModLoader_GetSettingBool("remove_sprite_alignment", true))
+	if (remove_sprite_alignment)
 		RemoveSpriteAlignment();
 
 	return result;
@@ -72,6 +72,7 @@ void InitMod(void)
 	fullscreen_vsync = ModLoader_GetSettingBool("fullscreen_vsync", true);
 	fullscreen_integer_scaling = ModLoader_GetSettingBool("fullscreen_integer_scaling", false);
 	sixty_fps = ModLoader_GetSettingBool("60fps", true);
+	remove_sprite_alignment = ModLoader_GetSettingBool("remove_sprite_alignment", true);
 
 	aspect_ratio_x = ModLoader_GetSettingInt("aspect_ratio_x", 16);
 	if (aspect_ratio_x == 0)
