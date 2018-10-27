@@ -24,15 +24,14 @@ static void Callback(void *user_data, Uint8 *output_buffer_uint8, int bytes_to_d
 {
 	BackendStream *stream = user_data;
 	const unsigned long frames_to_do = bytes_to_do / stream->bytes_per_frame;
-	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = (float(*)[frames_to_do][STREAM_CHANNEL_COUNT])output_buffer_uint8;
+	float *output_buffer = (float*)output_buffer_uint8;
 
 	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
 
 	// Handle volume in software, since SDL2's API doesn't have volume control
 	if (stream->volume != 1.0f)
-		for (unsigned long i = 0; i < frames_to_do; ++i)
-			for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
-				(*output_buffer)[i][j] *= stream->volume;
+		for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
+			output_buffer[i] *= stream->volume;
 }
 
 bool Backend_Init(void)

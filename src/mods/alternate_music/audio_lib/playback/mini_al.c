@@ -21,15 +21,14 @@ typedef struct BackendStream
 static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *output_buffer_void)
 {
 	BackendStream *stream = device->pUserData;
-	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = (float(*)[frames_to_do][STREAM_CHANNEL_COUNT])output_buffer_void;
+	float *output_buffer = output_buffer_void;
 
 	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
 
-	// Handle volume in software, since SDL2's API doesn't have volume control
+	// Handle volume in software, since mini_al's API doesn't have volume control
 	if (stream->volume != 1.0f)
-		for (unsigned long i = 0; i < frames_to_do; ++i)
-			for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
-				(*output_buffer)[i][j] *= stream->volume;
+		for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
+			output_buffer[i] *= stream->volume;
 
 	return frames_to_do;
 }
