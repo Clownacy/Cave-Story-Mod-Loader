@@ -10,6 +10,7 @@ ALT_MUSIC_USE_LIBVORBIS = false
 ALT_MUSIC_USE_TREMOR = false
 ALT_MUSIC_USE_STB_VORBIS = true
 ALT_MUSIC_USE_LIBFLAC = true
+ALT_MUSIC_USE_DR_WAV = false
 ALT_MUSIC_USE_LIBSNDFILE = false
 ALT_MUSIC_USE_LIBOPENMPT = false
 ALT_MUSIC_USE_LIBXMPLITE = true
@@ -189,62 +190,56 @@ ALT_MUSIC_SOURCES = \
 	$(ALT_MUSIC_PATH)/audio_lib/decoders/memory_file \
 	$(ALT_MUSIC_PATH)/audio_lib/decoders/misc_utilities
 
-LIBVORBIS_LIBS = -lvorbisfile -lvorbis -logg
-TREMOR_LIBS = -lvorbisidec -logg
-STB_VORBIS_LIBS = 
-LIBFLAC_LIBS = -lFLAC -logg
-LIBSNDFILE_LIBS = -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
-LIBOPENMPT_LIBS = -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
-LIBXMPLITE_LIBS = -lxmp-lite
-SNES_SPC_LIBS = -lstdc++
-PXTONE_LIBS = -lstdc++
-
 ifeq ($(ALT_MUSIC_USE_LIBVORBIS), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libvorbis
 ALT_MUSIC_CFLAGS += -DUSE_LIBVORBIS
-ALT_MUSIC_LIBS += $(LIBVORBIS_LIBS)
+ALT_MUSIC_LIBS += -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(ALT_MUSIC_USE_TREMOR), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/tremor
 ALT_MUSIC_CFLAGS += -DUSE_TREMOR
-ALT_MUSIC_LIBS += $(TREMOR_LIBS)
+ALT_MUSIC_LIBS += -lvorbisidec -logg
 endif
 
 ifeq ($(ALT_MUSIC_USE_STB_VORBIS), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/stb_vorbis
 ALT_MUSIC_CFLAGS += -DUSE_STB_VORBIS
-ALT_MUSIC_LIBS += $(STB_VORBIS_LIBS)
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBFLAC), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libflac
 ALT_MUSIC_CFLAGS += -DUSE_LIBFLAC
-ALT_MUSIC_LIBS += $(LIBFLAC_LIBS)
+ALT_MUSIC_LIBS += -lFLAC -logg
+endif
+
+ifeq ($(ALT_MUSIC_USE_DR_WAV), true)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/dr_wav
+ALT_MUSIC_CFLAGS += -DUSE_DR_WAV
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBSNDFILE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libsndfile
 ALT_MUSIC_CFLAGS += -DUSE_LIBSNDFILE
-ALT_MUSIC_LIBS += $(LIBSNDFILE_LIBS)
+ALT_MUSIC_LIBS += -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBOPENMPT), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libopenmpt
 ALT_MUSIC_CFLAGS += -DUSE_LIBOPENMPT
-ALT_MUSIC_LIBS += $(LIBOPENMPT_LIBS)
+ALT_MUSIC_LIBS += -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBXMPLITE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libxmp-lite
 ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE
-ALT_MUSIC_LIBS += $(LIBXMPLITE_LIBS)
+ALT_MUSIC_LIBS += -lxmp-lite
 endif
 
 ifeq ($(ALT_MUSIC_USE_SNES_SPC), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/snes_spc
 ALT_MUSIC_CFLAGS += -DUSE_SNES_SPC
-ALT_MUSIC_LIBS += $(SNES_SPC_LIBS)
+ALT_MUSIC_LIBS += -lstdc++
 
 ALT_MUSIC_SPC_SOURCES = \
 	dsp \
@@ -266,7 +261,7 @@ endif
 ifeq ($(ALT_MUSIC_USE_PXTONE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/pxtone
 ALT_MUSIC_CFLAGS += -DUSE_PXTONE
-ALT_MUSIC_LIBS += $(PXTONE_LIBS)
+ALT_MUSIC_LIBS += -lstdc++
 
 ALT_MUSIC_PXTONE_SOURCES = \
 	pxtnDelay \

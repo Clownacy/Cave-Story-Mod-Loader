@@ -25,6 +25,9 @@
 #ifdef USE_LIBFLAC
 #include "decoders/libflac.h"
 #endif
+#ifdef USE_DR_WAV
+#include "decoders/dr_wav.h"
+#endif
 #ifdef USE_LIBSNDFILE
 #include "decoders/libsndfile.h"
 #endif
@@ -81,6 +84,9 @@ static const struct
 #endif
 #ifdef USE_LIBFLAC
 	{(const char*[]){".flac", NULL}, BACKEND_FUNCTIONS(libFLAC), true, true},
+#endif
+#ifdef USE_DR_WAV
+	{(const char*[]){".wav", NULL}, BACKEND_FUNCTIONS(DR_WAV), true, true},
 #endif
 #ifdef USE_LIBSNDFILE
 	{(const char*[]){".ogg", ".flac", ".wav", ".aiff", NULL}, BACKEND_FUNCTIONS(libSndfile), true, true},
