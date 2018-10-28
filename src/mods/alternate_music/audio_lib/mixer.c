@@ -1,10 +1,15 @@
 #include "mixer.h"
 
-#include <pthread.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <pthread.h>
+#endif
 
 #include "mini_al.h"
 
@@ -26,10 +31,55 @@ typedef struct Channel
 	unsigned int fade_counter;
 } Channel;
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+typedef struct Mutex
+{
+#ifdef _WIN32
+	HANDLE handle;
+#else
+	pthread_mutex_t pthread_mutex;
+#endif
+} Mutex;
 
 static Channel *channel_list_head;
 static BackendStream *stream;
+
+static Mutex mixer_mutex;
+
+static void MutexInit(Mutex *mutex)
+{
+#ifdef _WIN32
+	mutex->handle = CreateEventA(NULL, FALSE, TRUE, NULL);
+#else
+	pthread_mutex_init(&mutex->pthread_mutex, NULL);
+#endif
+}
+
+static void MutexDeinit(Mutex *mutex)
+{
+#ifdef _WIN32
+	CloseHandle(mutex->handle);
+#else
+	pthread_mutex_destroy(&mutex->pthread_mutex);
+#endif
+}
+
+static void MutexLock(Mutex *mutex)
+{
+#ifdef _WIN32
+	WaitForSingleObject(mutex->handle, INFINITE);
+#else
+	pthread_mutex_lock(&mutex->pthread_mutex);
+#endif
+}
+
+static void MutexUnlock(Mutex *mutex)
+{
+#ifdef _WIN32
+	SetEvent(mutex->handle);
+#else
+	pthread_mutex_unlock(&mutex->pthread_mutex);
+#endif
+}
 
 static Channel* FindChannel(Mixer_SoundInstanceID instance)
 {
@@ -48,7 +98,7 @@ static void CallbackStream(void *user_data, void *output_buffer_void, unsigned l
 
 	memset(output_buffer, 0, frames_to_do * sizeof(float) * STREAM_CHANNEL_COUNT);
 
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 	Channel **channel_pointer = &channel_list_head;
 	while (*channel_pointer != NULL)
 	{
@@ -99,7 +149,7 @@ static void CallbackStream(void *user_data, void *output_buffer_void, unsigned l
 
 		channel_pointer = &(*channel_pointer)->next;
 	}
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
 
 static mal_uint32 CallbackDSP(mal_dsp *dsp, mal_uint32 frames_to_do, void *output_buffer, void *user_data)
@@ -119,6 +169,8 @@ bool Mixer_Init(void)
 
 		if (stream)
 		{
+			MutexInit(&mixer_mutex);
+
 			if (Backend_ResumeStream(stream))
 				success = true;
 			else
@@ -137,6 +189,7 @@ void Mixer_Deinit(void)
 {
 	Backend_DestroyStream(stream);
 	Backend_Deinit();
+	MutexDeinit(&mixer_mutex);
 }
 
 void Mixer_Pause(void)
@@ -192,10 +245,10 @@ Mixer_SoundInstanceID Mixer_PlaySound(Mixer_Sound *sound)
 		const mal_dsp_config config = mal_dsp_config_init(format, info.channel_count, info.sample_rate, mal_format_f32, STREAM_CHANNEL_COUNT, STREAM_SAMPLE_RATE, CallbackDSP, NULL);
 		mal_dsp_init(&config, &channel->dsp);
 
-		pthread_mutex_lock(&mutex);
+		MutexLock(&mixer_mutex);
 		channel->next = channel_list_head;
 		channel_list_head = channel;
-		pthread_mutex_unlock(&mutex);
+		MutexUnlock(&mixer_mutex);
 	}
 
 	return instance;
@@ -205,7 +258,7 @@ void Mixer_StopSound(Mixer_SoundInstanceID instance)
 {
 	Channel *channel = NULL;
 
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	for (Channel **channel_pointer = &channel_list_head; *channel_pointer != NULL; channel_pointer = &(*channel_pointer)->next)
 	{
@@ -217,7 +270,7 @@ void Mixer_StopSound(Mixer_SoundInstanceID instance)
 		}
 	}
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 
 	if (channel)
 	{
@@ -228,31 +281,31 @@ void Mixer_StopSound(Mixer_SoundInstanceID instance)
 
 void Mixer_PauseSound(Mixer_SoundInstanceID instance)
 {
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	Channel *channel = FindChannel(instance);
 
 	if (channel)
 		channel->paused = true;
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
 
 void Mixer_UnpauseSound(Mixer_SoundInstanceID instance)
 {
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	Channel *channel = FindChannel(instance);
 
 	if (channel)
 		channel->paused = false;
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
 
 void Mixer_FadeOutSound(Mixer_SoundInstanceID instance, unsigned int duration)
 {
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	Channel *channel = FindChannel(instance);
 
@@ -263,12 +316,12 @@ void Mixer_FadeOutSound(Mixer_SoundInstanceID instance, unsigned int duration)
 		channel->fade_in_counter_max = 0;
 	}
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
 
 void Mixer_FadeInSound(Mixer_SoundInstanceID instance, unsigned int duration)
 {
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	Channel *channel = FindChannel(instance);
 
@@ -279,17 +332,17 @@ void Mixer_FadeInSound(Mixer_SoundInstanceID instance, unsigned int duration)
 		channel->fade_out_counter_max = 0;
 	}
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
 
 void Mixer_SetSoundVolume(Mixer_SoundInstanceID instance, float volume)
 {
-	pthread_mutex_lock(&mutex);
+	MutexLock(&mixer_mutex);
 
 	Channel *channel = FindChannel(instance);
 
 	if (channel)
 		channel->volume = volume * volume;
 
-	pthread_mutex_unlock(&mutex);
+	MutexUnlock(&mixer_mutex);
 }
