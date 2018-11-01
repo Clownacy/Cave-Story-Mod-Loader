@@ -99,7 +99,7 @@ include $(wildcard $(MOD_LOADER_DEPENDENCIES))
 
 obj/$(MOD_LOADER_PATH)/inih/ini.o: src/$(MOD_LOADER_PATH)/inih/ini.c
 	@mkdir -p $(@D)
-	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 -DINI_USE_STACK=0 $< -o $@ -c
+	@$(CC) $(ALL_CFLAGS) -DINI_ALLOW_MULTILINE=0 $< -o $@ -c
 
 bin/mods/mod_loader.dll: $(MOD_LOADER_OBJECTS)
 	@mkdir -p $(@D)
