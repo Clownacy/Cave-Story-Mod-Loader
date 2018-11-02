@@ -16,13 +16,16 @@ ALT_MUSIC_USE_LIBOPENMPT = false
 ALT_MUSIC_USE_LIBXMPLITE = true
 ALT_MUSIC_USE_SNES_SPC = false
 ALT_MUSIC_USE_PXTONE = true
-# Can be 'mini_al', 'SDL2', 'Cubeb', or 'PortAudio'
+# Can be 'mini_al', 'SDL1', 'SDL2', 'Cubeb', or 'PortAudio'
 ALT_MUSIC_BACKEND = mini_al
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident -MMD -MP -MF $@.d
 CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident -MMD -MP -MF $@.d
 ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CXXFLAGS)
+
+SDL1_CFLAGS = $(shell sdl-config --cflags)
+SDL1_LIBS = $(shell sdl-config --static-libs)
 
 SDL2_CFLAGS = $(shell sdl2-config --cflags)
 SDL2_LIBS = $(shell sdl2-config --static-libs)
@@ -298,6 +301,10 @@ endif
 ifeq ($(ALT_MUSIC_BACKEND), mini_al)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/mini_al
 ALT_MUSIC_CFLAGS += -DMINI_AL_ENABLE_DEVICE_IO
+else ifeq ($(ALT_MUSIC_BACKEND), SDL1)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/sdl1
+ALT_MUSIC_CFLAGS += $(SDL1_CFLAGS)
+ALT_MUSIC_LIBS += $(SDL1_LIBS)
 else ifeq ($(ALT_MUSIC_BACKEND), SDL2)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/sdl2
 ALT_MUSIC_CFLAGS += $(SDL2_CFLAGS)
