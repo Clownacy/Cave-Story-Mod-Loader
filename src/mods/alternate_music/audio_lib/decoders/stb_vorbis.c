@@ -13,13 +13,17 @@
 #define STB_VORBIS_NO_PUSHDATA_API
 #define STB_VORBIS_NO_INTEGER_CONVERSION
 
+#ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-value"
+#endif
 #include "libs/stb_vorbis.h"
+#ifdef __GNUC__
 #pragma GCC diagnostic pop
+#endif
 
 #include "common.h"
 #include "memory_file.h"

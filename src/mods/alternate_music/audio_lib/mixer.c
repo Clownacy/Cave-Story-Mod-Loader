@@ -11,6 +11,10 @@
 #include <pthread.h>
 #endif
 
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
+
 #include "mini_al.h"
 
 #include "decoder.h"
@@ -94,7 +98,11 @@ static void CallbackStream(void *user_data, void *output_buffer_void, unsigned l
 {
 	(void)user_data;
 
+#ifdef _MSC_VER
+	float (*output_buffer)[][STREAM_CHANNEL_COUNT] = output_buffer_void;
+#else
 	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = output_buffer_void;
+#endif
 
 	memset(output_buffer, 0, frames_to_do * sizeof(float) * STREAM_CHANNEL_COUNT);
 
@@ -106,14 +114,22 @@ static void CallbackStream(void *user_data, void *output_buffer_void, unsigned l
 
 		if (channel->paused == false)
 		{
+#ifdef _MSC_VER
+			float (*read_buffer)[][STREAM_CHANNEL_COUNT] = _malloca(frames_to_do * STREAM_CHANNEL_COUNT * sizeof(float));
+#else
 			float read_buffer[frames_to_do][STREAM_CHANNEL_COUNT];
+#endif
 
 			mal_uint64 frames_read = mal_dsp_read(&channel->dsp, frames_to_do, read_buffer, channel->decoder);
 
 			for (mal_uint64 i = 0; i < frames_read; ++i)
 			{	
 				for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
+#ifdef _MSC_VER
+					(*output_buffer)[i][j] += (*read_buffer)[i][j] * channel->volume;
+#else
 					(*output_buffer)[i][j] += read_buffer[i][j] * channel->volume;
+#endif
 
 				if (channel->fade_out_counter_max)
 				{

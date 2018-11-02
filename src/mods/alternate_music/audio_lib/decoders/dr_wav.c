@@ -74,7 +74,7 @@ Decoder_DR_WAV* Decoder_DR_WAV_Create(DecoderData_DR_WAV *data, DecoderInfo *inf
 
 			info->sample_rate = instance->sampleRate;
 			info->channel_count = instance->channels;
-			info->decoded_size = instance->totalSampleCount * instance->bytesPerSample * instance->channels;
+			info->decoded_size = (unsigned long)instance->totalSampleCount * instance->bytesPerSample * instance->channels;
 			info->format = DECODER_FORMAT_F32;
 		}
 	}
@@ -107,7 +107,7 @@ unsigned long Decoder_DR_WAV_GetSamples(Decoder_DR_WAV *this, void *buffer_void,
 
 	for (unsigned long samples_done; samples_done_total != samples_to_do; samples_done_total += samples_done)
 	{
-		samples_done = drwav_read_f32(this->instance, samples_to_do - samples_done_total, buffer + samples_done_total);
+		samples_done = (unsigned long)drwav_read_f32(this->instance, samples_to_do - samples_done_total, buffer + samples_done_total);
 
 		if (samples_done < samples_to_do - samples_done_total)
 		{
