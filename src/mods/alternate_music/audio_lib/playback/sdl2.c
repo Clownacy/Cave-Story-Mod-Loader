@@ -16,14 +16,12 @@ typedef struct BackendStream
 
 	SDL_AudioDeviceID device;
 	float volume;
-
-	unsigned int bytes_per_frame;
 } BackendStream;
 
 static void Callback(void *user_data, Uint8 *output_buffer_uint8, int bytes_to_do)
 {
 	BackendStream *stream = user_data;
-	const unsigned long frames_to_do = bytes_to_do / stream->bytes_per_frame;
+	const unsigned long frames_to_do = bytes_to_do / (sizeof(float) * STREAM_CHANNEL_COUNT);
 	float *output_buffer = (float*)output_buffer_uint8;
 
 	stream->user_callback(stream->user_data, output_buffer, frames_to_do);
@@ -68,8 +66,6 @@ BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned
 
 		stream->device = device;
 		stream->volume = 1.0f;
-
-		stream->bytes_per_frame = sizeof(float) * STREAM_CHANNEL_COUNT;
 	}
 	else
 	{

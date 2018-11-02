@@ -13,24 +13,24 @@
 
 #include "SDL.h"
 
+#define SIZE_OF_FRAME (sizeof(short) * STREAM_CHANNEL_COUNT)
+
 typedef struct BackendStream
 {
 	void (*user_callback)(void*, void*, unsigned long);
 	void *user_data;
 
 	float volume;
-
-	unsigned int bytes_per_frame;
 } BackendStream;
 
 static void Callback(void *user_data, Uint8 *output_buffer_uint8, int bytes_to_do)
 {
 	BackendStream *stream = user_data;
-	const unsigned long frames_to_do = bytes_to_do / stream->bytes_per_frame;
+	const unsigned long frames_to_do = bytes_to_do / SIZE_OF_FRAME;
 	short *output_buffer = (short*)output_buffer_uint8;
 
 #ifdef _MSC_VER
-	float *read_buffer = _malloca(frames_to_do * STREAM_CHANNEL_COUNT * sizeof(float));
+	float *read_buffer = _malloca(frames_to_do * SIZE_OF_FRAME);
 #else
 	float read_buffer[frames_to_do * STREAM_CHANNEL_COUNT];
 #endif
@@ -79,8 +79,6 @@ BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned
 		stream->user_data = user_data;
 
 		stream->volume = 1.0f;
-
-		stream->bytes_per_frame = sizeof(short) * STREAM_CHANNEL_COUNT;
 	}
 	else
 	{
