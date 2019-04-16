@@ -18,7 +18,6 @@
 #include "mini_al.h"
 
 #include "decoder.h"
-#include "playback.h"
 
 typedef struct Channel
 {
@@ -45,9 +44,11 @@ typedef struct Mutex
 } Mutex;
 
 static Channel *channel_list_head;
-static BackendStream *stream;
 
 static Mutex mixer_mutex;
+
+static unsigned int output_sample_rate;
+static unsigned int output_channel_count;
 
 static void MutexInit(Mutex *mutex)
 {
@@ -94,80 +95,6 @@ static Channel* FindChannel(Mixer_SoundInstanceID instance)
 	return NULL;
 }
 
-static void CallbackStream(void *user_data, void *output_buffer_void, unsigned long frames_to_do)
-{
-	(void)user_data;
-
-#ifdef _MSC_VER
-	float (*output_buffer)[][STREAM_CHANNEL_COUNT] = output_buffer_void;
-#else
-	float (*output_buffer)[frames_to_do][STREAM_CHANNEL_COUNT] = output_buffer_void;
-#endif
-
-	memset(output_buffer, 0, frames_to_do * sizeof(float) * STREAM_CHANNEL_COUNT);
-
-	MutexLock(&mixer_mutex);
-	Channel **channel_pointer = &channel_list_head;
-	while (*channel_pointer != NULL)
-	{
-		Channel *channel = *channel_pointer;
-
-		if (channel->paused == false)
-		{
-#ifdef _MSC_VER
-			float (*read_buffer)[][STREAM_CHANNEL_COUNT] = _malloca(frames_to_do * STREAM_CHANNEL_COUNT * sizeof(float));
-#else
-			float read_buffer[frames_to_do][STREAM_CHANNEL_COUNT];
-#endif
-
-			mal_uint64 frames_read = mal_dsp_read(&channel->dsp, frames_to_do, read_buffer, channel->decoder);
-
-			for (mal_uint64 i = 0; i < frames_read; ++i)
-			{	
-				for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
-#ifdef _MSC_VER
-					(*output_buffer)[i][j] += (*read_buffer)[i][j] * channel->volume;
-#else
-					(*output_buffer)[i][j] += read_buffer[i][j] * channel->volume;
-#endif
-
-				if (channel->fade_out_counter_max)
-				{
-					const float fade_out_volume = channel->fade_counter / (float)channel->fade_out_counter_max;
-
-					for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
-						(*output_buffer)[i][j] *= (fade_out_volume * fade_out_volume);
-
-					if (channel->fade_counter)
-						--channel->fade_counter;
-				}
-
-				if (channel->fade_in_counter_max)
-				{
-					const float fade_in_volume = (channel->fade_in_counter_max - channel->fade_counter) / (float)channel->fade_in_counter_max;
-
-					for (unsigned int j = 0; j < STREAM_CHANNEL_COUNT; ++j)
-						(*output_buffer)[i][j] *= (fade_in_volume * fade_in_volume);
-
-					if (!--channel->fade_counter)
-						channel->fade_in_counter_max = 0;
-				}
-			}
-
-			if (frames_read < frames_to_do)	// Sound finished
-			{
-				Decoder_Destroy(channel->decoder);
-				*channel_pointer = channel->next;
-				free(channel);
-				continue;
-			}
-		}
-
-		channel_pointer = &(*channel_pointer)->next;
-	}
-	MutexUnlock(&mixer_mutex);
-}
-
 static mal_uint32 CallbackDSP(mal_dsp *dsp, mal_uint32 frames_to_do, void *output_buffer, void *user_data)
 {
 	(void)dsp;
@@ -175,47 +102,17 @@ static mal_uint32 CallbackDSP(mal_dsp *dsp, mal_uint32 frames_to_do, void *outpu
 	return Decoder_GetSamples((Decoder*)user_data, output_buffer, frames_to_do);
 }
 
-bool Mixer_Init(void)
+void Mixer_Init(unsigned int sample_rate, unsigned int channel_count)
 {
-	bool success = false;
+	output_sample_rate = sample_rate;
+	output_channel_count = channel_count;
 
-	if (Backend_Init())
-	{
-		stream = Backend_CreateStream(CallbackStream, NULL);
-
-		if (stream)
-		{
-			MutexInit(&mixer_mutex);
-
-			if (Backend_ResumeStream(stream))
-				success = true;
-			else
-				Mixer_Deinit();
-		}
-		else
-		{
-			Backend_Deinit();
-		}
-	}
-
-	return success;
+	MutexInit(&mixer_mutex);
 }
 
 void Mixer_Deinit(void)
 {
-	Backend_DestroyStream(stream);
-	Backend_Deinit();
 	MutexDeinit(&mixer_mutex);
-}
-
-void Mixer_Pause(void)
-{
-	Backend_PauseStream(stream);
-}
-
-void Mixer_Unpause(void)
-{
-	Backend_ResumeStream(stream);
 }
 
 Mixer_Sound* Mixer_LoadSound(const char *file_path, bool loop, bool predecode)
@@ -258,7 +155,7 @@ Mixer_SoundInstanceID Mixer_PlaySound(Mixer_Sound *sound)
 		else //if (info.format == DECODER_FORMAT_F32)
 			format = mal_format_f32;
 
-		const mal_dsp_config config = mal_dsp_config_init(format, info.channel_count, info.sample_rate, mal_format_f32, STREAM_CHANNEL_COUNT, STREAM_SAMPLE_RATE, CallbackDSP, NULL);
+		const mal_dsp_config config = mal_dsp_config_init(format, info.channel_count, info.sample_rate, mal_format_f32, output_channel_count, output_sample_rate, CallbackDSP, NULL);
 		mal_dsp_init(&config, &channel->dsp);
 
 		MutexLock(&mixer_mutex);
@@ -327,7 +224,7 @@ void Mixer_FadeOutSound(Mixer_SoundInstanceID instance, unsigned int duration)
 
 	if (channel)
 	{
-		channel->fade_out_counter_max = (STREAM_SAMPLE_RATE * duration) / 1000;
+		channel->fade_out_counter_max = (output_sample_rate * duration) / 1000;
 		channel->fade_counter = channel->fade_in_counter_max ? (((unsigned long long)channel->fade_in_counter_max - channel->fade_counter) * channel->fade_out_counter_max) / channel->fade_in_counter_max : channel->fade_out_counter_max;
 		channel->fade_in_counter_max = 0;
 	}
@@ -343,7 +240,7 @@ void Mixer_FadeInSound(Mixer_SoundInstanceID instance, unsigned int duration)
 
 	if (channel)
 	{
-		channel->fade_in_counter_max = (STREAM_SAMPLE_RATE * duration) / 1000;
+		channel->fade_in_counter_max = (output_sample_rate * duration) / 1000;
 		channel->fade_counter = channel->fade_out_counter_max ? (((unsigned long long)channel->fade_out_counter_max - channel->fade_counter) * channel->fade_in_counter_max) / channel->fade_out_counter_max : channel->fade_in_counter_max;
 		channel->fade_out_counter_max = 0;
 	}
@@ -360,5 +257,77 @@ void Mixer_SetSoundVolume(Mixer_SoundInstanceID instance, float volume)
 	if (channel)
 		channel->volume = volume * volume;
 
+	MutexUnlock(&mixer_mutex);
+}
+
+void Mixer_GetSamples(void *output_buffer_void, unsigned long frames_to_do)
+{
+#ifdef _MSC_VER
+	float (*output_buffer)[][output_channel_count] = output_buffer_void;
+#else
+	float (*output_buffer)[frames_to_do][output_channel_count] = output_buffer_void;
+#endif
+
+	memset(output_buffer, 0, frames_to_do * sizeof(float) * output_channel_count);
+
+	MutexLock(&mixer_mutex);
+	Channel **channel_pointer = &channel_list_head;
+	while (*channel_pointer != NULL)
+	{
+		Channel *channel = *channel_pointer;
+
+		if (channel->paused == false)
+		{
+#ifdef _MSC_VER
+			float (*read_buffer)[][output_channel_count] = _malloca(frames_to_do * output_channel_count * sizeof(float));
+#else
+			float read_buffer[frames_to_do][output_channel_count];
+#endif
+
+			mal_uint64 frames_read = mal_dsp_read(&channel->dsp, frames_to_do, read_buffer, channel->decoder);
+
+			for (mal_uint64 i = 0; i < frames_read; ++i)
+			{	
+				for (unsigned int j = 0; j < output_channel_count; ++j)
+#ifdef _MSC_VER
+					(*output_buffer)[i][j] += (*read_buffer)[i][j] * channel->volume;
+#else
+					(*output_buffer)[i][j] += read_buffer[i][j] * channel->volume;
+#endif
+
+				if (channel->fade_out_counter_max)
+				{
+					const float fade_out_volume = channel->fade_counter / (float)channel->fade_out_counter_max;
+
+					for (unsigned int j = 0; j < output_channel_count; ++j)
+						(*output_buffer)[i][j] *= (fade_out_volume * fade_out_volume);
+
+					if (channel->fade_counter)
+						--channel->fade_counter;
+				}
+
+				if (channel->fade_in_counter_max)
+				{
+					const float fade_in_volume = (channel->fade_in_counter_max - channel->fade_counter) / (float)channel->fade_in_counter_max;
+
+					for (unsigned int j = 0; j < output_channel_count; ++j)
+						(*output_buffer)[i][j] *= (fade_in_volume * fade_in_volume);
+
+					if (!--channel->fade_counter)
+						channel->fade_in_counter_max = 0;
+				}
+			}
+
+			if (frames_read < frames_to_do)	// Sound finished
+			{
+				Decoder_Destroy(channel->decoder);
+				*channel_pointer = channel->next;
+				free(channel);
+				continue;
+			}
+		}
+
+		channel_pointer = &(*channel_pointer)->next;
+	}
 	MutexUnlock(&mixer_mutex);
 }

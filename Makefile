@@ -186,6 +186,7 @@ ALT_MUSIC_SOURCES = \
 	$(COMMON_PATH)/sprintfMalloc \
 	$(ALT_MUSIC_PATH)/main \
 	$(ALT_MUSIC_PATH)/playlist \
+	$(ALT_MUSIC_PATH)/audio_lib/audio_lib \
 	$(ALT_MUSIC_PATH)/audio_lib/mini_al \
 	$(ALT_MUSIC_PATH)/audio_lib/mixer \
 	$(ALT_MUSIC_PATH)/audio_lib/decoder \

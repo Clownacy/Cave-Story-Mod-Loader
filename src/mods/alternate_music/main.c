@@ -8,12 +8,12 @@
 #include "mod_loader.h"
 
 #include "playlist.h"
-#include "audio_lib/mixer.h"
+#include "audio_lib/audio_lib.h"
 
 typedef struct Song
 {
-	Mixer_SoundInstanceID instance;
-	Mixer_Sound *sound;
+	AudioLib_SoundInstanceID instance;
+	AudioLib_Sound *sound;
 	bool is_org;
 } Song;
 
@@ -28,7 +28,7 @@ static Song previous_song;
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->sound = Mixer_LoadSound(playlist_entry->name, playlist_entry->loop, setting_predecode);
+		playlist_entry->sound = AudioLib_LoadSound(playlist_entry->name, playlist_entry->loop, setting_predecode);
 }
 
 static void PreloadSongs(void)
@@ -39,10 +39,10 @@ static void PreloadSongs(void)
 
 static void UnloadSong(Song *song)
 {
-	Mixer_StopSound(song->instance);
+	AudioLib_StopSound(song->instance);
 
 	if (!setting_preload)
-		Mixer_UnloadSound(song->sound);
+		AudioLib_UnloadSound(song->sound);
 }
 
 static bool PlayOggMusic(const int song_id)
@@ -56,14 +56,14 @@ static bool PlayOggMusic(const int song_id)
 		if (!setting_preload)
 			LoadSong(playlist_entry);
 
-		Mixer_Sound *sound = playlist_entry->sound;
+		AudioLib_Sound *sound = playlist_entry->sound;
 
 		if (sound)
 		{
 			current_song.sound = sound;
-			current_song.instance = Mixer_PlaySound(sound);
-			Mixer_SetSoundVolume(current_song.instance, setting_volume);
-			Mixer_UnpauseSound(current_song.instance);
+			current_song.instance = AudioLib_PlaySound(sound);
+			AudioLib_SetSoundVolume(current_song.instance, setting_volume);
+			AudioLib_UnpauseSound(current_song.instance);
 
 			success = true;
 		}
@@ -101,7 +101,7 @@ static void PlayMusic_new(const int music_id)
 	{
 		CS_previous_music = CS_current_music;
 
-		Mixer_PauseSound(current_song.instance);
+		AudioLib_PauseSound(current_song.instance);
 		UnloadSong(&previous_song);
 		previous_song = current_song;
 		current_song = (Song){};
@@ -136,9 +136,9 @@ static void PlayPreviousMusic_new(void)
 		PlayOrgMusic(0);
 
 		if (setting_fade_in_previous_song)
-			Mixer_FadeInSound(current_song.instance, 2 * 1000);
+			AudioLib_FadeInSound(current_song.instance, 2 * 1000);
 
-		Mixer_UnpauseSound(current_song.instance);
+		AudioLib_UnpauseSound(current_song.instance);
 	}
 	else
 	{
@@ -150,20 +150,20 @@ static void PlayPreviousMusic_new(void)
 
 static void WindowFocusGained_new(void)
 {
-	Mixer_Unpause();
+	AudioLib_Unpause();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void WindowFocusLost_new(void)
 {
-	Mixer_Pause();
+	AudioLib_Pause();
 	CS_sub_41C7F0();	// The instruction we hijacked to get here
 }
 
 static void FadeMusic_new(void)
 {
 	CS_music_fade_flag = 1;
-	Mixer_FadeOutSound(current_song.instance, 5 * 1000);
+	AudioLib_FadeOutSound(current_song.instance, 5 * 1000);
 }
 
 void InitMod(void)
@@ -180,7 +180,7 @@ void InitMod(void)
 
 	if (InitPlaylist())
 	{
-		if (Mixer_Init())
+		if (AudioLib_Init())
 		{
 			if (setting_preload)
 				PreloadSongs();
