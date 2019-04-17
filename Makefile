@@ -17,8 +17,8 @@ ALT_MUSIC_USE_LIBOPENMPT = false
 ALT_MUSIC_USE_LIBXMPLITE = true
 ALT_MUSIC_USE_SNES_SPC = false
 ALT_MUSIC_USE_PXTONE = true
-# Can be 'mini_al', 'SDL1', 'SDL2', 'Cubeb', or 'PortAudio'
-ALT_MUSIC_BACKEND = mini_al
+# Can be 'miniaudio', 'SDL1', 'SDL2', 'Cubeb', or 'PortAudio'
+ALT_MUSIC_BACKEND = miniaudio
 
 CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident -MMD -MP -MF $@.d
 CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident -MMD -MP -MF $@.d
@@ -187,7 +187,7 @@ ALT_MUSIC_SOURCES = \
 	$(ALT_MUSIC_PATH)/main \
 	$(ALT_MUSIC_PATH)/playlist \
 	$(ALT_MUSIC_PATH)/audio_lib/audio_lib \
-	$(ALT_MUSIC_PATH)/audio_lib/mini_al \
+	$(ALT_MUSIC_PATH)/audio_lib/miniaudio \
 	$(ALT_MUSIC_PATH)/audio_lib/mixer \
 	$(ALT_MUSIC_PATH)/audio_lib/decoder \
 	$(ALT_MUSIC_PATH)/audio_lib/decoders/predecode \
@@ -305,9 +305,9 @@ obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/pxtone/%.o: src/$(ALT_MUSIC_PATH)/
 	@$(CXX) $(ALL_CXXFLAGS) -std=gnu++17 -Wno-switch -Wno-tautological-compare -Wno-sign-compare -Wno-unused-parameter -Wno-unused-value -Wno-unused-variable -Wno-missing-field-initializers -Wno-misleading-indentation -fno-strict-aliasing $< -o $@ -c
 endif
 
-ifeq ($(ALT_MUSIC_BACKEND), mini_al)
-ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/mini_al
-ALT_MUSIC_CFLAGS += -DMINI_AL_ENABLE_DEVICE_IO
+ifeq ($(ALT_MUSIC_BACKEND), miniaudio)
+ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/miniaudio
+ALT_MUSIC_CFLAGS += -DMINIAUDIO_ENABLE_DEVICE_IO
 else ifeq ($(ALT_MUSIC_BACKEND), SDL1)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/sdl1
 ALT_MUSIC_CFLAGS += $(SDL1_CFLAGS)

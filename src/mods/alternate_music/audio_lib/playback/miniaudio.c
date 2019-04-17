@@ -7,19 +7,21 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../mini_al.h"
+#include "../miniaudio.h"
 
 typedef struct BackendStream
 {
 	void (*user_callback)(void*, void*, unsigned long);
 	void *user_data;
 
-	mal_device device;
+	ma_device device;
 	float volume;
 } BackendStream;
 
-static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *output_buffer_void)
+static void Callback(ma_device *device, void *output_buffer_void, const void *input_buffer, ma_uint32 frames_to_do)
 {
+	(void)input_buffer;
+
 	BackendStream *stream = device->pUserData;
 	float *output_buffer = output_buffer_void;
 
@@ -29,8 +31,6 @@ static mal_uint32 Callback(mal_device *device, mal_uint32 frames_to_do, void *ou
 	if (stream->volume != 1.0f)
 		for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
 			output_buffer[i] *= stream->volume;
-
-	return frames_to_do;
 }
 
 bool Backend_Init(void)
@@ -45,11 +45,17 @@ void Backend_Deinit(void)
 
 BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
 {
-	mal_device_config config = mal_device_config_init_playback(mal_format_f32, STREAM_CHANNEL_COUNT, STREAM_SAMPLE_RATE, Callback);
-
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
-	if (mal_device_init(NULL, mal_device_type_playback, NULL, &config, stream, &stream->device) == MAL_SUCCESS)
+	ma_device_config config = ma_device_config_init(ma_device_type_playback);
+	config.playback.pDeviceID = NULL;
+	config.playback.format = ma_format_f32;
+	config.playback.channels = STREAM_CHANNEL_COUNT;
+	config.sampleRate = STREAM_SAMPLE_RATE;
+	config.dataCallback = Callback;
+	config.pUserData = stream;
+
+	if (ma_device_init(NULL, &config, &stream->device) == MA_SUCCESS)
 	{
 		stream->user_callback = user_callback;
 		stream->user_data = user_data;
@@ -69,7 +75,7 @@ bool Backend_DestroyStream(BackendStream *stream)
 {
 	if (stream)
 	{
-		mal_device_uninit(&stream->device);
+		ma_device_uninit(&stream->device);
 		free(stream);
 	}
 
@@ -88,8 +94,8 @@ bool Backend_PauseStream(BackendStream *stream)
 {
 	bool success = true;
 
-	if (stream && mal_device_is_started(&stream->device))
-		success = mal_device_stop(&stream->device) == MAL_SUCCESS;
+	if (stream && ma_device_is_started(&stream->device))
+		success = ma_device_stop(&stream->device) == MA_SUCCESS;
 
 	return success;
 }
@@ -98,8 +104,8 @@ bool Backend_ResumeStream(BackendStream *stream)
 {
 	bool success = true;
 
-	if (stream && !mal_device_is_started(&stream->device))
-		success = mal_device_start(&stream->device) == MAL_SUCCESS;
+	if (stream && !ma_device_is_started(&stream->device))
+		success = ma_device_start(&stream->device) == MA_SUCCESS;
 
 	return success;
 }

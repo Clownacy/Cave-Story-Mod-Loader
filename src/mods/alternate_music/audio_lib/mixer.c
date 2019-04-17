@@ -15,7 +15,7 @@
 #include <malloc.h>
 #endif
 
-#include "mini_al.h"
+#include "miniaudio.h"
 
 #include "decoder.h"
 
@@ -26,7 +26,7 @@ typedef struct Channel
 	bool paused;
 	float volume;
 	Decoder *decoder;
-	mal_dsp dsp;
+	ma_pcm_converter dsp;
 	Mixer_SoundInstanceID instance;
 
 	unsigned int fade_out_counter_max;
@@ -95,7 +95,7 @@ static Channel* FindChannel(Mixer_SoundInstanceID instance)
 	return NULL;
 }
 
-static mal_uint32 CallbackDSP(mal_dsp *dsp, mal_uint32 frames_to_do, void *output_buffer, void *user_data)
+static ma_uint32 CallbackDSP(ma_pcm_converter *dsp, void *output_buffer, ma_uint32 frames_to_do, void *user_data)
 {
 	(void)dsp;
 
@@ -147,16 +147,16 @@ Mixer_SoundInstanceID Mixer_PlaySound(Mixer_Sound *sound)
 		channel->fade_out_counter_max = 0;
 		channel->fade_in_counter_max = 0;
 
-		mal_format format;
+		ma_format format;
 		if (info.format == DECODER_FORMAT_S16)
-			format = mal_format_s16;
+			format = ma_format_s16;
 		else if (info.format == DECODER_FORMAT_S32)
-			format = mal_format_s32;
+			format = ma_format_s32;
 		else //if (info.format == DECODER_FORMAT_F32)
-			format = mal_format_f32;
+			format = ma_format_f32;
 
-		const mal_dsp_config config = mal_dsp_config_init(format, info.channel_count, info.sample_rate, mal_format_f32, output_channel_count, output_sample_rate, CallbackDSP, NULL);
-		mal_dsp_init(&config, &channel->dsp);
+		const ma_pcm_converter_config config = ma_pcm_converter_config_init(format, info.channel_count, info.sample_rate, ma_format_f32, output_channel_count, output_sample_rate, CallbackDSP, channel->decoder);
+		ma_pcm_converter_init(&config, &channel->dsp);
 
 		MutexLock(&mixer_mutex);
 		channel->next = channel_list_head;
@@ -284,9 +284,9 @@ void Mixer_GetSamples(void *output_buffer_void, unsigned long frames_to_do)
 			float read_buffer[frames_to_do][output_channel_count];
 #endif
 
-			mal_uint64 frames_read = mal_dsp_read(&channel->dsp, frames_to_do, read_buffer, channel->decoder);
+			ma_uint64 frames_read = ma_pcm_converter_read(&channel->dsp, read_buffer, frames_to_do);
 
-			for (mal_uint64 i = 0; i < frames_read; ++i)
+			for (ma_uint64 i = 0; i < frames_read; ++i)
 			{	
 				for (unsigned int j = 0; j < output_channel_count; ++j)
 #ifdef _MSC_VER
