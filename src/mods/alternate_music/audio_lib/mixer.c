@@ -273,10 +273,8 @@ void Mixer_SetSoundVolume(Mixer_SoundInstanceID instance, float volume)
 	MutexUnlock(&mixer_mutex);
 }
 
-void Mixer_GetSamples(float *output_buffer, unsigned long frames_to_do)
+void Mixer_MixSamples(float *output_buffer, unsigned long frames_to_do)
 {
-	memset(output_buffer, 0, frames_to_do * sizeof(float) * output_channel_count);
-
 	MutexLock(&mixer_mutex);
 	Channel **channel_pointer = &channel_list_head;
 	while (*channel_pointer != NULL)

@@ -12,7 +12,9 @@ static void CallbackStream(void *user_data, void *output_buffer, unsigned long f
 {
 	(void)user_data;
 
-	Mixer_GetSamples(output_buffer, frames_to_do);
+	memset(output_buffer, 0, frames_to_do * sizeof(float) * STREAM_CHANNEL_COUNT);
+
+	Mixer_MixSamples(output_buffer, frames_to_do);
 }
 
 bool AudioLib_Init(void)
