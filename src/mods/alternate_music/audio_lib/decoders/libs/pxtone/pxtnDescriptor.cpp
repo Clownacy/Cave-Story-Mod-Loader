@@ -32,7 +32,7 @@ bool pxtnDescriptor::set_file_r  ( FILE *fd )
 
 	long sz;
 	if( fseek     ( fd, 0, SEEK_END ) ) return false;
-	if( sz = ftell( fd ) == -1L       ) return false;
+	if( ( sz = ftell( fd ) ) == -1L   ) return false;
 	if( fseek     ( fd, 0, SEEK_SET ) ) return false;
 	_p_desc = fd  ;
 
