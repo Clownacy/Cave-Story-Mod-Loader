@@ -74,7 +74,7 @@ Decoder_DR_WAV* Decoder_DR_WAV_Create(DecoderData_DR_WAV *data, DecoderInfo *inf
 
 			info->sample_rate = instance->sampleRate;
 			info->channel_count = instance->channels;
-			info->decoded_size = (unsigned long)instance->totalSampleCount * sizeof(float);
+			info->decoded_size = (unsigned long)instance->totalPCMFrameCount * instance->channels * sizeof(float);
 			info->format = DECODER_FORMAT_F32;
 		}
 	}
@@ -94,22 +94,20 @@ void Decoder_DR_WAV_Destroy(Decoder_DR_WAV *this)
 
 void Decoder_DR_WAV_Rewind(Decoder_DR_WAV *this)
 {
-	drwav_seek_to_sample(this->instance, 0);
+	drwav_seek_to_pcm_frame(this->instance, 0);
 }
 
 unsigned long Decoder_DR_WAV_GetSamples(Decoder_DR_WAV *this, void *buffer_void, unsigned long frames_to_do)
 {
-	const unsigned long samples_to_do = frames_to_do * this->instance->channels;
-
 	float *buffer = buffer_void;
 
-	unsigned long samples_done_total = 0;
+	unsigned long frames_done_total = 0;
 
-	for (unsigned long samples_done; samples_done_total != samples_to_do; samples_done_total += samples_done)
+	for (unsigned long frames_done; frames_done_total != frames_to_do; frames_done_total += frames_done)
 	{
-		samples_done = (unsigned long)drwav_read_f32(this->instance, samples_to_do - samples_done_total, buffer + samples_done_total);
+		frames_done = (unsigned long)drwav_read_pcm_frames_f32(this->instance, frames_to_do - frames_done_total, buffer + (frames_done_total * this->instance->channels));
 
-		if (samples_done < samples_to_do - samples_done_total)
+		if (frames_done < frames_to_do - frames_done_total)
 		{
 			if (this->data->loops)
 				Decoder_DR_WAV_Rewind(this);
@@ -118,5 +116,5 @@ unsigned long Decoder_DR_WAV_GetSamples(Decoder_DR_WAV *this, void *buffer_void,
 		}
 	}
 
-	return samples_done_total / this->instance->channels;
+	return frames_done_total;
 }

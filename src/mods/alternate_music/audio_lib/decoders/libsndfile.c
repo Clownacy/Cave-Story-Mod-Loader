@@ -146,14 +146,17 @@ unsigned long Decoder_libSndfile_GetSamples(Decoder_libSndfile *decoder, void *o
 
 	unsigned long frames_done_total = 0;
 
-	for (;;)
+	for (unsigned long frames_done; frames_done_total < frames_to_do; frames_done_total += frames_done)
 	{
-		frames_done_total += sf_readf_float(decoder->sndfile, output_buffer + (frames_done_total * decoder->channel_count), frames_to_do - frames_done_total);
+		frames_done = sf_readf_float(decoder->sndfile, output_buffer + (frames_done_total * decoder->channel_count), frames_to_do - frames_done_total);
 
-		if (frames_done_total == frames_to_do || !decoder->data->loops)
-			break;
-
-		Decoder_libSndfile_Rewind(decoder);
+		if (frames_done < frames_to_do - frames_done_total)
+		{
+			if (decoder->data->loops)
+				Decoder_libSndfile_Rewind(decoder);
+			else
+				break;
+		}
 	}
 
 	return frames_done_total;

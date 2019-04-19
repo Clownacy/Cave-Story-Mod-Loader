@@ -11,7 +11,7 @@
 
 typedef struct BackendStream
 {
-	void (*user_callback)(void*, void*, unsigned long);
+	void (*user_callback)(void*, float*, unsigned long);
 	void *user_data;
 
 	PaStream *pa_stream;
@@ -47,7 +47,7 @@ void Backend_Deinit(void)
 	Pa_Terminate();
 }
 
-BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(void (*user_callback)(void*, float*, unsigned long), void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 

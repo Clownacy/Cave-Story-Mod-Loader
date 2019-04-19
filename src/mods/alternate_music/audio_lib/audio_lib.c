@@ -8,11 +8,12 @@
 
 static BackendStream *stream;
 
-static void CallbackStream(void *user_data, void *output_buffer, unsigned long frames_to_do)
+static void CallbackStream(void *user_data, float *output_buffer, unsigned long frames_to_do)
 {
 	(void)user_data;
 
-	memset(output_buffer, 0, frames_to_do * sizeof(float) * STREAM_CHANNEL_COUNT);
+	for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
+		output_buffer[i] = 0.0f;
 
 	Mixer_MixSamples(output_buffer, frames_to_do);
 }

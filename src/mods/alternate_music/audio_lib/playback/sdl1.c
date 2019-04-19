@@ -7,17 +7,13 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#ifdef _MSC_VER
-#include <malloc.h>
-#endif
-
 #include "SDL.h"
 
-#define SIZE_OF_FRAME (sizeof(short) * STREAM_CHANNEL_COUNT)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 typedef struct BackendStream
 {
-	void (*user_callback)(void*, void*, unsigned long);
+	void (*user_callback)(void*, float*, unsigned long);
 	void *user_data;
 
 	float volume;
@@ -26,25 +22,28 @@ typedef struct BackendStream
 static void Callback(void *user_data, Uint8 *output_buffer_uint8, int bytes_to_do)
 {
 	BackendStream *stream = user_data;
-	const unsigned long frames_to_do = bytes_to_do / SIZE_OF_FRAME;
-	short *output_buffer = (short*)output_buffer_uint8;
+	const unsigned long frames_to_do = bytes_to_do / (sizeof(short) * STREAM_CHANNEL_COUNT);
 
-#ifdef _MSC_VER
-	float *read_buffer = _malloca(frames_to_do * SIZE_OF_FRAME);
-#else
-	float read_buffer[frames_to_do * STREAM_CHANNEL_COUNT];
-#endif
-
-	stream->user_callback(stream->user_data, read_buffer, frames_to_do);
-
-	for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
+	// This playback backend doesn't support float32, so we have to convert the samples to S16
+	short *output_buffer_pointer = (short*)output_buffer_uint8;
+	for (unsigned long frames_done = 0; frames_done < frames_to_do; frames_done += 0x1000)
 	{
-		if (read_buffer[i] > 1.0f)
-			read_buffer[i] = 1.0f;
-		else if (read_buffer[i] < -1.0f)
-			read_buffer[i] = -1.0f;
+		float read_buffer[0x1000 * STREAM_CHANNEL_COUNT];
 
-		output_buffer[i] = read_buffer[i] * stream->volume * 32767;
+		stream->user_callback(stream->user_data, read_buffer, MIN(0x1000, frames_to_do - frames_done));
+
+		float *read_buffer_pointer = read_buffer;
+		for (unsigned long i = 0; i < frames_to_do * STREAM_CHANNEL_COUNT; ++i)
+		{
+			float sample = *read_buffer_pointer++;
+
+			if (sample > 1.0f)
+				sample = 1.0f;
+			else if (sample < -1.0f)
+				sample = -1.0f;
+
+			*output_buffer_pointer++ = (short)(sample * stream->volume * 32767.0f);
+		}
 	}
 }
 
@@ -60,7 +59,7 @@ void Backend_Deinit(void)
 	SDL_Quit();
 }
 
-BackendStream* Backend_CreateStream(void (*user_callback)(void*, void*, unsigned long), void *user_data)
+BackendStream* Backend_CreateStream(void (*user_callback)(void*, float*, unsigned long), void *user_data)
 {
 	BackendStream *stream = malloc(sizeof(BackendStream));
 
