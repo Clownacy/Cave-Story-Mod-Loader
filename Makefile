@@ -25,11 +25,11 @@ CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident -MMD -MP -MF $@.d
 ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
 ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CXXFLAGS)
 
-SDL1_CFLAGS = $(shell sdl-config --cflags)
-SDL1_LIBS = $(shell sdl-config --static-libs)
+SDL1_CFLAGS = `pkg-config sdl --cflags`
+SDL1_LIBS = `pkg-config sdl --libs --static`
 
-SDL2_CFLAGS = $(shell sdl2-config --cflags)
-SDL2_LIBS = $(shell sdl2-config --static-libs)
+SDL2_CFLAGS = `pkg-config sdl2 --cflags`
+SDL2_LIBS = `pkg-config sdl2 --libs --static`
 
 obj/%.o: src/%.c
 	@mkdir -p $(@D)
@@ -197,14 +197,14 @@ ALT_MUSIC_SOURCES = \
 
 ifeq ($(ALT_MUSIC_USE_LIBVORBIS), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libvorbis
-ALT_MUSIC_CFLAGS += -DUSE_LIBVORBIS
-ALT_MUSIC_LIBS += -lvorbisfile -lvorbis -logg
+ALT_MUSIC_CFLAGS += -DUSE_LIBVORBIS `pkg-config vorbisfile --cflags`
+ALT_MUSIC_LIBS += `pkg-config vorbisfile --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_TREMOR), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/tremor
-ALT_MUSIC_CFLAGS += -DUSE_TREMOR
-ALT_MUSIC_LIBS += -lvorbisidec -logg
+ALT_MUSIC_CFLAGS += -DUSE_TREMOR `pkg-config vorbisidec --cflags`
+ALT_MUSIC_LIBS += `pkg-config vorbisidec --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_STB_VORBIS), true)
@@ -214,8 +214,8 @@ endif
 
 ifeq ($(ALT_MUSIC_USE_LIBFLAC), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libflac
-ALT_MUSIC_CFLAGS += -DUSE_LIBFLAC
-ALT_MUSIC_LIBS += -lFLAC -logg
+ALT_MUSIC_CFLAGS += -DUSE_LIBFLAC `pkg-config flac --cflags`
+ALT_MUSIC_LIBS += `pkg-config flac --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_DR_FLAC), true)
@@ -230,20 +230,20 @@ endif
 
 ifeq ($(ALT_MUSIC_USE_LIBSNDFILE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libsndfile
-ALT_MUSIC_CFLAGS += -DUSE_LIBSNDFILE
-ALT_MUSIC_LIBS += -lsndfile -lspeex -lFLAC -lvorbisenc -lvorbis -logg
+ALT_MUSIC_CFLAGS += -DUSE_LIBSNDFILE `pkg-config sndfile --cflags`
+ALT_MUSIC_LIBS += `pkg-config sndfile --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBOPENMPT), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libopenmpt
-ALT_MUSIC_CFLAGS += -DUSE_LIBOPENMPT
-ALT_MUSIC_LIBS += -lopenmpt -lstdc++ -lz -lvorbisfile -lvorbis -logg
+ALT_MUSIC_CFLAGS += -DUSE_LIBOPENMPT `pkg-config libopenmpt --cflags`
+ALT_MUSIC_LIBS += `pkg-config libopenmpt --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_LIBXMPLITE), true)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libxmp-lite
-ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE
-ALT_MUSIC_LIBS += -lxmp-lite
+ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE `pkg-config libxmp-lite --cflags`
+ALT_MUSIC_LIBS += `pkg-config libxmp-lite --libs --static`
 endif
 
 ifeq ($(ALT_MUSIC_USE_SNES_SPC), true)
@@ -321,7 +321,8 @@ ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/cubeb
 ALT_MUSIC_LIBS += -lcubeb -lole32 -lavrt -lwinmm -luuid -lstdc++
 else ifeq ($(ALT_MUSIC_BACKEND), PortAudio)
 ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/playback/portaudio
-ALT_MUSIC_LIBS += -lportaudio -lsetupapi -lole32 -lwinmm
+ALT_MUSIC_CFLAGS += `pkg-config portaudio-2.0 --cflags`
+ALT_MUSIC_LIBS += `pkg-config portaudio-2.0 --libs --static`
 endif
 
 ALT_MUSIC_OBJECTS += $(addprefix obj/, $(addsuffix .o, $(ALT_MUSIC_SOURCES)))

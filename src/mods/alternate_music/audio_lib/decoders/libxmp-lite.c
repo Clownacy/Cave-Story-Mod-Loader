@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #define BUILDING_STATIC
-#include <libxmp-lite/xmp.h>
+#include <xmp.h>
 
 #include "common.h"
 #include "memory_file.h"
