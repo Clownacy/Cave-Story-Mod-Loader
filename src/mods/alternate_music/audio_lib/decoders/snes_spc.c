@@ -26,10 +26,9 @@ typedef struct Decoder_SNES_SPC
 //	SPC_Filter *filter;
 } Decoder_SNES_SPC;
 
-DecoderData_SNES_SPC* Decoder_SNES_SPC_LoadData(const char *file_path, bool loop, LinkedBackend *linked_backend)
+DecoderData_SNES_SPC* Decoder_SNES_SPC_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
-	(void)loop;	// Unusable, sadly
 
 	DecoderData_SNES_SPC *data = NULL;
 
@@ -55,8 +54,10 @@ void Decoder_SNES_SPC_UnloadData(DecoderData_SNES_SPC *data)
 	}
 }
 
-Decoder_SNES_SPC* Decoder_SNES_SPC_Create(DecoderData_SNES_SPC *data, DecoderInfo *info)
+Decoder_SNES_SPC* Decoder_SNES_SPC_Create(DecoderData_SNES_SPC *data, bool loop, DecoderInfo *info)
 {
+	(void)loop;	// Unusable, sadly
+
 	Decoder_SNES_SPC *this = NULL;
 
 	SNES_SPC *snes_spc = spc_new();

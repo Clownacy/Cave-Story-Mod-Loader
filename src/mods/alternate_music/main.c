@@ -28,7 +28,7 @@ static Song previous_song;
 static void LoadSong(PlaylistEntry *playlist_entry)
 {
 	if (!playlist_entry->is_org)
-		playlist_entry->sound = AudioLib_LoadSound(playlist_entry->name, playlist_entry->loop, setting_predecode);
+		playlist_entry->sound = AudioLib_LoadSound(playlist_entry->name, setting_predecode);
 }
 
 static void PreloadSongs(void)
@@ -61,7 +61,7 @@ static bool PlayOggMusic(const int song_id)
 		if (sound)
 		{
 			current_song.sound = sound;
-			current_song.instance = AudioLib_PlaySound(sound);
+			current_song.instance = AudioLib_PlaySound(sound, playlist_entry->loop);
 			AudioLib_SetSoundVolume(current_song.instance, setting_volume);
 			AudioLib_UnpauseSound(current_song.instance);
 

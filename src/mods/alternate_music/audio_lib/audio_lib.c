@@ -61,9 +61,9 @@ void AudioLib_Unpause(void)
 	Backend_ResumeStream(stream);
 }
 
-AudioLib_Sound* AudioLib_LoadSound(const char *file_path, bool loop, bool predecode)
+AudioLib_Sound* AudioLib_LoadSound(const char *file_path, bool predecode)
 {
-	return (AudioLib_Sound*)Mixer_LoadSound(file_path, loop, predecode);
+	return (AudioLib_Sound*)Mixer_LoadSound(file_path, predecode);
 }
 
 void AudioLib_UnloadSound(AudioLib_Sound *sound)
@@ -71,9 +71,9 @@ void AudioLib_UnloadSound(AudioLib_Sound *sound)
 	Mixer_UnloadSound((Mixer_Sound*)sound);
 }
 
-AudioLib_SoundInstanceID AudioLib_PlaySound(AudioLib_Sound *sound)
+AudioLib_SoundInstanceID AudioLib_PlaySound(AudioLib_Sound *sound, bool loop)
 {
-	return Mixer_PlaySound((Mixer_Sound*)sound);
+	return Mixer_PlaySound((Mixer_Sound*)sound, loop);
 }
 
 void AudioLib_StopSound(AudioLib_SoundInstanceID instance)

@@ -16,13 +16,13 @@ typedef struct DecoderData_libVorbis
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_libVorbis;
 
 typedef struct Decoder_libVorbis
 {
 	DecoderData_libVorbis *data;
 	OggVorbis_File vorbis_file;
+	bool loops;
 	unsigned int channel_count;
 } Decoder_libVorbis;
 
@@ -53,7 +53,7 @@ static const ov_callbacks ov_callback_memory = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderData_libVorbis* Decoder_libVorbis_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libVorbis* Decoder_libVorbis_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -67,7 +67,6 @@ DecoderData_libVorbis* Decoder_libVorbis_LoadData(const char *file_path, bool lo
 		data = malloc(sizeof(DecoderData_libVorbis));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -82,7 +81,7 @@ void Decoder_libVorbis_UnloadData(DecoderData_libVorbis *data)
 	}
 }
 
-Decoder_libVorbis* Decoder_libVorbis_Create(DecoderData_libVorbis *data, DecoderInfo *info)
+Decoder_libVorbis* Decoder_libVorbis_Create(DecoderData_libVorbis *data, bool loops, DecoderInfo *info)
 {
 	Decoder_libVorbis *this = NULL;
 
@@ -101,6 +100,7 @@ Decoder_libVorbis* Decoder_libVorbis_Create(DecoderData_libVorbis *data, Decoder
 			this->vorbis_file = vorbis_file;
 			this->channel_count = v_info->channels;
 			this->data = data;
+			this->loops = loops;
 
 			info->sample_rate = v_info->rate;
 			info->channel_count = v_info->channels;
@@ -154,7 +154,7 @@ unsigned long Decoder_libVorbis_GetSamples(Decoder_libVorbis *this, void *buffer
 
 		if (frames_done == 0)
 		{
-			if (this->data->loops)
+			if (this->loops)
 				Decoder_libVorbis_Rewind(this);
 			else
 				break;

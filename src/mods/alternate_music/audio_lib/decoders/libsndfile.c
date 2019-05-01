@@ -17,7 +17,6 @@ typedef struct DecoderData_libSndfile
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_libSndfile;
 
 typedef struct Decoder_libSndfile
@@ -26,6 +25,7 @@ typedef struct Decoder_libSndfile
 	MemoryFile *file;
 	SNDFILE *sndfile;
 	DecoderFormat format;
+	bool loops;
 	unsigned int channel_count;
 } Decoder_libSndfile;
 
@@ -64,7 +64,7 @@ static SF_VIRTUAL_IO sfvirtual = {
 	MemoryFile_ftell_wrapper
 };
 
-DecoderData_libSndfile* Decoder_libSndfile_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libSndfile* Decoder_libSndfile_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -78,7 +78,6 @@ DecoderData_libSndfile* Decoder_libSndfile_LoadData(const char *file_path, bool 
 		data = malloc(sizeof(DecoderData_libSndfile));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -93,7 +92,7 @@ void Decoder_libSndfile_UnloadData(DecoderData_libSndfile *data)
 	}
 }
 
-Decoder_libSndfile* Decoder_libSndfile_Create(DecoderData_libSndfile *data, DecoderInfo *info)
+Decoder_libSndfile* Decoder_libSndfile_Create(DecoderData_libSndfile *data, bool loops, DecoderInfo *info)
 {
 	Decoder_libSndfile *decoder = NULL;
 
@@ -111,6 +110,7 @@ Decoder_libSndfile* Decoder_libSndfile_Create(DecoderData_libSndfile *data, Deco
 		decoder->sndfile = sndfile;
 		decoder->file = file;
 		decoder->channel_count = sf_info.channels;
+		decoder->loops = loops;
 
 		info->sample_rate = sf_info.samplerate;
 		info->channel_count = sf_info.channels;
@@ -152,7 +152,7 @@ unsigned long Decoder_libSndfile_GetSamples(Decoder_libSndfile *decoder, void *o
 
 		if (frames_done < frames_to_do - frames_done_total)
 		{
-			if (decoder->data->loops)
+			if (decoder->loops)
 				Decoder_libSndfile_Rewind(decoder);
 			else
 				break;

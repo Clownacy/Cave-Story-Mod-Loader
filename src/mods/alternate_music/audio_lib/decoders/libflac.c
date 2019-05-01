@@ -20,7 +20,6 @@ typedef struct DecoderData_libFLAC
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_libFLAC;
 
 typedef struct Decoder_libFLAC
@@ -30,6 +29,7 @@ typedef struct Decoder_libFLAC
 	MemoryFile *file;
 	FLAC__StreamDecoder *stream_decoder;
 	DecoderInfo *info;
+	bool loops;
 
 	unsigned int channel_count;
 
@@ -167,7 +167,7 @@ static void ErrorCallback(const FLAC__StreamDecoder *decoder, FLAC__StreamDecode
 	this->error = true;
 }
 
-DecoderData_libFLAC* Decoder_libFLAC_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libFLAC* Decoder_libFLAC_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -181,7 +181,6 @@ DecoderData_libFLAC* Decoder_libFLAC_LoadData(const char *file_path, bool loops,
 		data = malloc(sizeof(DecoderData_libFLAC));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -196,7 +195,7 @@ void Decoder_libFLAC_UnloadData(DecoderData_libFLAC *data)
 	}
 }
 
-Decoder_libFLAC* Decoder_libFLAC_Create(DecoderData_libFLAC *data, DecoderInfo *info)
+Decoder_libFLAC* Decoder_libFLAC_Create(DecoderData_libFLAC *data, bool loops, DecoderInfo *info)
 {
 	Decoder_libFLAC *decoder = malloc(sizeof(Decoder_libFLAC));
 
@@ -213,6 +212,7 @@ Decoder_libFLAC* Decoder_libFLAC_Create(DecoderData_libFLAC *data, DecoderInfo *
 				decoder->data = data;
 				decoder->error = false;
 				decoder->info = info;
+				decoder->loops = loops;
 				FLAC__stream_decoder_process_until_end_of_metadata(decoder->stream_decoder);
 
 				if (decoder->error)
@@ -280,7 +280,7 @@ unsigned long Decoder_libFLAC_GetSamples(Decoder_libFLAC *decoder, void *buffer_
 
 			if (FLAC__stream_decoder_get_state(decoder->stream_decoder) == FLAC__STREAM_DECODER_END_OF_STREAM)
 			{
-				if (decoder->data->loops)
+				if (decoder->loops)
 				{
 					Decoder_libFLAC_Rewind(decoder);
 					continue;

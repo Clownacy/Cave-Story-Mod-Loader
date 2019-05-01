@@ -20,7 +20,6 @@ typedef struct DecoderData_libOpenMPT
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_libOpenMPT;
 
 typedef struct Decoder_libOpenMPT
@@ -28,7 +27,7 @@ typedef struct Decoder_libOpenMPT
 	openmpt_module *module;
 } Decoder_libOpenMPT;
 
-DecoderData_libOpenMPT* Decoder_libOpenMPT_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libOpenMPT* Decoder_libOpenMPT_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -42,7 +41,6 @@ DecoderData_libOpenMPT* Decoder_libOpenMPT_LoadData(const char *file_path, bool 
 		data = malloc(sizeof(DecoderData_libOpenMPT));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -57,7 +55,7 @@ void Decoder_libOpenMPT_UnloadData(DecoderData_libOpenMPT *data)
 	}
 }
 
-Decoder_libOpenMPT* Decoder_libOpenMPT_Create(DecoderData_libOpenMPT *data, DecoderInfo *info)
+Decoder_libOpenMPT* Decoder_libOpenMPT_Create(DecoderData_libOpenMPT *data, bool loops, DecoderInfo *info)
 {
 	Decoder_libOpenMPT *decoder = NULL;
 
@@ -75,7 +73,7 @@ Decoder_libOpenMPT* Decoder_libOpenMPT_Create(DecoderData_libOpenMPT *data, Deco
 			info->channel_count = CHANNEL_COUNT;
 			info->format = DECODER_FORMAT_F32;
 
-			if (data->loops)
+			if (loops)
 				openmpt_module_set_repeat_count(decoder->module, -1);
 		}
 	}

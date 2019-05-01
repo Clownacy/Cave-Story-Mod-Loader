@@ -20,16 +20,16 @@ typedef struct DecoderData_libXMPLite
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_libXMPLite;
 
 typedef struct Decoder_libXMPLite
 {
 	DecoderData_libXMPLite *data;
 	xmp_context context;
+	bool loops;
 } Decoder_libXMPLite;
 
-DecoderData_libXMPLite* Decoder_libXMPLite_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_libXMPLite* Decoder_libXMPLite_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -43,7 +43,6 @@ DecoderData_libXMPLite* Decoder_libXMPLite_LoadData(const char *file_path, bool 
 		data = malloc(sizeof(DecoderData_libXMPLite));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -58,7 +57,7 @@ void Decoder_libXMPLite_UnloadData(DecoderData_libXMPLite *data)
 	}
 }
 
-Decoder_libXMPLite* Decoder_libXMPLite_Create(DecoderData_libXMPLite *data, DecoderInfo *info)
+Decoder_libXMPLite* Decoder_libXMPLite_Create(DecoderData_libXMPLite *data, bool loops, DecoderInfo *info)
 {
 	Decoder_libXMPLite *decoder = NULL;
 
@@ -74,6 +73,7 @@ Decoder_libXMPLite* Decoder_libXMPLite_Create(DecoderData_libXMPLite *data, Deco
 
 			decoder->context = context;
 			decoder->data = data;
+			decoder->loops = loops;
 
 			info->sample_rate = SAMPLE_RATE;
 			info->channel_count = CHANNEL_COUNT;
@@ -102,7 +102,7 @@ void Decoder_libXMPLite_Rewind(Decoder_libXMPLite *decoder)
 
 unsigned long Decoder_libXMPLite_GetSamples(Decoder_libXMPLite *decoder, void *buffer, unsigned long frames_to_do)
 {
-	xmp_play_buffer(decoder->context, buffer, frames_to_do * CHANNEL_COUNT * sizeof(short), !decoder->data->loops);
+	xmp_play_buffer(decoder->context, buffer, frames_to_do * CHANNEL_COUNT * sizeof(short), !decoder->loops);
 
 	return frames_to_do;
 }
