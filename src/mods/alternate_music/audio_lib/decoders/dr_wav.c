@@ -19,16 +19,16 @@ typedef struct DecoderData_DR_WAV
 {
 	unsigned char *file_buffer;
 	size_t file_size;
-	bool loops;
 } DecoderData_DR_WAV;
 
 typedef struct Decoder_DR_WAV
 {
 	DecoderData_DR_WAV *data;
 	drwav *instance;
+	bool loops;
 } Decoder_DR_WAV;
 
-DecoderData_DR_WAV* Decoder_DR_WAV_LoadData(const char *file_path, bool loops, LinkedBackend *linked_backend)
+DecoderData_DR_WAV* Decoder_DR_WAV_LoadData(const char *file_path, LinkedBackend *linked_backend)
 {
 	(void)linked_backend;
 
@@ -42,7 +42,6 @@ DecoderData_DR_WAV* Decoder_DR_WAV_LoadData(const char *file_path, bool loops, L
 		data = malloc(sizeof(DecoderData_DR_WAV));
 		data->file_buffer = file_buffer;
 		data->file_size = file_size;
-		data->loops = loops;
 	}
 
 	return data;
@@ -57,7 +56,7 @@ void Decoder_DR_WAV_UnloadData(DecoderData_DR_WAV *data)
 	}
 }
 
-Decoder_DR_WAV* Decoder_DR_WAV_Create(DecoderData_DR_WAV *data, DecoderInfo *info)
+Decoder_DR_WAV* Decoder_DR_WAV_Create(DecoderData_DR_WAV *data, bool loops, DecoderInfo *info)
 {
 	Decoder_DR_WAV *this = NULL;
 
@@ -71,6 +70,7 @@ Decoder_DR_WAV* Decoder_DR_WAV_Create(DecoderData_DR_WAV *data, DecoderInfo *inf
 
 			this->instance = instance;
 			this->data = data;
+			this->loops = loops;
 
 			info->sample_rate = instance->sampleRate;
 			info->channel_count = instance->channels;
@@ -109,7 +109,7 @@ unsigned long Decoder_DR_WAV_GetSamples(Decoder_DR_WAV *this, void *buffer_void,
 
 		if (frames_done < frames_to_do - frames_done_total)
 		{
-			if (this->data->loops)
+			if (this->loops)
 				Decoder_DR_WAV_Rewind(this);
 			else
 				break;
