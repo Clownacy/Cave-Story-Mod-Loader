@@ -47,7 +47,8 @@ static int DoTheRest(CS_ConfigData *config)
 {
 	const int result = CS_LoadConfigFile(config);
 
-	// This mod overrides 640x480, but let 320x240 override this mod
+	// If the game is specifically running at 320x240, then force this mod to it too
+	// (we only override the 640x480 option)
 	if (config->window_size == 1)
 		window_upscale_factor = 1;
 
