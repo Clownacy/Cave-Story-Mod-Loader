@@ -2,7 +2,7 @@
 # Global
 # ====================
 
-MOD_LOADER_VERSION = v1.5.2
+MOD_LOADER_VERSION = v1.5.2.1
 COMMON_PATH = common
 MODS_PATH = mods
 
