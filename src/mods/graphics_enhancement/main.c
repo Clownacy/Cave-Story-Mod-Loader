@@ -47,6 +47,10 @@ static int DoTheRest(CS_ConfigData *config)
 {
 	const int result = CS_LoadConfigFile(config);
 
+	// This mod overrides 640x480, but let 320x240 override this mod
+	if (config->window_size == 1)
+		window_upscale_factor = 1;
+
 	ApplyFullscreenPatches(config->window_size);
 
 	if (aspect_ratio_x != 4 || aspect_ratio_y != 3)
