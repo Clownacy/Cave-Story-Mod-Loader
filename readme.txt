@@ -1,3 +1,12 @@
+= NOTICE OF DEPRECATION =
+This project is no longer being worked on, in favour of CSE2:
+https://github.com/Clownacy/Cave-Story-Engine-2
+
+While I will try to fix any remaining bugs in this project, I will not be
+expanding it with new features.
+
+
+= readme.txt =
 This is a DLL mod loader for the 2004 Windows version of Cave Story.
 Also included in this repo are some mods.
 
