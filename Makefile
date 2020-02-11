@@ -67,7 +67,6 @@ PACKAGED_FILES = \
 	mods/readme.txt \
 	mods/settings.ini \
 	mods/alternate_music \
-	mods/alternate_music \
 	mods/sdl_controller_input \
 	mods/wasd_input \
 	mods/ikachan_cursor \
