@@ -17,11 +17,10 @@ Dependencies:
 
 sdl_controller_input requires SDL2 (available on MSYS2's Pacman).
 
-ogg_music requires libFLAC (available on Pacman), as well as
-libxmp-lite (not on Pacman - you'll have to grab it yourself).
+ogg_music requires libxmp-lite (not available on Pacman - you'll have to grab it
+yourself).
 
 https://www.libsdl.org/
-https://xiph.org/flac/
 https://github.com/cmatsuoka/libxmp/
 
 
