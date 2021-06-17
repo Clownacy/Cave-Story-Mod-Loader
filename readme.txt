@@ -1,6 +1,5 @@
 = NOTICE OF DEPRECATION =
-This project is no longer being worked on, in favour of CSE2:
-https://github.com/Clownacy/Cave-Story-Engine-2
+This project is no longer being worked on.
 
 While I will try to fix any remaining bugs in this project, I will not be
 expanding it with new features.
