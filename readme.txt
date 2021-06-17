@@ -17,11 +17,7 @@ Dependencies:
 
 sdl_controller_input requires SDL2 (available on MSYS2's Pacman).
 
-ogg_music requires libxmp-lite (not available on Pacman - you'll have to grab it
-yourself).
-
 https://www.libsdl.org/
-https://github.com/cmatsuoka/libxmp/
 
 
 The Makefile is designed to link all libraries statically, so their respective
