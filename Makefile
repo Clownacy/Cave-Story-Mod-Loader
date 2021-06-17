@@ -241,8 +241,42 @@ endif
 
 ifeq ($(ALT_MUSIC_USE_LIBXMPLITE), true)
   ALT_MUSIC_SOURCES += $(ALT_MUSIC_PATH)/audio_lib/decoders/libxmp-lite
-  ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE `pkg-config libxmp-lite --cflags`
-  ALT_MUSIC_LIBS += `pkg-config libxmp-lite --libs --static`
+  ALT_MUSIC_CFLAGS += -DUSE_LIBXMPLITE -Isrc/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/include/libxmp-lite
+
+
+ALT_MUSIC_LIBXMPLITE_SOURCES = \
+    src/virtual \
+    src/format \
+    src/period \
+    src/player \
+    src/read_event \
+    src/dataio \
+    src/lfo \
+    src/scan \
+    src/control \
+    src/filter \
+    src/effects \
+    src/mixer \
+    src/mix_all \
+    src/load_helpers \
+    src/load \
+    src/hio \
+    src/smix \
+    src/memio \
+    src/loaders/common \
+    src/loaders/itsex \
+    src/loaders/sample \
+    src/loaders/xm_load \
+    src/loaders/mod_load \
+    src/loaders/s3m_load \
+    src/loaders/it_load
+  ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/, $(addsuffix .o, $(ALT_MUSIC_LIBXMPLITE_SOURCES)))
+#  ALT_MUSIC_LIBXMPLITE_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_LIBXMPLITE_OBJECTS))
+#  include $(wildcard $(ALT_MUSIC_LIBXMPLITE_DEPENDENCIES))
+
+obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/%.c
+	@mkdir -p $(@D)
+	@$(CC) $(ALL_CFLAGS) -Wno-unused-parameter -Wno-sign-compare -Wno-maybe-uninitialized -Isrc/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/include/libxmp-lite -Isrc/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/libxmp-lite/src -DLIBXMP_CORE_PLAYER=1 $< -o $@ -c
 endif
 
 ifeq ($(ALT_MUSIC_USE_SNES_SPC), true)
@@ -259,8 +293,8 @@ ifeq ($(ALT_MUSIC_USE_SNES_SPC), true)
     SPC_DSP \
     SPC_Filter
   ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/snes_spc-0.9.0/snes_spc/, $(addsuffix .o, $(ALT_MUSIC_SPC_SOURCES)))
-  ALT_MUSIC_SPC_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_SPC_OBJECTS))
-  include $(wildcard $(ALT_MUSIC_SPC_DEPENDENCIES))
+#  ALT_MUSIC_SPC_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_SPC_OBJECTS))
+#  include $(wildcard $(ALT_MUSIC_SPC_DEPENDENCIES))
 
 obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/snes_spc-0.9.0/snes_spc/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/snes_spc-0.9.0/snes_spc/%.cpp
 	@mkdir -p $(@D)
@@ -296,8 +330,8 @@ ifeq ($(ALT_MUSIC_USE_PXTONE), true)
     pxtoneNoise \
     shim
   ALT_MUSIC_OBJECTS += $(addprefix obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/pxtone/, $(addsuffix .o, $(ALT_MUSIC_PXTONE_SOURCES)))
-  ALT_MUSIC_PXTONE_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_PXTONE_OBJECTS))
-  include $(wildcard $(ALT_MUSIC_PXTONE_DEPENDENCIES))
+#  ALT_MUSIC_PXTONE_DEPENDENCIES = $(addsuffix .d, $(ALT_MUSIC_PXTONE_OBJECTS))
+#  include $(wildcard $(ALT_MUSIC_PXTONE_DEPENDENCIES))
 
 obj/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/pxtone/%.o: src/$(ALT_MUSIC_PATH)/audio_lib/decoders/libs/pxtone/%.cpp
 	@mkdir -p $(@D)
