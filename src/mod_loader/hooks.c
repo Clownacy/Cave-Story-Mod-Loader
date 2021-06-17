@@ -4,7 +4,7 @@
 #include "hooks.h"
 #include "patch.h"
 #include "log.h"
-#include <Windows.h>
+#include <windows.h>
 
 typedef struct HookTableSubEntry
 {
