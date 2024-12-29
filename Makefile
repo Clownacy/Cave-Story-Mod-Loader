@@ -20,10 +20,10 @@ ALT_MUSIC_USE_PXTONE = true
 # Can be 'miniaudio', 'SDL1', 'SDL2', 'Cubeb', or 'PortAudio'
 ALT_MUSIC_BACKEND = miniaudio
 
-CFLAGS = -O3 -static -Wall -Wextra -std=c99 -fno-ident -MMD -MP -MF $@.d
-CXXFLAGS = -O3 -static -Wall -Wextra -std=c++98 -fno-ident -MMD -MP -MF $@.d
-ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CFLAGS)
-ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' $(CXXFLAGS)
+CFLAGS = -O3 -Wall -Wextra -std=c99 -fno-ident
+CXXFLAGS = -O3 -Wall -Wextra -std=c++98 -fno-ident
+ALL_CFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' -static -DNDEBUG -MMD -MP -MF $@.d $(CFLAGS)
+ALL_CXXFLAGS = -Isrc/$(COMMON_PATH) -D'MOD_LOADER_VERSION="$(MOD_LOADER_VERSION)"' -static -DNDEBUG -MMD -MP -MF $@.d $(CXXFLAGS)
 
 SDL1_CFLAGS = `pkg-config sdl --cflags`
 SDL1_LIBS = `pkg-config sdl --libs --static`
