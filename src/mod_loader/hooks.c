@@ -118,7 +118,7 @@ static HookTableEntry * PrependNewStackableHook(void * address, unsigned int len
 	if (!hookcore)
 		PrintDebug("The murderer was malloc hookcore");
 	DWORD ign;
-	VirtualProtect(hookcore, HT_HOOKCORE_SIZE, SECTION_ALL_ACCESS, &ign);
+	VirtualProtect(hookcore, HT_HOOKCORE_SIZE, PAGE_EXECUTE_READWRITE, &ign);
 	for (unsigned int i = 0; i < HT_HOOKCORE_SIZE; i++)
 		hookcore[i] = ht_global_hookcore[i];
 	WriteLong(hookcore + HT_HOOKCORE_PUSHADDR, (unsigned int) address);
