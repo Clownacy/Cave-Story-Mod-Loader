@@ -18,4 +18,4 @@
 // 5. The entire hook system is single-threaded.
 //    If hooks are created or executed on anything other than the main thread,
 //     expect total failure.
-void AddStackableHook(void * address, unsigned int length, MLHookCallback cb, void * ud);
+__declspec(dllexport) void AddStackableHook(void * address, unsigned int length, MLHookCallback cb, void * ud);

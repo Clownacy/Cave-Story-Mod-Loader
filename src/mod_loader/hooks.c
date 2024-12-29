@@ -146,7 +146,7 @@ static HookTableEntry * PrependNewStackableHook(void * address, unsigned int len
 	return hte;
 }
 
-__declspec(dllexport) void AddStackableHook(void * address, unsigned int length, MLHookCallback cb, void * ud) {
+void AddStackableHook(void * address, unsigned int length, MLHookCallback cb, void * ud) {
 	HookTableEntry * hte = GetStackableHook(address, 0);
 	if (!hte)
 		hte = PrependNewStackableHook(address, length);

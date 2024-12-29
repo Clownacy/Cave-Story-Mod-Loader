@@ -57,7 +57,7 @@ static void PrintToFile(const char* const format, va_list args, const char* cons
 	}
 }
 
-__declspec(dllexport) void PrintMessageBoxError(const char* const format, ...)
+void PrintMessageBoxError(const char* const format, ...)
 {
 	va_list args, args_copy;
 	va_start(args, format);
@@ -87,7 +87,7 @@ __declspec(dllexport) void PrintMessageBoxError(const char* const format, ...)
 	va_end(args);
 }
 
-__declspec(dllexport) void PrintError(const char* const format, ...)
+void PrintError(const char* const format, ...)
 {
 	va_list args, args_copy;
 	va_start(args, format);
@@ -109,7 +109,7 @@ __declspec(dllexport) void PrintError(const char* const format, ...)
 	va_end(args);
 }
 
-__declspec(dllexport) void PrintDebug(const char* const format, ...)
+void PrintDebug(const char* const format, ...)
 {
 	va_list args, args_copy;
 	va_start(args, format);
@@ -127,7 +127,7 @@ __declspec(dllexport) void PrintDebug(const char* const format, ...)
 	va_end(args);
 }
 
-__declspec(dllexport) void PrintPollution(const char* const format, ...)
+void PrintPollution(const char* const format, ...)
 {
 	if (pollution_map_enabled)
 	{

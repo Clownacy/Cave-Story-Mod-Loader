@@ -24,52 +24,52 @@ static void WriteData(void* const address, const void* const value, const unsign
 	WriteProcessMemory(handle, address, value, size, NULL);
 }
 
-__declspec(dllexport) void WriteRelativeAddress(void* const address, const void* const new_destination)
+void WriteRelativeAddress(void* const address, const void* const new_destination)
 {
 	const unsigned int relative_address = (unsigned int)new_destination - ((unsigned int)((char*)address + 4));
 	WriteData(address, &relative_address, 4);
 }
 
-__declspec(dllexport) void WriteByte(void* const address, const unsigned char value)
+void WriteByte(void* const address, const unsigned char value)
 {
 	WriteData(address, &value, 1);
 }
 
-__declspec(dllexport) void WriteWord(void* const address, const unsigned short value)
+void WriteWord(void* const address, const unsigned short value)
 {
 	WriteData(address, &value, 2);
 }
 
-__declspec(dllexport) void WriteLong(void* const address, const unsigned int value)
+void WriteLong(void* const address, const unsigned int value)
 {
 	WriteData(address, &value, 4);
 }
 
-__declspec(dllexport) void WriteWordBE(void* const address, const unsigned short value)
+void WriteWordBE(void* const address, const unsigned short value)
 {
 	const unsigned short big_endian_value = ((value & 0xFF) << 8) | ((value & 0xFF00) >> 8);
 	WriteData(address, &big_endian_value, 2);
 }
 
-__declspec(dllexport) void WriteLongBE(void* const address, const unsigned int value)
+void WriteLongBE(void* const address, const unsigned int value)
 {
 	const unsigned int big_endian_value = ((value & 0xFF) << 24) | ((value & 0xFF00) << 8) | ((value & 0xFF0000) >> 8) | ((value & 0xFF000000) >> 24);
 	WriteData(address, &big_endian_value, 4);
 }
 
-__declspec(dllexport) void WriteJump(void* const address, const void* const new_destination)
+void WriteJump(void* const address, const void* const new_destination)
 {
 	WriteByte(address, 0xE9);
 	WriteRelativeAddress((char*)address + 1, new_destination);
 }
 
-__declspec(dllexport) void WriteCall(void* const address, const void* const new_destination)
+void WriteCall(void* const address, const void* const new_destination)
 {
 	WriteByte(address, 0xE8);
 	WriteRelativeAddress((char*)address + 1, new_destination);
 }
 
-__declspec(dllexport) void WriteNOPs(void* const address, const unsigned int count)
+void WriteNOPs(void* const address, const unsigned int count)
 {
 	char *current_address = address;
 

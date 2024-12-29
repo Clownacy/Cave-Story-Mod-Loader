@@ -70,7 +70,7 @@ Setting* ReadSettings(const char* const filename)
 	return settings_list_head;
 }
 
-__declspec(dllexport) const char* GetSettingString(const char* const setting_name, const char* const default_string, const Setting* const settings_list_head)
+const char* GetSettingString(const char* const setting_name, const char* const default_string, const Setting* const settings_list_head)
 {
 	const char *setting_value = default_string;
 
@@ -86,7 +86,7 @@ __declspec(dllexport) const char* GetSettingString(const char* const setting_nam
 	return setting_value;
 }
 
-__declspec(dllexport) int GetSettingInt(const char* const setting_name, const int default_int, const Setting* const settings_list_head)
+int GetSettingInt(const char* const setting_name, const int default_int, const Setting* const settings_list_head)
 {
 	int setting_int = default_int;
 
@@ -98,7 +98,7 @@ __declspec(dllexport) int GetSettingInt(const char* const setting_name, const in
 	return setting_int;
 }
 
-__declspec(dllexport) bool GetSettingBool(const char* const setting_name, const bool default_bool, const Setting* const settings_list_head)
+bool GetSettingBool(const char* const setting_name, const bool default_bool, const Setting* const settings_list_head)
 {
 	bool setting_bool = default_bool;
 
