@@ -35,7 +35,7 @@ __asm(
 "	movb	_bad_tile_flag, %al\n"
 "	test	%al, %al\n"
 "	jnz	2f\n"
-"	cmp	$0x20, -0x28(%ebp)\n"
+"	cmpl	$0x20, -0x28(%ebp)\n"
 "	jl	3f\n"
 "2:\n"
 "	jmp	*1f\n"
