@@ -136,6 +136,7 @@ GRAPHICS_ENHANCEMENT_SOURCES = \
   $(GRAPHICS_ENHANCEMENT_PATH)/common \
   $(GRAPHICS_ENHANCEMENT_PATH)/main \
   $(GRAPHICS_ENHANCEMENT_PATH)/60fps/60fps \
+  $(GRAPHICS_ENHANCEMENT_PATH)/font_fix/font_fix \
   $(GRAPHICS_ENHANCEMENT_PATH)/fullscreen/fullscreen \
   $(GRAPHICS_ENHANCEMENT_PATH)/remove_sprite_alignment/remove_sprite_alignment \
   $(GRAPHICS_ENHANCEMENT_PATH)/sprite_resolution/sprite_resolution \

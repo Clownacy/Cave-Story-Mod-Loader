@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "60fps/60fps.h"
+#include "font_fix/font_fix.h"
 #include "fullscreen/fullscreen.h"
 #include "remove_sprite_alignment/remove_sprite_alignment.h"
 #include "sprite_resolution/sprite_resolution.h"
@@ -66,6 +67,12 @@ static int DoTheRest(CS_ConfigData *config)
 	if (remove_sprite_alignment)
 		RemoveSpriteAlignment();
 
+	if (fix_font_antialiasing)
+		FixFontAntialiasing();
+
+	if (fix_font_charset)
+		FixFontCharset();
+
 	return result;
 }
 
@@ -78,6 +85,8 @@ void InitMod(void)
 	fullscreen_integer_scaling = ModLoader_GetSettingBool("fullscreen_integer_scaling", false);
 	sixty_fps = ModLoader_GetSettingBool("60fps", true);
 	remove_sprite_alignment = ModLoader_GetSettingBool("remove_sprite_alignment", true);
+	fix_font_antialiasing = ModLoader_GetSettingBool("fix_font_antialiasing", true);
+	fix_font_charset = ModLoader_GetSettingBool("fix_font_charset", true);
 
 	aspect_ratio_x = ModLoader_GetSettingInt("aspect_ratio_x", 16);
 	if (aspect_ratio_x == 0)

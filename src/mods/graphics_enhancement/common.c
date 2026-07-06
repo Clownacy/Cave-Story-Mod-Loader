@@ -12,6 +12,8 @@ bool fullscreen_vsync;
 bool fullscreen_integer_scaling;
 bool sixty_fps;
 bool remove_sprite_alignment;
+bool fix_font_antialiasing;
+bool fix_font_charset;
 unsigned int aspect_ratio_x;
 unsigned int aspect_ratio_y;
 unsigned int window_upscale_factor;
